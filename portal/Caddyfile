@@ -1,0 +1,28 @@
+# Present the Portal as a dedicated server.
+# This allows the portal to be mounted at /portal by the gateway.
+localhost:8090 {
+  gzip
+  tls off
+
+  ext .html
+  root dist/
+}
+
+
+# The gateway is the main server.
+# It is what users connect to and proxies ALL requests to ALL
+# protected apps.
+localhost:8080 {
+  gzip
+  tls off
+
+  # Proxy through to the portal to let users login and such.
+  proxy /portal/ http://localhost:8090 {
+    without /portal
+  }
+
+  # Proxy to all other protected apps.
+  #proxy /leeroy https://leeroy.jenkins.corp
+  #proxy /gitlab https://lab.git.corp
+  #proxy ...
+}
