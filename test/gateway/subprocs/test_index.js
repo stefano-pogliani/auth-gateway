@@ -6,6 +6,9 @@ const sinon = require('sinon');
 
 const spySpawner = sinon.spy();
 const config = deepmerge(require('../../../gateway/configuration/default'), {
+  gateway: {
+    base_dir: 'root'
+  },
   http_proxy: {
     config_template: 'test/templates/http/main.ejs'
   }
@@ -46,7 +49,7 @@ describe('Subprocs', () => {
         '  "gateway": {',
         '    "address": "localhost",',
         '    "base": 8090,',
-        '    "base_dir": "./http_proxy",',
+        '    "base_dir": "root/http_proxy",',
         '    "auth": 8091,',
         '    "api": 8092,',
         '    "bind": "*:443"',

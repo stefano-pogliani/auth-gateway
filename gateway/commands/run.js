@@ -2,6 +2,7 @@ const tmp = require('tmp');
 
 const { shutdown } = require('../shutdown');
 const { Command } = require('./base');
+const { RunWebServer } = require('../server');
 const {
   InitialiseSubProcs,
   HttpProxy
@@ -42,6 +43,7 @@ class RunCommand extends Command {
   run() {
     this._initialiseServer();
     this._spawnProxies();
+    RunWebServer(this._config);
   }
 };
 module.exports.RunCommand = RunCommand;

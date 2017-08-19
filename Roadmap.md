@@ -3,8 +3,6 @@ Roadmap
 The following is a list of tasks/features not yet implemented
 that I would like to get done as part of this project.
 
-
-  * Core backend API server.
   * Metrics about requests served.
   * Generate Auth proxy configuration (oauth2).
   * Start Auth proxy to authenticate requests.

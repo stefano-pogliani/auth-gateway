@@ -5,7 +5,7 @@ const http_proxy_config = require('../../../gateway/configuration/http_proxy');
 
 const TEST_CONF = {
   gateway: {
-    base_dir: '.',
+    base_dir: 'root/',
     bind: {
       address: '*',
       port: 8080
@@ -43,7 +43,7 @@ describe('Configuration', () => {
         gateway: {
           address: 'localhost',
           base: 8080,
-          base_dir: './http_proxy',
+          base_dir: 'root/http_proxy',
           auth: 8081,
           api: 8082,
           bind: "*:443"

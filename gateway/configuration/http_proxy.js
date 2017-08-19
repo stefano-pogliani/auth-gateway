@@ -21,12 +21,17 @@ module.exports.renderMain = function renderMain(config) {
   const template = config.http_proxy.config_template;
   let context = {
     apps: config.apps,
-    base_dir: path.join(config.gateway.base_dir, 'http_proxy'),
+    dirs: {
+      base: path.join(config.gateway.base_dir, 'http_proxy'),
+      static: path.join(__dirname, '..', 'server', 'static')
+    },
     gateway: {
       host: gateway_host,
       port: config.gateway.bind.port
     },
-    proxy: config.http_proxy.bind
+    proxy: {
+      bind: config.http_proxy.bind
+    }
   };
 
   // Render the config file.

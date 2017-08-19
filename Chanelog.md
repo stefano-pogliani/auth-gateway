@@ -1,3 +1,8 @@
+0.1.1
+-----
+* Core backend API server.
+* Web portal nav and home page.
+
 0.1.0
 -----
 * Generate HTTP(S) proxy configuration (nginx).

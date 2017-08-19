@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+  <%- include('layout/head'); %>
+  <body>
+    <div>
+      <%- include('layout/nav', {}); %>
+
+      <!-- User is not logged in -->
+      <div class="container">
+        <div class="alert alert-warning" role="alert">
+          <h4 class="alert-heading">Login required</h4>
+          <p>
+            You are currently not logged in. <br />
+            To see the list of available applications you have
+            to login first!
+          </p>
+        </div>
+      </div>
+
+    </div>
+    <%- include('layout/foot'); %>
+  </body>
+</html>
