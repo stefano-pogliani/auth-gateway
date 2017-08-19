@@ -1,0 +1,102 @@
+#
+# Default NGINX HTTP Proxy configuration template.
+# TODO: document
+# 
+# Start with some global options.
+daemon off;
+error_log stderr;
+pid <%- base_dir %>/nginx.pid;
+worker_processes 1;
+
+events {
+  worker_connections 1024;
+}
+
+
+# Configure the HTTP server(s).
+http {
+  # You can't tell nginx to log to stdout and /dev/stdout is not
+  # working (because it is a pipe to nodejs?).
+  access_log syslog:server=unix:/dev/log;
+
+  sendfile    off;
+  tcp_nopush  on;
+  tcp_nodelay on;
+
+  keepalive_timeout   65;
+  types_hash_max_size 2048;
+
+  # Override paths so that nginx can run as non-root.
+  client_body_temp_path <%- base_dir %>/tmp/client_body;
+  fastcgi_temp_path <%- base_dir %>/tmp/fastcgi;
+  proxy_temp_path <%- base_dir %>/tmp/proxy;
+  scgi_temp_path  <%- base_dir %>/tmp/scgi;
+  uwsgi_temp_path <%- base_dir %>/tmp/uwsgi;
+
+  server {
+    listen <%- proxy.address %>:<%- proxy.port %>;
+    root /var/www;
+  }
+}
+
+
+
+# ******************************************************** #
+# The below is out of date as subdomains are now the thing #
+# ******************************************************** #
+#
+# Default NGINX HTTP Proxy configuration template.
+# An instance of NGIXN started by this template serves two servers:
+#
+#  1. The gateway web application itself, mounted at /gateway
+#  2. The HTTP proxy to all the protected applications.
+#
+# This makes the gateway web app a special case of a regular
+# protected application.
+#
+# For this to work we define 3 upstreams for the gateway plus
+# one for each protected application:
+#
+#  1. The gateway NGINX server (at :<%- gateway.port %>) serves the gateway.
+#  2. The gateway Auth server (at :<%- gateway.port + 1 %>) serves
+#     the auth endopints (login, logout, verify, etc ...).
+#  3. The gateway Backend server (at :<%- gateway.port + 2 %>)
+#     serves the API built on the auth server and the web UI.
+#
+#http {
+#  # First configure the gateway upstreams and server.
+#  upstream gateway_auth {
+#    server <%- gateway.host %>:<%- gateway.port + 1 %>;
+#  }
+#  upstream gateway_backend {
+#    server <%- gateway.host %>:<%- gateway.port + 2 %>;
+#  }
+#  server {
+#    listen <%- gateway.host %>:<%- gateway.port %>;
+#
+#    # Web UI and API backend.
+#    location / {
+#      proxy_pass http://gateway_backend;
+#    }
+#
+#    # Auth proxy
+#    location /auth {
+#      proxy_pass http://gateway_auth;
+#    }
+#  }
+#
+#
+#  # Next configure the gateway upstream,
+#  # the protected upstreams, and the proxy.
+#  upstream gateway {
+#    server <%- gateway.host %>:<%- gateway.port %>;
+#  }
+#  server {
+#    listen <%- proxy.address %>:<%- proxy.port %>;
+#
+#    # Gateway (remove prefix).
+#    location /gateway {
+#      proxy_pass http://gateway/$1;
+#    }
+#  }
+#}

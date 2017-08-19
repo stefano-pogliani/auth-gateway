@@ -1,0 +1,12 @@
+{
+  "gateway": {
+    "address": "<%- gateway.host %>",
+    "base": <%- gateway.port %>,
+    "base_dir": "./http_proxy",
+    "auth": <%- gateway.port + 1 %>,
+    "api": <%- gateway.port + 2 %>,
+    "bind": "<%- proxy.address %>:<%- proxy.port %>"
+  },
+
+  "apps": <%- JSON.stringify(apps) %>
+}
