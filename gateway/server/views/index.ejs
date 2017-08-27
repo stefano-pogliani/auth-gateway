@@ -3,7 +3,7 @@
   <%- include('layout/head'); %>
   <body>
     <div>
-      <%- include('layout/nav', {}); %>
+      <%- include('layout/nav', {auth: auth, session: session}); %>
 
       <!-- User is not logged in -->
       <div class="container">

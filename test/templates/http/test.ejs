@@ -1,0 +1,20 @@
+{
+  "gateway": {
+    "address": "<%- gateway.host %>",
+    "port": <%- gateway.port %>,
+    "base_dir": "<%- dirs.base %>",
+    "bind": "<%- proxy.bind.address %>:<%- proxy.bind.port %>",
+    "domain": "<%- gateway.domain %>"
+  },
+  "auth": {
+    "host": "<%- auth.host %>",
+    "port": <%- auth.port %>,
+    "prefix": "<%- auth.prefix %>"
+  },
+  "https": {
+    "crt_file": "<%- proxy.tls.crt_file %>",
+    "key_file": "<%- proxy.tls.key_file %>",
+    "terminate": true
+  },
+  "apps": <%- JSON.stringify(apps) %>
+}

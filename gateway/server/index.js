@@ -14,15 +14,33 @@ const RunWebServer = (config) => {
   const gateway = config.gateway;
   const address = gateway.bind.address;
   const port = gateway.bind.port;
+  app.set('config', config);
+
+  /*
+   * If the server fails to start any of the processes before the
+   * web server manages to start listening we do not close properly.
+   * If we call the listen callback *after* we already received
+   * the stop signal we stop ourselves.
+   */
+  let process_stopping = false;
 
   // Start the HTTP server.
   const ready = `AuthGateway server running at http://${address}:${port}`;
-  const server = app.listen(port, address, () => logAppMessage(ready));
+  const server = app.listen(port, address, () => {
+    if (process_stopping) {
+      logAppMessage('Received stop before server started');
+      logAppMessage('Stopping AuthGateway server');
+      server.close();
+      return;
+    }
+    logAppMessage(ready)
+  });
 
   // Stop server on shutdown.
   shutdown.once('stop', () => {
     logAppMessage('Stopping AuthGateway server');
     server.close();
+    process_stopping = true;
   });
 };
 module.exports.RunWebServer = RunWebServer;

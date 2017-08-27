@@ -9,7 +9,8 @@ const config = deepmerge(
 
 const mockApp = {
   app: {
-    listen: sinon.stub()
+    listen: sinon.stub(),
+    set: sinon.spy()
   },
   logAppMessage: sinon.spy()
 };
@@ -53,6 +54,20 @@ describe('Server', () => {
       onStop();
       assert.equal(1, mockApp.logAppMessage.callCount);
       assert.equal(1, mockServer.close.callCount);
+    });
+
+    it('stops on startup error', () => {
+      const mockServer = {
+        close: sinon.spy()
+      };
+      mockApp.app.listen.returns(mockServer);
+      RunWebServer(config);
+      const onListen = mockApp.app.listen.getCall(0).args[2];
+      const onStop = mockShutdown.once.getCall(0).args[1];
+      onStop();
+      onListen();
+      assert.equal(3, mockApp.logAppMessage.callCount);
+      assert.equal(2, mockServer.close.callCount);
     });
   });
 });

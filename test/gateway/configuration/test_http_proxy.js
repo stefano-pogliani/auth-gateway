@@ -9,14 +9,27 @@ const TEST_CONF = {
     bind: {
       address: '*',
       port: 8080
-    }
+    },
+    domain: 'example'
+  },
+  auth_proxy: {
+    bind: {
+      address: '*',
+      port: 8091
+    },
+    prefix: '/auth'
   },
   http_proxy: {
     bind: {
       address: '*',
       port: 443
     },
-    config_template: 'test/templates/http/main.ejs'
+    tls: {
+      crt_file: '/server.crt',
+      key_file: '/server.key',
+      terminate: true
+    },
+    config_template: 'test/templates/http/test.ejs'
   },
   apps: [{
     name: 'test1',
@@ -42,13 +55,21 @@ describe('Configuration', () => {
       const expected = {
         gateway: {
           address: 'localhost',
-          base: 8080,
+          port: 8080,
           base_dir: 'root/http_proxy',
-          auth: 8081,
-          api: 8082,
-          bind: "*:443"
+          bind: "*:443",
+          domain: 'example'
         },
-
+        auth: {
+          host: 'localhost',
+          port: 8091,
+          prefix: '/auth'
+        },
+        https: {
+          crt_file: '/server.crt',
+          key_file: '/server.key',
+          terminate: true
+        },
         apps: [{
           name: 'test1',
           mount: '/test1',

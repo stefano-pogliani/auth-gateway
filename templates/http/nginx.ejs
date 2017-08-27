@@ -35,11 +35,25 @@ http {
 
 
   # Configure AuthGateway site.
+  upstream authgateway_auth {
+    server <%- auth.host %>:<%- auth.port %>;
+  }
   upstream authgateway_backend {
     server <%- gateway.host %>:<%- gateway.port %>;
   }
   server {
-    listen <%- proxy.bind.port %>;
+    # HTTPS is required but allow optional TLS termination here
+    # so that termination can be performed on load blanacers.
+    <% if (proxy.tls.terminate) { %>
+    listen <%- proxy.bind.port %> ssl;
+    server_name         <%- gateway.domain %>;
+    ssl_certificate     <%- proxy.tls.crt_file %>;
+    ssl_certificate_key <%- proxy.tls.key_file %>;
+    ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+    <% } else { %>
+    listen <%- proxy.bind.port %> ssl;
+    <% } %>
 
     types {
       text/css	css;
@@ -48,6 +62,14 @@ http {
 
     location / {
       proxy_pass http://authgateway_backend;
+      proxy_set_header Host $host;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    location <%- auth.prefix %> {
+      proxy_pass http://authgateway_auth;
       proxy_set_header Host $host;
       proxy_set_header X-Forwarded-Proto $scheme;
       proxy_set_header X-Real-IP $remote_addr;

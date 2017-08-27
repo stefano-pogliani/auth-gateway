@@ -9,7 +9,8 @@ module.exports.gateway = {
   bind: {
     address: 'localhost',
     port: 8090
-  }
+  },
+  domain: ''
 };
 
 
@@ -17,6 +18,28 @@ module.exports.gateway = {
  * ???
  */
 module.exports.auth_proxy = {
+  bind: {
+    address: 'localhost',
+    port: 8091
+  },
+  config_template: path.join(__dirname, '..', '..', 'templates', 'auth', 'oauth2.ejs'),
+  extra: {},
+  oauth: {
+    client: '',
+    secret: '',
+    provider: 'github'
+  },
+  prefix: '/auth',
+  process: {
+    name: 'oauth2',
+    command: 'oauth2_proxy'
+  },
+  session: {
+    name: 'authgateway',
+    refresh: '0s',
+    secret: '',
+    ttl: '168h'
+  }
 };
 
 
@@ -32,7 +55,12 @@ module.exports.http_proxy = {
     name: 'nginx',
     command: 'nginx'
   },
-  config_template: path.join(__dirname, '..', '..', 'templates', 'nginx', 'main.ejs')
+  tls: {
+    crt_file: '',
+    key_file: '',
+    terminate: true
+  },
+  config_template: path.join(__dirname, '..', '..', 'templates', 'http', 'nginx.ejs')
 };
 
 

@@ -12,7 +12,11 @@ const configuration = require('.');
  */
 module.exports.renderMain = function renderMain(config) {
   // Figure out some options.
+  let auth_host = 'localhost';
   let gateway_host = 'localhost';
+  if (config.auth_proxy.bind.address !== '*') {
+    auth_host = config.auth_proxy.bind.address;
+  }
   if (config.gateway.bind.address !== '*') {
     gateway_host = config.gateway.bind.address;
   }
@@ -21,16 +25,23 @@ module.exports.renderMain = function renderMain(config) {
   const template = config.http_proxy.config_template;
   let context = {
     apps: config.apps,
+    auth: {
+      host: auth_host,
+      port: config.auth_proxy.bind.port,
+      prefix: config.auth_proxy.prefix
+    },
     dirs: {
       base: path.join(config.gateway.base_dir, 'http_proxy'),
       static: path.join(__dirname, '..', 'server', 'static')
     },
     gateway: {
       host: gateway_host,
-      port: config.gateway.bind.port
+      port: config.gateway.bind.port,
+      domain: config.gateway.domain
     },
     proxy: {
-      bind: config.http_proxy.bind
+      bind: config.http_proxy.bind,
+      tls: config.http_proxy.tls
     }
   };
 

@@ -4,6 +4,7 @@ const { shutdown } = require('../shutdown');
 const { Command } = require('./base');
 const { RunWebServer } = require('../server');
 const {
+  AuthProxy,
   InitialiseSubProcs,
   HttpProxy
 } = require('../subprocs');
@@ -27,6 +28,7 @@ class RunCommand extends Command {
     process.on('SIGINT',  () => shutdown.stop());
     process.on('SIGTERM', () => shutdown.stop());
     InitialiseSubProcs(this._config);
+    this.auth_proxy = AuthProxy();
     this.http_proxy = HttpProxy();
   }
 
@@ -34,6 +36,7 @@ class RunCommand extends Command {
    * Starts the (auth and http) proxy servers.
    */
   _spawnProxies() {
+    this.auth_proxy.spawn();
     this.http_proxy.spawn();
   }
 

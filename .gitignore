@@ -1,3 +1,6 @@
+*.crt
+*.csr
+*.key
 *.swp
 
 **/.nyc_output
@@ -6,5 +9,6 @@
 **/node_modules
 
 # Local testing files.
+allow.emails
 auth-gateway.yaml
 http_proxy/**
