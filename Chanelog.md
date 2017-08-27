@@ -1,3 +1,8 @@
+0.1.3
+-----
+* Pass user session to index template.
+* User session endpoint.
+
 0.1.2
 -----
 * Generate Auth proxy configuration (oauth2).

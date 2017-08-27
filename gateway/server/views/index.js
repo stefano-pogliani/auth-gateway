@@ -1,4 +1,5 @@
 const { app } = require('../app');
+const { getCookieSession } = require('../utils');
 
 
 /**
@@ -6,16 +7,13 @@ const { app } = require('../app');
  */
 app.get('/', (req, res) => {
   let config = app.get('config');
-  let context = {
-    auth: {
-      prefix: config.auth_proxy.prefix
-    },
-    session: {
-      allowed: false,
-      email: null,
-      gravatar: null,
-      user: null
-    }
-  };
-  res.render('index', context);
+  getCookieSession(req, config, (session) => {
+    let context = {
+      auth: {
+        prefix: config.auth_proxy.prefix
+      },
+      session: session
+    };
+    res.render('index', context);
+  });
 });

@@ -3,7 +3,8 @@ const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
 const mockExpress = {
-  set: sinon.spy()
+  set: sinon.spy(),
+  use: sinon.spy()
 };
 const { app, logAppMessage } = proxyquire('../../../gateway/server/app', {
   express: () => mockExpress
