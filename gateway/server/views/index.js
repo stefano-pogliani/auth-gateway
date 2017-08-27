@@ -17,3 +17,20 @@ app.get('/', (req, res) => {
     res.render('index', context);
   });
 });
+
+
+/**
+ * Returns the user profile page.
+ */
+app.get('/profile', (req, res) => {
+  let config = app.get('config');
+  getCookieSession(req, config, (session) => {
+    let context = {
+      auth: {
+        prefix: config.auth_proxy.prefix
+      },
+      session: session
+    };
+    res.render('profile', context);
+  });
+});

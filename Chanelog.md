@@ -1,3 +1,9 @@
+0.1.4
+-----
+* Added empty profile page.
+* Show message that no apps are available.
+* Show user dropdown in navbar.
+
 0.1.3
 -----
 * Pass user session to index template.

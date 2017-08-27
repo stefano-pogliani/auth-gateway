@@ -21,7 +21,6 @@ describe('Server', () => {
   describe('app', () => {
     describe('/', () => {
       afterEach(() => {
-        mockApp.get.reset();
         mockUtils.getCookieSession.reset();
       });
 
@@ -53,6 +52,44 @@ describe('Server', () => {
           user: null
         });
         assert(res.render.calledWith('index', {
+          auth: {prefix: '/abc'},
+          session: {
+            allowed: false,
+            email: null,
+            gravatar: null,
+            user: null
+          }
+        }));
+      });
+
+      it('renders profile', () => {
+        const endpoint = mockApp.get.getCall(1).args[1];
+        const config = {
+          auth_proxy: {
+            prefix: '/abc',
+            bind: {
+              address: 'localhost',
+              port: 8081
+            }
+          }
+        };
+        const req = {
+          cookies: {authgateway: 'abc'}
+        };
+        const res = {
+          render: sinon.spy()
+        };
+        mockApp.get.returns(config);
+        endpoint(req, res);
+
+        const render = mockUtils.getCookieSession.getCall(0).args[2];
+        render({
+          allowed: false,
+          email: null,
+          gravatar: null,
+          user: null
+        });
+        assert(res.render.calledWith('profile', {
           auth: {prefix: '/abc'},
           session: {
             allowed: false,
