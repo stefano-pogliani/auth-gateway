@@ -1,5 +1,6 @@
 const md5 = require('md5');
 const { app } = require('./app');
+const { getCookieSession } = require('./utils');
 
 
 /**
@@ -10,12 +11,19 @@ const { app } = require('./app');
  *   - 401: The request is NOT allowed.
  */
 app.get('/api/auth', (req, res) => {
+  const config = app.get('config');
   const host = req.get('Host');
   const proto = req.get('X-Forwarded-Proto');
   const uri = req.get('X-Original-URI');
   const original_url = `${proto}://${host}${uri}`;
-  console.log(`Intercepted request: ${original_url}`);
-  res.status(202).end();
+  getCookieSession(req, config, (session) => {
+    // TODO: use original_url and session for auditing.
+    if (session.allowed) {
+      res.status(202).end();
+    } else {
+      res.status(401).end();
+    }
+  });
 });
 
 

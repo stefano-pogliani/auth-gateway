@@ -1,3 +1,8 @@
+0.1.6
+-----
+* Have HTTP Proxy redirect to the protal.
+* Use session information to determine /api/auth return code.
+
 0.1.5
 -----
 * Detect path being authenticated.

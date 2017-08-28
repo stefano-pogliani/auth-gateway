@@ -5,16 +5,24 @@ const sinon = require('sinon');
 const mockApp = {
   get: sinon.spy()
 };
+const mockUtils = {
+  getCookieSession: sinon.spy()
+};
 proxyquire('../../../gateway/server/api', {
   './app': {
     app: mockApp,
     logAppMessage: sinon.spy()
-  }
+  },
+  './utils': mockUtils
 });
 
 
 describe('Server', () => {
   describe('app', () => {
+    afterEach(() => {
+      mockUtils.getCookieSession.reset()
+    });
+
     describe('/api/auth', () => {
       it('Sends a 202 when allowed', () => {
         const endpoint = mockApp.get.getCall(0).args[1];
@@ -27,7 +35,36 @@ describe('Server', () => {
         }
         res.status.returns(res);
         endpoint(req, res);
+        const callback = mockUtils.getCookieSession.getCall(0).args[2];
+        callback({
+          allowed: true,
+          email: 'a@b.c',
+          gravatar: 'acb',
+          user: 'a'
+        });
         assert(res.status.calledWith(202));
+        assert(res.end.calledWith());
+      });
+
+      it('Sends a 401 when not allowed', () => {
+        const endpoint = mockApp.get.getCall(0).args[1];
+        const req = {
+          get: sinon.stub().returns('ABC')
+        };
+        const res = {
+          end: sinon.spy(),
+          status: sinon.stub()
+        }
+        res.status.returns(res);
+        endpoint(req, res);
+        const callback = mockUtils.getCookieSession.getCall(0).args[2];
+        callback({
+          allowed: false,
+          email: null,
+          gravatar: null,
+          user: null
+        });
+        assert(res.status.calledWith(401));
         assert(res.end.calledWith());
       });
     });

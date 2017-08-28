@@ -118,7 +118,7 @@ http {
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 
       auth_request /__<%- auth.prefix %>__;
-      #error_page 401 = https://<%- gateway.domain %>:<%- proxy.bind.port %>/;
+      error_page 401 = https://<%- gateway.domain %>:<%- proxy.bind.port %>/;
     }
 
     location /__<%- auth.prefix %>__ {
