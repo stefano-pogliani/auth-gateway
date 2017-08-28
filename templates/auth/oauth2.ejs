@@ -4,7 +4,7 @@
 # 
 # Start with some global options.
 http_address = "<%- auth.bind.address %>:<%- auth.bind.port %>"
-proxy-prefix = "<%- auth.prefix %>"
+proxy-prefix = "/<%- auth.prefix %>"
 upstreams = ["http://<%- gateway.host %>:<%- gateway.port %>/"]
 
 
@@ -26,7 +26,7 @@ cookie_secure = true
 
 
 # OAuth configuration.
-redirect_url = "https://<%- gateway.domain %>:<%- proxy.port %><%- auth.prefix %>/callback"
+redirect_url = "https://<%- gateway.domain %>:<%- proxy.port %>/<%- auth.prefix %>/callback"
 client_id = "<%- auth.oauth.client %>"
 client_secret = "<%- auth.oauth.secret %>"
 provider = "<%- auth.oauth.provider %>"

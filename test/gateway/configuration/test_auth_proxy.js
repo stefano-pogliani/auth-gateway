@@ -23,7 +23,7 @@ const TEST_CONF = {
       secret: 'client_secret',
       provider: 'github'
     },
-    prefix: '/auth',
+    prefix: 'auth',
     session: {
       name: 'authgateway',
       refresh: '',

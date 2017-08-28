@@ -29,7 +29,7 @@ module.exports.auth_proxy = {
     secret: '',
     provider: 'github'
   },
-  prefix: '/auth',
+  prefix: 'auth',
   process: {
     name: 'oauth2',
     command: 'oauth2_proxy'

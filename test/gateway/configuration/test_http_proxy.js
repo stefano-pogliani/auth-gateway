@@ -17,7 +17,7 @@ const TEST_CONF = {
       address: '*',
       port: 8091
     },
-    prefix: '/auth'
+    prefix: 'auth'
   },
   http_proxy: {
     bind: {

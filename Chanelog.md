@@ -1,3 +1,9 @@
+0.1.5
+-----
+* Detect path being authenticated.
+* HTTP Proxy (nginx) checks /api/auth for proxied requests.
+* Started /api/auth to always allow.
+
 0.1.4
 -----
 * Added empty profile page.

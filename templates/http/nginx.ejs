@@ -46,13 +46,14 @@ http {
     # so that termination can be performed on load blanacers.
     <% if (proxy.tls.terminate) { %>
     listen <%- proxy.bind.port %> ssl;
-    server_name         <%- gateway.domain %>;
+    server_name <%- gateway.domain %>;
     ssl_certificate     <%- proxy.tls.crt_file %>;
     ssl_certificate_key <%- proxy.tls.key_file %>;
     ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
     ssl_ciphers         HIGH:!aNULL:!MD5;
     <% } else { %>
     listen <%- proxy.bind.port %>;
+    server_name <%- gateway.domain %>;
     <% } %>
 
     types {
@@ -76,7 +77,7 @@ http {
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
-    location <%- auth.prefix %> {
+    location /<%- auth.prefix %> {
       proxy_pass http://authgateway_auth;
       proxy_set_header Host $host;
       proxy_set_header X-Forwarded-Proto $scheme;
@@ -115,6 +116,19 @@ http {
       proxy_set_header X-Forwarded-Proto $scheme;
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+      auth_request /__<%- auth.prefix %>__;
+      #error_page 401 = https://<%- gateway.domain %>:<%- proxy.bind.port %>/;
+    }
+
+    location /__<%- auth.prefix %>__ {
+      internal;
+      proxy_pass http://authgateway_backend/api/auth;
+      proxy_set_header Host $host;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Original-URI $request_uri;
     }
   }
   <% }); %>

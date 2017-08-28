@@ -3,9 +3,26 @@ const { app } = require('./app');
 
 
 /**
+ * Verify a request received by the HTTP Poxy for authorization.
+ *
+ * Return codes:
+ *   - 202: The request is allowed.
+ *   - 401: The request is NOT allowed.
+ */
+app.get('/api/auth', (req, res) => {
+  const host = req.get('Host');
+  const proto = req.get('X-Forwarded-Proto');
+  const uri = req.get('X-Original-URI');
+  const original_url = `${proto}://${host}${uri}`;
+  console.log(`Intercepted request: ${original_url}`);
+  res.status(202).end();
+});
+
+
+/**
  * Implement a besic health check.
  */
-app.get('/api/health', function (req, res) {
+app.get('/api/health', (req, res) => {
   res.json({});
 });
 
@@ -33,7 +50,7 @@ app.get('/api/health', function (req, res) {
  * }
  * ```
  */
-app.get('/api/proxied/session', function (req, res) {
+app.get('/api/proxied/session', (req, res) => {
   let email = req.get('X-Forwarded-Email');
   let user = req.get('X-Forwarded-User');
   let session = {

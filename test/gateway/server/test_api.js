@@ -15,9 +15,26 @@ proxyquire('../../../gateway/server/api', {
 
 describe('Server', () => {
   describe('app', () => {
+    describe('/api/auth', () => {
+      it('Sends a 202 when allowed', () => {
+        const endpoint = mockApp.get.getCall(0).args[1];
+        const req = {
+          get: sinon.stub().returns('ABC')
+        };
+        const res = {
+          end: sinon.spy(),
+          status: sinon.stub()
+        }
+        res.status.returns(res);
+        endpoint(req, res);
+        assert(res.status.calledWith(202));
+        assert(res.end.calledWith());
+      });
+    });
+
     describe('/api/health', () => {
       it('returns json', () => {
-        const endpoint = mockApp.get.getCall(0).args[1];
+        const endpoint = mockApp.get.getCall(1).args[1];
         const res = {
           json: sinon.spy()
         };
@@ -28,7 +45,7 @@ describe('Server', () => {
 
     describe('/api/proxied/session', () => {
       it('returns no user', () => {
-        const endpoint = mockApp.get.getCall(1).args[1];
+        const endpoint = mockApp.get.getCall(2).args[1];
         const req = {
           get: sinon.stub().returns(null)
         };
@@ -46,7 +63,7 @@ describe('Server', () => {
       });
 
       it('returns user data', () => {
-        const endpoint = mockApp.get.getCall(1).args[1];
+        const endpoint = mockApp.get.getCall(2).args[1];
         const req = {
           get: sinon.stub().returns('test@localhost')
         };
