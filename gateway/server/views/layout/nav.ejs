@@ -20,7 +20,7 @@
           </button>
 
           <div class="dropdown-menu">
-            <a class="dropdown-item" href="/profile">Profile</a>
+            <a class="dropdown-item <%- locals.page === 'profile' ? 'active' : '' %>" href="/profile">Profile</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="<%- auth.prefix %>/sign_in">Logout</a>
           </div>

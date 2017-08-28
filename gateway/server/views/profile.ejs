@@ -3,7 +3,7 @@
   <%- include('layout/head'); %>
   <body>
     <div>
-      <%- include('layout/nav', {auth: auth, session: session}); %>
+      <%- include('layout/nav', {auth: auth, session: session, page: 'profile'}); %>
 
       <div class="container">
       <% if (session.allowed) { %>
