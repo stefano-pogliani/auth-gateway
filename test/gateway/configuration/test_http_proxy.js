@@ -33,18 +33,16 @@ const TEST_CONF = {
   },
   apps: [{
     name: 'test1',
-    mount: '/test1',
-    upstream: [
-      'server1',
-      'server2'
-    ]
+    upstream: {
+      host: 'server1:port',
+      protocol: 'http'
+    }
   }, {
     name: 'test2',
-    mount: '/test2',
-    upstream: [
-      'server3',
-      'server4'
-    ]
+    upstream: {
+      host: 'server2:port',
+      protocol: 'http'
+    }
   }]
 };
 
@@ -72,18 +70,22 @@ describe('Configuration', () => {
         },
         apps: [{
           name: 'test1',
-          mount: '/test1',
-          upstream: [
-            'server1',
-            'server2'
-          ]
+          title: 'test1',
+          type: 'upstream',
+          upstream: {
+            subdomain: 'test1',
+            host: 'server1:port',
+            protocol: 'http'
+          }
         }, {
           name: 'test2',
-          mount: '/test2',
-          upstream: [
-            'server3',
-            'server4'
-          ]
+          title: 'test2',
+          type: 'upstream',
+          upstream: {
+            subdomain: 'test2',
+            host: 'server2:port',
+            protocol: 'http'
+          }
         }]
       };
       const config = http_proxy_config.renderMain(TEST_CONF);

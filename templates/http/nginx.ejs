@@ -88,4 +88,34 @@ http {
       root <%- dirs.static %>/..;
     }
   }
+
+  # Configure upstreams and servers for apps.
+  <% apps.forEach(function(app) { %>
+  upstream <%- app.upstream.subdomain %>_upstream {
+    server <%- app.upstream.host %>;
+  }
+  server {
+    # HTTPS is required but allow optional TLS termination here
+    # so that termination can be performed on load blanacers.
+    <% if (proxy.tls.terminate) { %>
+    listen <%- proxy.bind.port %> ssl;
+    server_name <%- app.upstream.subdomain %>.<%- gateway.domain %>;
+    ssl_certificate     <%- proxy.tls.crt_file %>;
+    ssl_certificate_key <%- proxy.tls.key_file %>;
+    ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+    <% } else { %>
+    listen <%- proxy.bind.port %>;
+    server_name <%- app.upstream.subdomain %>.<%- gateway.domain %>;
+    <% } %>
+
+    location / {
+      proxy_pass <%- app.upstream.protocol %>://<%- app.upstream.subdomain %>_upstream;
+      proxy_set_header Host $host;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+  }
+  <% }); %>
 }
