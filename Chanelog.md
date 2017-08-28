@@ -1,3 +1,7 @@
+0.1.7
+-----
+* Render user profile information.
+
 0.1.6
 -----
 * Have HTTP Proxy redirect to the protal.

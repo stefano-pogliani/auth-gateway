@@ -8,7 +8,45 @@
       <div class="container">
       <% if (session.allowed) { %>
         <!-- User is logged in -->
-        TODO!
+        <div class="row">
+          <div class="col-12 col-sm-6 col-md-4">
+            <img
+                class="profile-gravatar"
+                src="https://www.gravatar.com/avatar/<%= session.gravatar %>?s=200" />
+          </div>
+          <div class="col-12 col-sm-6 col-md-8">
+            <!-- user -->
+            <div class="form-row">
+              <div class="col-4 col-sm-2">
+                <label for="user">Your user name</label>
+              </div>
+              <div class="col-8 col-sm-10">
+                <input
+                   type="text" class="form-control form-control-sm"
+                   id="user" aria-describedby="userHelp" readonly
+                   value="<%= session.user %>" />
+                <small id="userHelp" class="form-text text-muted">
+                  This is the username attached to your profile.
+                </small>
+              </div>
+            </div>
+            <!-- email -->
+            <div class="form-row">
+              <div class="col-4 col-sm-2">
+                <label for="user">Your email</label>
+              </div>
+              <div class="col-8 col-sm-10">
+                <input
+                   type="email" class="form-control form-control-sm"
+                   id="email" aria-describedby="emailHelp" readonly
+                   value="<%= session.email %>" />
+                <small id="emailHelp" class="form-text text-muted">
+                  This is the email address you are logged in as.
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
 
       <% } else { %>
         <!-- User is not logged in -->
