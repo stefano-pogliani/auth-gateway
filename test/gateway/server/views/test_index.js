@@ -17,6 +17,49 @@ proxyquire('../../../../gateway/server/views', {
 });
 
 
+const TEST_CONFIG = {
+  gateway: {
+    domain: 'example.com',
+  },
+  auth_proxy: {
+    prefix: '/abc',
+    bind: {
+      address: 'localhost',
+      port: 8081
+    }
+  },
+  http_proxy: {
+    bind: {
+      port: 443
+    }
+  },
+  apps: [{
+    name: 'test1',
+    title: 'Abc',
+    url: 'abc'
+  }, {
+    name: 'test2',
+    upstream: {
+      host: 'host:port',
+      protocol: 'https'
+    }
+  }, {
+    name: 'test3',
+    type: 'upstream',
+    upstream: {
+      host: 'host:port',
+      protocol: 'https',
+      subdomain: 'domain'
+    }
+  }, {
+    name: 'test4'
+  }]
+};
+const TEST_REQ = {
+  cookies: {authgateway: 'abc'}
+};
+
+
 describe('Server', () => {
   describe('app', () => {
     describe('/', () => {
@@ -26,23 +69,11 @@ describe('Server', () => {
 
       it('renders index', () => {
         const endpoint = mockApp.get.getCall(0).args[1];
-        const config = {
-          auth_proxy: {
-            prefix: '/abc',
-            bind: {
-              address: 'localhost',
-              port: 8081
-            }
-          }
-        };
-        const req = {
-          cookies: {authgateway: 'abc'}
-        };
         const res = {
           render: sinon.spy()
         };
-        mockApp.get.returns(config);
-        endpoint(req, res);
+        mockApp.get.returns(TEST_CONFIG);
+        endpoint(TEST_REQ, res);
 
         const render = mockUtils.getCookieSession.getCall(0).args[2];
         render({
@@ -51,36 +82,58 @@ describe('Server', () => {
           gravatar: null,
           user: null
         });
-        assert(res.render.calledWith('index', {
+        res.render.calledWith('index');
+        const context = res.render.getCall(0).args[1];
+        assert.deepEqual(context, {
           auth: {prefix: '/abc'},
+          apps: [{
+            name: 'test1',
+            title: 'Abc',
+            type: 'link',
+            url: 'abc'
+          }, {
+            name: 'test2',
+            title: 'test2',
+            type: 'upstream',
+            upstream: {
+              host: 'host:port',
+              protocol: 'https',
+              subdomain: 'test2'
+            }
+          }, {
+            name: 'test3',
+            title: 'test3',
+            type: 'upstream',
+            upstream: {
+              host: 'host:port',
+              protocol: 'https',
+              subdomain: 'domain'
+            }
+          }, {
+            name: 'test4',
+            title: 'test4',
+            type: 'unknown'
+          }],
+          proxy: {
+            domain: 'example.com',
+            port: 443
+          },
           session: {
             allowed: false,
             email: null,
             gravatar: null,
             user: null
           }
-        }));
+        });
       });
 
       it('renders profile', () => {
         const endpoint = mockApp.get.getCall(1).args[1];
-        const config = {
-          auth_proxy: {
-            prefix: '/abc',
-            bind: {
-              address: 'localhost',
-              port: 8081
-            }
-          }
-        };
-        const req = {
-          cookies: {authgateway: 'abc'}
-        };
         const res = {
           render: sinon.spy()
         };
-        mockApp.get.returns(config);
-        endpoint(req, res);
+        mockApp.get.returns(TEST_CONFIG);
+        endpoint(TEST_REQ, res);
 
         const render = mockUtils.getCookieSession.getCall(0).args[2];
         render({

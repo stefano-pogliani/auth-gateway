@@ -2,6 +2,10 @@ nav.navbar.sticky-top {
   margin-bottom: 1em;
 }
 
+.app-card {
+  margin-bottom: 2em;
+}
+
 .navbar-gravatar {
   cursor: pointer;
   max-height: 32px;

@@ -1,4 +1,5 @@
 const { app } = require('../app');
+const { enhanceApp } = require('../../configuration');
 const { getCookieSession } = require('../utils');
 
 
@@ -9,8 +10,13 @@ app.get('/', (req, res) => {
   let config = app.get('config');
   getCookieSession(req, config, (session) => {
     let context = {
+      apps: config.apps.map(enhanceApp),
       auth: {
         prefix: config.auth_proxy.prefix
+      },
+      proxy: {
+        domain: config.gateway.domain,
+        port: config.http_proxy.bind.port
       },
       session: session
     };

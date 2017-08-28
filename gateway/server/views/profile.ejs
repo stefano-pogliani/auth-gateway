@@ -5,13 +5,13 @@
     <div>
       <%- include('layout/nav', {auth: auth, session: session}); %>
 
+      <div class="container">
       <% if (session.allowed) { %>
-      <!-- User is logged in -->
-      TODO!
+        <!-- User is logged in -->
+        TODO!
 
       <% } else { %>
-      <!-- User is not logged in -->
-      <div class="container">
+        <!-- User is not logged in -->
         <div class="alert alert-warning" role="alert">
           <h4 class="alert-heading">Login required</h4>
           <p>
@@ -19,8 +19,8 @@
             To see your profile you have to login first!
           </p>
         </div>
-      </div>
       <% } %>
+      </div>
 
     </div>
     <%- include('layout/foot'); %>

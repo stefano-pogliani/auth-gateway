@@ -65,6 +65,17 @@ module.exports.http_proxy = {
 
 
 /**
- * ???
+ * List of apps to be proxied to.
+ *
+ * {
+ *   "name": <string>,
+ *   "type": <sting{link,upstream}>,
+ *   "url": <string|null>,
+ *   "upstream": {
+ *     "host": <string>,
+ *     "protocol": <string>,
+ *     "subdomain": <string>
+ *   }
+ * }
  */
 module.exports.apps = [];

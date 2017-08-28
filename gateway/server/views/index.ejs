@@ -5,13 +5,22 @@
     <div>
       <%- include('layout/nav', {auth: auth, session: session}); %>
 
+      <div class="container">
       <% if (session.allowed) { %>
-      <!-- User is logged in -->
-      <%- include('index/noapp'); %>
+        <!-- User is logged in -->
+        <% if (apps.length) { %>
+          <div class="row">
+          <% apps.forEach(function(app) { %>
+            <%- include('index/apps/' + app.type, {app: app, proxy: proxy}); %>
+          <% }); %>
+          </div>
+
+        <% } else { %>
+          <%- include('index/noapp'); %>
+        <% } %>
 
       <% } else { %>
-      <!-- User is not logged in -->
-      <div class="container">
+        <!-- User is not logged in -->
         <div class="alert alert-warning" role="alert">
           <h4 class="alert-heading">Login required</h4>
           <p>
@@ -20,8 +29,8 @@
             to login first!
           </p>
         </div>
-      </div>
       <% } %>
+      </div>
 
     </div>
     <%- include('layout/foot'); %>

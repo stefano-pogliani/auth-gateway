@@ -10,6 +10,35 @@ const {
 
 
 /**
+ * Returns a new object with the app configuration plus
+ * some automatically detected fields.
+ *
+ * Does not perform validation.
+ */
+module.exports.enhanceApp = function enhanceApp(real_app) {
+  const app = deepmerge({}, real_app);
+  if (!app.title) {
+    app.title = app.name;
+  }
+
+  if (!app.type) {
+    if (app.upstream) {
+      app.type = 'upstream';
+    } else if (app.url) {
+      app.type = 'link';
+    } else {
+      app.type = 'unknown';
+    }
+  }
+
+  if (app.type === 'upstream' && !app.upstream.subdomain) {
+    app.upstream.subdomain = app.name.toLowerCase();
+  }
+  return app;
+};
+
+
+/**
  * Load a configuration file and use it to override
  * default values.
  *
