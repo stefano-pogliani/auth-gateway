@@ -10,7 +10,16 @@ module.exports.gateway = {
     address: 'localhost',
     port: 8090
   },
-  domain: ''
+  domain: '',
+  token_hmac_algorithm: 'sha512'
+};
+
+
+/**
+ * ???
+ */
+module.exports.auditor = {
+  provider: 'null'
 };
 
 

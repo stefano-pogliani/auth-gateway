@@ -45,6 +45,22 @@
                 </small>
               </div>
             </div>
+            <!-- session id -->
+            <div class="form-row">
+              <div class="col-4 col-sm-2">
+                <label for="user">Your (current) session</label>
+              </div>
+              <div class="col-8 col-sm-10">
+                <input
+                   type="text" class="form-control form-control-sm"
+                   id="session_id" aria-describedby="sessionIdHelp" readonly
+                   style="text-overflow: ellipsis;"
+                   value="<%= session.id %>" />
+                <small id="sessionIdHelp" class="form-text text-muted">
+                  This is the internal ID of your current session.
+                </small>
+              </div>
+            </div>
           </div>
         </div>
 

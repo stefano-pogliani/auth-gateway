@@ -2,8 +2,25 @@ const assert = require('assert');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
+const Auditor = require('../../../gateway/server/auditor');
+
+
+const TEST_CONFIG = {
+  auditor: {
+    provider: 'test'
+  },
+  gateway: {
+    token_hmac_algorithm: 'sha1'
+  },
+  auth_proxy: {
+    session: {
+      secret: 'abc'
+    }
+  }
+};
+
 const mockApp = {
-  get: sinon.spy()
+  get: sinon.stub().returns(TEST_CONFIG)
 };
 const mockUtils = {
   getCookieSession: sinon.spy()
@@ -20,11 +37,17 @@ proxyquire('../../../gateway/server/api', {
 describe('Server', () => {
   describe('app', () => {
     afterEach(() => {
+      this.clock.restore();
       mockUtils.getCookieSession.reset()
+      Auditor.Reset();
+    });
+    beforeEach(() => {
+      Auditor.InitialiseAuditor(TEST_CONFIG);
+      this.clock = sinon.useFakeTimers();
     });
 
     describe('/api/auth', () => {
-      it('Sends a 202 when allowed', () => {
+      const get_callback = () => {
         const endpoint = mockApp.get.getCall(0).args[1];
         const req = {
           get: sinon.stub().returns('ABC')
@@ -32,14 +55,23 @@ describe('Server', () => {
         const res = {
           end: sinon.spy(),
           status: sinon.stub()
-        }
+        };
         res.status.returns(res);
         endpoint(req, res);
-        const callback = mockUtils.getCookieSession.getCall(0).args[2];
+        return {
+          callback: mockUtils.getCookieSession.getCall(0).args[2],
+          req: req,
+          res: res
+        };
+      };
+
+      it('Sends a 202 when allowed', () => {
+        const { callback, res } = get_callback();
         callback({
           allowed: true,
           email: 'a@b.c',
           gravatar: 'acb',
+          id: '123',
           user: 'a'
         });
         assert(res.status.calledWith(202));
@@ -47,24 +79,51 @@ describe('Server', () => {
       });
 
       it('Sends a 401 when not allowed', () => {
-        const endpoint = mockApp.get.getCall(0).args[1];
-        const req = {
-          get: sinon.stub().returns('ABC')
-        };
-        const res = {
-          end: sinon.spy(),
-          status: sinon.stub()
-        }
-        res.status.returns(res);
-        endpoint(req, res);
-        const callback = mockUtils.getCookieSession.getCall(0).args[2];
+        const { callback, res } = get_callback();
         callback({
           allowed: false,
           email: null,
           gravatar: null,
+          id: null,
           user: null
         });
         assert(res.status.calledWith(401));
+        assert(res.end.calledWith());
+      });
+
+      it('audits the request', () => {
+        const { callback } = get_callback();
+        callback({
+          allowed: false,
+          email: 'test@example.com',
+          gravatar: null,
+          id: '123',
+          user: 'Me'
+        });
+        const audit = Auditor.Instance().audit;
+        assert.deepEqual(audit.getCall(0).args[0], {
+          email: 'test@example.com',
+          protocol: "https",
+          resource: "ABC://ABCABC",
+          result: "deny",
+          session_id: '123',
+          timestamp: 0,
+          user: 'Me'
+        });
+      });
+
+      it('auditor rejects the request', () => {
+        const audit = Auditor.Instance().audit;
+        const { callback, res } = get_callback();
+        audit.returns(1234);
+        callback({
+          allowed: false,
+          email: 'test@example.com',
+          gravatar: null,
+          id: '123',
+          user: 'Me'
+        });
+        assert(res.status.calledWith(1234));
         assert(res.end.calledWith());
       });
     });
@@ -95,6 +154,7 @@ describe('Server', () => {
           allowed: false,
           email: null,
           gravatar: null,
+          id: null,
           user: null
         });
       });
@@ -113,10 +173,10 @@ describe('Server', () => {
           allowed: true,
           email: "test@localhost",
           gravatar: "8ea890a677d6a223c591a1beea6ea9d2",
+          id: "579c16373fd007232a1e4eb3e79fd90b3a0dbdbf",
           user: "test@localhost"
         });
       });
     });
   });
 });
-

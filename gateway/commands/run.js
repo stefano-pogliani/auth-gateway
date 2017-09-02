@@ -1,5 +1,6 @@
 const tmp = require('tmp');
 
+const Auditor = require('../server/auditor');
 const { shutdown } = require('../shutdown');
 const { Command } = require('./base');
 const { RunWebServer } = require('../server');
@@ -27,6 +28,7 @@ class RunCommand extends Command {
     tmp.setGracefulCleanup();
     process.on('SIGINT',  () => shutdown.stop());
     process.on('SIGTERM', () => shutdown.stop());
+    Auditor.InitialiseAuditor(this._config);
     InitialiseSubProcs(this._config);
     this.auth_proxy = AuthProxy();
     this.http_proxy = HttpProxy();

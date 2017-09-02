@@ -1,5 +1,8 @@
 0.1.7
 -----
+* Add session ID to /api/proxied/session.
+* Auditor subsystem.
+* Build request context.
 * Render user profile information.
 
 0.1.6

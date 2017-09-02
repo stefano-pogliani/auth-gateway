@@ -1,0 +1,36 @@
+const assert = require('assert');
+const proxyquire = require('proxyquire');
+const sinon = require('sinon');
+
+const mockLogAppMessage = sinon.spy();
+const {
+  ConsoleAuditor
+} = proxyquire('../../../../gateway/server/auditor/console', {
+  '../app': {
+    logAppMessage: mockLogAppMessage
+  }
+});
+
+
+describe('Server', () => {
+  describe('Auditor', () => {
+    describe('Console', () => {
+      afterEach(() => {
+        mockLogAppMessage.reset();
+      });
+
+      it('logs the request', () => {
+        const auditor = new ConsoleAuditor({});
+        auditor.audit({k: 'v'});
+        const actual_msg = mockLogAppMessage.getCall(0).args[0];
+        assert('Request audit: {"k": "v"}', actual_msg);
+      });
+
+      it('returns null', () => {
+        const auditor = new ConsoleAuditor({});
+        const result = auditor.audit({});
+        assert.equal(null, result);
+      });
+    });
+  });
+});

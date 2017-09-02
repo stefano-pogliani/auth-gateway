@@ -16,6 +16,7 @@ const NULL_SESSION = {
   allow: false,
   email: null,
   gravatar: null,
+  id: null,
   user: null
 };
 const TEST_CONFIG = {
@@ -36,7 +37,8 @@ const TEST_SESSION = {
   allow: true,
   email: 'abc',
   gravatar: 'def',
-  user: 'ghi'
+  id: 'ghi',
+  user: 'jkl'
 };
 
 

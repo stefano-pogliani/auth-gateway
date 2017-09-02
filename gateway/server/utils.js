@@ -3,6 +3,7 @@ const NULL_SESSION = {
   allow: false,
   email: null,
   gravatar: null,
+  id: null,
   user: null
 };
 

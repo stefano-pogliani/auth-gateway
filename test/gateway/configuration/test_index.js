@@ -34,6 +34,7 @@ describe('Configuration', () => {
       ]);
       assert.deepEqual(config, {
         apps: [],
+        auditor: {provider: 'null'},
         gateway: {},
         auth_proxy: {},
         http_proxy: {}
@@ -52,6 +53,7 @@ describe('Configuration', () => {
       let config = configuration.load('abc');
       assert.deepEqual(config, {
         apps: [],
+        auditor: {provider: 'null'},
         gateway: {a: {b: 'c'}},
         auth_proxy: {},
         http_proxy: {}

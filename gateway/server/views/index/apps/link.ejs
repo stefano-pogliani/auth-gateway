@@ -1,9 +1,14 @@
 <div class="col-12 col-sm-6 col-md-3 app-card">
   <div class="card">
     <div class="card-body">
-      <h4 class="card-title"><%- app.title %></h4>
+      <h4 class="card-title">
+        <%- app.title %>
+        <span class="badge badge-secondary" style="font-size: x-small">
+          External Link
+        </span>
+      </h4>
       <% if (app.description) { %>
-        <p class="card-text"><%- app.description %></p>
+      <p class="card-text"><%- app.description %></p>
       <% } %>
       <a href="<%= app.url %>" class="card-link">Access content</a>
     </div>
