@@ -8,7 +8,7 @@ const { getCookieSession } = require('../utils');
  */
 app.get('/', (req, res) => {
   let config = app.get('config');
-  getCookieSession(req, config, (session) => {
+  return getCookieSession(req, config).then((session) => {
     let context = {
       apps: config.apps.map(enhanceApp),
       auth: {
@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
  */
 app.get('/profile', (req, res) => {
   let config = app.get('config');
-  getCookieSession(req, config, (session) => {
+  return getCookieSession(req, config).then((session) => {
     let context = {
       auth: {
         prefix: config.auth_proxy.prefix

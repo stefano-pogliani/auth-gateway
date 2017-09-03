@@ -14,7 +14,7 @@ const NULL_SESSION = {
  * If the proxied session endpoint returns an error assume the
  * session is invalid and return a null one.
  */
-module.exports.getCookieSession = (req, config, callback) => {
+module.exports.getCookieSession = (req, config) => {
   let host = config.auth_proxy.bind.address;
   if (host === '*') {
     host = 'localhost';
@@ -31,15 +31,17 @@ module.exports.getCookieSession = (req, config, callback) => {
     url: url,
     jar: jar
   };
-  request(options, (err, response, response_content) => {
-    if (err || response.statusCode < 200 || response.statusCode >= 300) {
-      callback(NULL_SESSION);
-      return;
-    }
-    try {
-      callback(JSON.parse(response_content));
-    } catch(e) {
-      callback(NULL_SESSION);
-    }
+  return new Promise((resolve) => {
+    request(options, (err, res, content) => {
+      if (err || res.statusCode < 200 || res.statusCode >= 300) {
+        resolve(NULL_SESSION);
+        return;
+      }
+      try {
+        resolve(JSON.parse(content));
+      } catch(e) {
+        resolve(NULL_SESSION);
+      }
+    });
   });
 }

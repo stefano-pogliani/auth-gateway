@@ -23,7 +23,7 @@ const mockApp = {
   get: sinon.stub().returns(TEST_CONFIG)
 };
 const mockUtils = {
-  getCookieSession: sinon.spy()
+  getCookieSession: sinon.stub()
 };
 proxyquire('../../../gateway/server/api', {
   './app': {
@@ -47,7 +47,7 @@ describe('Server', () => {
     });
 
     describe('/api/auth', () => {
-      const get_callback = () => {
+      const simulateGet = () => {
         const endpoint = mockApp.get.getCall(0).args[1];
         const req = {
           get: sinon.stub().returns('ABC')
@@ -57,51 +57,53 @@ describe('Server', () => {
           status: sinon.stub()
         };
         res.status.returns(res);
-        endpoint(req, res);
         return {
-          callback: mockUtils.getCookieSession.getCall(0).args[2],
+          makeRequest: () => endpoint(req, res),
           req: req,
           res: res
         };
       };
 
       it('Sends a 202 when allowed', () => {
-        const { callback, res } = get_callback();
-        return callback({
+        const { makeRequest, res } = simulateGet();
+        mockUtils.getCookieSession.resolves({
           allowed: true,
           email: 'a@b.c',
           gravatar: 'acb',
           id: '123',
           user: 'a'
-        }).then(() => {
+        });
+        return makeRequest().then(() => {
           assert(res.status.calledWith(202));
           assert(res.end.calledWith());
         });
       });
 
       it('Sends a 401 when not allowed', () => {
-        const { callback, res } = get_callback();
-        return callback({
+        const { makeRequest, res } = simulateGet();
+        mockUtils.getCookieSession.resolves({
           allowed: false,
           email: null,
           gravatar: null,
           id: null,
           user: null
-        }).then(() => {
+        });
+        return makeRequest().then(() => {
           assert(res.status.calledWith(401));
           assert(res.end.calledWith());
         });
       });
 
       it('audits the request', () => {
-        const { callback } = get_callback();
-        return callback({
+        const { makeRequest } = simulateGet();
+        mockUtils.getCookieSession.resolves({
           allowed: false,
           email: 'test@example.com',
           gravatar: null,
           id: '123',
           user: 'Me'
-        }).then(() => {
+        });
+        return makeRequest().then(() => {
           const audit = Auditor.Instance().audit;
           assert.deepEqual(audit.getCall(0).args[0], {
             email: 'test@example.com',
@@ -116,16 +118,16 @@ describe('Server', () => {
       });
 
       it('auditor rejects the request', () => {
-        const audit = Auditor.Instance().audit;
-        const { callback, res } = get_callback();
-        audit.resolves(1234);
-        return callback({
+        const { makeRequest, res } = simulateGet();
+        Auditor.Instance().audit.resolves(1234);
+        mockUtils.getCookieSession.resolves({
           allowed: false,
           email: 'test@example.com',
           gravatar: null,
           id: '123',
           user: 'Me'
-        }).then(() => {
+        });
+        return makeRequest().then(() => {
           assert(res.status.calledWith(1234));
           assert(res.end.calledWith());
         });

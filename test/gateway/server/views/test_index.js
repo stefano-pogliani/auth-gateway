@@ -62,95 +62,101 @@ const TEST_REQ = {
 
 describe('Server', () => {
   describe('app', () => {
-    describe('/', () => {
+    describe('views', () => {
       afterEach(() => {
         mockUtils.getCookieSession.reset();
       });
 
-      it('renders index', () => {
-        const endpoint = mockApp.get.getCall(0).args[1];
+      const getRender = () => {
+        return mockUtils.getCookieSession.getCall(0).args[2];
+      };
+
+      const simulateGet = (index) => {
+        const endpoint = mockApp.get.getCall(index).args[1];
         const res = {
           render: sinon.spy()
         };
         mockApp.get.returns(TEST_CONFIG);
-        endpoint(TEST_REQ, res);
+        return {
+          makeRequest: () => endpoint(TEST_REQ, res),
+          res: res
+        }
+      };
 
-        const render = mockUtils.getCookieSession.getCall(0).args[2];
-        render({
+      it('render index', () => {
+        const { makeRequest, res } = simulateGet(0);
+        mockUtils.getCookieSession.resolves({
           allowed: false,
           email: null,
           gravatar: null,
           user: null
         });
-        res.render.calledWith('index');
-        const context = res.render.getCall(0).args[1];
-        assert.deepEqual(context, {
-          auth: {prefix: '/abc'},
-          apps: [{
-            name: 'test1',
-            title: 'Abc',
-            type: 'link',
-            url: 'abc'
-          }, {
-            name: 'test2',
-            title: 'test2',
-            type: 'upstream',
-            upstream: {
-              host: 'host:port',
-              protocol: 'https',
-              subdomain: 'test2'
+        return makeRequest().then(() => {
+          res.render.calledWith('index');
+          const context = res.render.getCall(0).args[1];
+          assert.deepEqual(context, {
+            auth: {prefix: '/abc'},
+            apps: [{
+              name: 'test1',
+              title: 'Abc',
+              type: 'link',
+              url: 'abc'
+            }, {
+              name: 'test2',
+              title: 'test2',
+              type: 'upstream',
+              upstream: {
+                host: 'host:port',
+                protocol: 'https',
+                subdomain: 'test2'
+              }
+            }, {
+              name: 'test3',
+              title: 'test3',
+              type: 'upstream',
+              upstream: {
+                host: 'host:port',
+                protocol: 'https',
+                subdomain: 'domain'
+              }
+            }, {
+              name: 'test4',
+              title: 'test4',
+              type: 'unknown'
+            }],
+            proxy: {
+              domain: 'example.com',
+              port: 443
+            },
+            session: {
+              allowed: false,
+              email: null,
+              gravatar: null,
+              user: null
             }
-          }, {
-            name: 'test3',
-            title: 'test3',
-            type: 'upstream',
-            upstream: {
-              host: 'host:port',
-              protocol: 'https',
-              subdomain: 'domain'
-            }
-          }, {
-            name: 'test4',
-            title: 'test4',
-            type: 'unknown'
-          }],
-          proxy: {
-            domain: 'example.com',
-            port: 443
-          },
-          session: {
-            allowed: false,
-            email: null,
-            gravatar: null,
-            user: null
-          }
+          });
         });
       });
 
-      it('renders profile', () => {
-        const endpoint = mockApp.get.getCall(1).args[1];
-        const res = {
-          render: sinon.spy()
-        };
-        mockApp.get.returns(TEST_CONFIG);
-        endpoint(TEST_REQ, res);
-
-        const render = mockUtils.getCookieSession.getCall(0).args[2];
-        render({
+      it('render profile', () => {
+        const { makeRequest, res } = simulateGet(1);
+        mockUtils.getCookieSession.resolves({
           allowed: false,
           email: null,
           gravatar: null,
           user: null
         });
-        assert(res.render.calledWith('profile', {
-          auth: {prefix: '/abc'},
-          session: {
-            allowed: false,
-            email: null,
-            gravatar: null,
-            user: null
-          }
-        }));
+        return makeRequest().then(() => {
+          assert(res.render.calledWith('profile', {
+            auth: {prefix: '/abc'},
+            session: {
+              allowed: false,
+              email: null,
+              gravatar: null,
+              user: null
+            }
+          }));
+        });
       });
     });
   });

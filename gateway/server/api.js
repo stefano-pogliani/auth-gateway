@@ -20,7 +20,7 @@ app.get('/api/auth', (req, res) => {
   const proto = req.get('X-Forwarded-Proto');
   const uri = req.get('X-Original-URI');
   const original_url = `${proto}://${host}${uri}`;
-  getCookieSession(req, config, (session) => {
+  return getCookieSession(req, config).then((session) => {
     // Audit the request.
     const audit_event = {
       email: session.email,
@@ -31,20 +31,21 @@ app.get('/api/auth', (req, res) => {
       timestamp: time,
       user: session.user
     };
-    const audit = Auditor.Instance().audit(audit_event)
-    return audit.then((audit_opinion) => {
-      if (audit_opinion) {
-        res.status(audit_opinion).end();
-        return;
-      }
-      
-      // Allow/reject the action.
-      if (session.allowed) {
-        res.status(202).end();
-      } else {
-        res.status(401).end();
-      }
+    return Auditor.Instance().audit(audit_event).then((audit_opinion) => {
+      return {
+        audit_opinion: audit_opinion,
+        session: session
+      };
     });
+
+  }).then(({audit_opinion, session}) => {
+    if (audit_opinion) {
+      res.status(audit_opinion).end();
+    } else if (session.allowed) {
+      res.status(202).end();
+    } else {
+      res.status(401).end();
+    }
   });
 });
 
