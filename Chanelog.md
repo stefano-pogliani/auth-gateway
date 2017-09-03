@@ -2,6 +2,7 @@
 -----
 * Convert callbacks to promises (breaking).
 * HTTP POST auditor.
+* Remove old portal prototype.
 
 0.1.7
 -----
