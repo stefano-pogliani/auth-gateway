@@ -1,10 +1,12 @@
 const { ConsoleAuditor } = require('./console');
+const { HttpAuditor } = require('./http');
 const { NullAuditor } = require('./null');
 const { TestAuditor } = require('./test');
 
 
 const AUDITORS = {
   console: ConsoleAuditor,
+  http: HttpAuditor,
   null: NullAuditor,
   test: TestAuditor
 };
