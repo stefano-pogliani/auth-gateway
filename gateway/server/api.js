@@ -31,18 +31,20 @@ app.get('/api/auth', (req, res) => {
       timestamp: time,
       user: session.user
     };
-    const audit_opinion = Auditor.Instance().audit(audit_event);
-    if (audit_opinion) {
-      res.status(audit_opinion).end();
-      return;
-    }
-
-    // Allow/reject the action.
-    if (session.allowed) {
-      res.status(202).end();
-    } else {
-      res.status(401).end();
-    }
+    const audit = Auditor.Instance().audit(audit_event)
+    return audit.then((audit_opinion) => {
+      if (audit_opinion) {
+        res.status(audit_opinion).end();
+        return;
+      }
+      
+      // Allow/reject the action.
+      if (session.allowed) {
+        res.status(202).end();
+      } else {
+        res.status(401).end();
+      }
+    });
   });
 });
 

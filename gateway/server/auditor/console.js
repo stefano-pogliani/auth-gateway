@@ -6,7 +6,7 @@ class ConsoleAuditor extends Auditor {
   audit(event) {
     const message = `Request audit: ${JSON.stringify(event)}`;
     logAppMessage(message);
-    return null;
+    return Promise.resolve(null);
   }
 };
 module.exports.ConsoleAuditor = ConsoleAuditor;

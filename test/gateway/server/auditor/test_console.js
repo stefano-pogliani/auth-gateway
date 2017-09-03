@@ -21,15 +21,17 @@ describe('Server', () => {
 
       it('logs the request', () => {
         const auditor = new ConsoleAuditor({});
-        auditor.audit({k: 'v'});
-        const actual_msg = mockLogAppMessage.getCall(0).args[0];
-        assert('Request audit: {"k": "v"}', actual_msg);
+        return auditor.audit({k: 'v'}).then(() => {
+          const actual_msg = mockLogAppMessage.getCall(0).args[0];
+          assert('Request audit: {"k": "v"}', actual_msg);
+        });
       });
 
       it('returns null', () => {
         const auditor = new ConsoleAuditor({});
-        const result = auditor.audit({});
-        assert.equal(null, result);
+        return auditor.audit({}).then((result) => {
+          assert.equal(null, result);
+        });
       });
     });
   });

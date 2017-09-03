@@ -8,8 +8,9 @@ describe('Server', () => {
     describe('Null', () => {
       it('returns null', () => {
         const auditor = new NullAuditor({});
-        const result = auditor.audit();
-        assert.equal(null, result);
+        return auditor.audit().then((result) => {
+          assert.equal(null, result);
+        });
       });
     });
   });

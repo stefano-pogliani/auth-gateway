@@ -7,7 +7,7 @@ class Auditor {
   }
 
   audit() {
-    throw Error('Not Implemented');
+    return Promise.reject(new Error('Not Implemented'));
   }
 };
 module.exports.Auditor = Auditor;

@@ -67,64 +67,68 @@ describe('Server', () => {
 
       it('Sends a 202 when allowed', () => {
         const { callback, res } = get_callback();
-        callback({
+        return callback({
           allowed: true,
           email: 'a@b.c',
           gravatar: 'acb',
           id: '123',
           user: 'a'
+        }).then(() => {
+          assert(res.status.calledWith(202));
+          assert(res.end.calledWith());
         });
-        assert(res.status.calledWith(202));
-        assert(res.end.calledWith());
       });
 
       it('Sends a 401 when not allowed', () => {
         const { callback, res } = get_callback();
-        callback({
+        return callback({
           allowed: false,
           email: null,
           gravatar: null,
           id: null,
           user: null
+        }).then(() => {
+          assert(res.status.calledWith(401));
+          assert(res.end.calledWith());
         });
-        assert(res.status.calledWith(401));
-        assert(res.end.calledWith());
       });
 
       it('audits the request', () => {
         const { callback } = get_callback();
-        callback({
+        return callback({
           allowed: false,
           email: 'test@example.com',
           gravatar: null,
           id: '123',
           user: 'Me'
-        });
-        const audit = Auditor.Instance().audit;
-        assert.deepEqual(audit.getCall(0).args[0], {
-          email: 'test@example.com',
-          protocol: "https",
-          resource: "ABC://ABCABC",
-          result: "deny",
-          session_id: '123',
-          timestamp: 0,
-          user: 'Me'
+        }).then(() => {
+          const audit = Auditor.Instance().audit;
+          assert.deepEqual(audit.getCall(0).args[0], {
+            email: 'test@example.com',
+            protocol: "https",
+            resource: "ABC://ABCABC",
+            result: "deny",
+            session_id: '123',
+            timestamp: 0,
+            user: 'Me'
+          });
         });
       });
 
       it('auditor rejects the request', () => {
         const audit = Auditor.Instance().audit;
         const { callback, res } = get_callback();
-        audit.returns(1234);
-        callback({
+        audit.resolves(1234);
+        return callback({
           allowed: false,
           email: 'test@example.com',
           gravatar: null,
           id: '123',
           user: 'Me'
+        }).then(() => {
+          assert(res.status.calledWith(1234));
+          assert(res.end.calledWith());
         });
-        assert(res.status.calledWith(1234));
-        assert(res.end.calledWith());
       });
     });
 

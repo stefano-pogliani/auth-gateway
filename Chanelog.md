@@ -1,3 +1,8 @@
+0.2.0
+-----
+* Convert callbacks to promises (breaking).
+* HTTP POST auditor.
+
 0.1.7
 -----
 * Add session ID to /api/proxied/session.

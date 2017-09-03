@@ -8,7 +8,10 @@ describe('Server', () => {
     describe('Base', () => {
       it('throws', () => {
         const auditor = new Auditor({});
-        assert.throws(auditor.audit, Error);
+        return auditor.audit().then(
+          () => assert.fail('Promise did not throw'),
+          () => assert.ok(true, 'Promise failed as expected')
+        );
       });
     });
   });
