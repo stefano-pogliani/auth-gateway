@@ -1,3 +1,8 @@
+0.2.1
+-----
+* Docker-based demo (with docker compose).
+* Simple HTTP Push recevier.
+
 0.2.0
 -----
 * Convert callbacks to promises (breaking).

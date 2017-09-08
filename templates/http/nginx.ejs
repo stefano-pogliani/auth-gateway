@@ -17,7 +17,7 @@ events {
 http {
   # You can't tell nginx to log to stdout and /dev/stdout is not
   # working (because it is a pipe to nodejs?).
-  access_log syslog:server=unix:/dev/log;
+  access_log <%- dirs.base %>/access.log;
 
   sendfile    off;
   tcp_nopush  on;

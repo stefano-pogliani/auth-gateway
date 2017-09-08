@@ -1,4 +1,5 @@
 const request = require('request');
+const util = require('util');
 
 const { Auditor } = require('./base');
 const { logAppMessage } = require('../app');
@@ -19,10 +20,14 @@ class HttpAuditor extends Auditor {
         method: 'POST',
         url: this.conf.endpoint
       };
-      request(options, (err, res) => {
+      request(options, (err, res, body) => {
         try {
           if (err || res.statusCode < 200 || res.statusCode >= 300) {
             logAppMessage('Failed to audit a request, denying it');
+            logAppMessage(
+              `${util.inspect(err)}, ${res ? res.statusCode : res}` +
+              `, ${util.inspect(body)}`
+            );
             resolve(500);
           } else {
             resolve(null);

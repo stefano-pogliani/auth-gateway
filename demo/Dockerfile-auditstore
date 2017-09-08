@@ -1,0 +1,8 @@
+FROM python:3.4-alpine
+
+COPY ./auditstore/* /auditstore/
+WORKDIR /auditstore
+RUN pip install eve==0.7.4
+
+EXPOSE 8092
+CMD ["python", "main.py"]

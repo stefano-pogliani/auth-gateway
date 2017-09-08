@@ -1,0 +1,10 @@
+apps:
+  - name: Test
+    description: 'Test link pointing at Google.'
+    url: https://www.google.com
+
+  - name: Wekan
+    description: 'Locally running wekan instance.'
+    upstream:
+      host: localhost:8123
+      protocol: http
