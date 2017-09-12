@@ -1,0 +1,15 @@
+version: '3.0'
+
+
+services:
+  mongo:
+    image: "mongo:3.4.7"
+
+  auditstore:
+    build:
+      context: .
+      dockerfile: Dockerfile-auditstore
+    links:
+      - mongo
+    ports:
+      - '8092:8092'

@@ -16,7 +16,7 @@ services:
 
   authgateway:
     build:
-      context: ../
+      context: ../../
     environment:
       - 'ALLOWED_EMAILS=a1@b.c,a2@b.c'
       - 'AUDITOR_PROVIDER=http'
@@ -30,4 +30,4 @@ services:
     ports:
       - '8443:443'
     volumes:
-      - '../:/vol/certs'
+      - '../../:/vol/certs'
