@@ -1,0 +1,41 @@
+# ************ #
+# MongoDB conf #
+# ************ #
+# URL of the mongo ReplicaSet to connect to, including the DB name.
+mongo: 'mongodb://localhost:27017/authgateway'
+
+# The name of the MongoDB collection to fetch the audit data from.
+collection: 'audit'
+
+
+# *********** #
+# Report conf #
+# *********** #
+# The number of days to include in the report.
+report_days: 7
+
+# Store the last report in a file (for debugging/skipping emails).
+#report_store_last: 'last-report.html'
+
+
+# ********** #
+# Email conf #
+# ********** #
+# Skip sending emails.
+email_skip: false
+
+# The nodemailer transport to use.
+# See utils/audit-report/emailer.js for valid options.
+email_transport: 'stream'
+
+# The email address sening the report.
+email_from: '"AuthGateway" <authgateway@corp.company.com>'
+
+# List of email addresses to send the report to.
+email_to:
+  - 'admin@company.com'
+  - 'security@company.com'
+
+# AWS config path to load for the SES transport.
+# See http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Config.html#constructor-property
+#email_aws_config: './my_aws_config.json'

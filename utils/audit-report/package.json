@@ -1,0 +1,28 @@
+{
+  "name": "authgateway-audit-report",
+  "version": "0.0.1",
+  "description": "Audit reports builder for AuthGateway",
+  "main": "report.js",
+  "scripts": {
+    "report": "node report.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stefano-pogliani/auth-gateway.git"
+  },
+  "author": "Stefano Pogliani <stefano@spogliani.net> (http://spogliani.net/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stefano-pogliani/auth-gateway/issues"
+  },
+  "homepage": "https://github.com/stefano-pogliani/auth-gateway#readme",
+  "dependencies": {
+    "aws-sdk": "^2.117.0",
+    "dateformat": "^2.0.0",
+    "ejs": "^2.5.7",
+    "js-yaml": "^3.10.0",
+    "mongodb": "^2.2.31",
+    "nodemailer": "^4.1.0"
+  }
+}

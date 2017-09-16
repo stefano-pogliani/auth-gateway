@@ -1,3 +1,8 @@
+0.2.2
+-----
+* Audit report builder.
+* Update package version.
+
 0.2.1
 -----
 * Docker-based demo (with docker compose).
