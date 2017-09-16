@@ -1,3 +1,7 @@
+0.2.3
+-----
+* Expose metrics.
+
 0.2.2
 -----
 * Audit report builder.

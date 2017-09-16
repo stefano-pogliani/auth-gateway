@@ -1,3 +1,6 @@
+const promclient = require('prom-client');
+const collectDefaultMetrics = promclient.collectDefaultMetrics;
+
 const { app, logAppMessage } = require('./app');
 const { shutdown } = require('../shutdown');
 
@@ -15,6 +18,7 @@ const RunWebServer = (config) => {
   const address = gateway.bind.address;
   const port = gateway.bind.port;
   app.set('config', config);
+  collectDefaultMetrics();
 
   /*
    * If the server fails to start any of the processes before the

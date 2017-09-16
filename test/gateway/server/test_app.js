@@ -1,12 +1,17 @@
 const assert = require('assert');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
+require('prom-client').register.clear();
 
 const mockExpress = {
   set: sinon.spy(),
   use: sinon.spy()
 };
-const { app, logAppMessage } = proxyquire('../../../gateway/server/app', {
+const {
+  app,
+  countRequests,
+  logAppMessage
+} = proxyquire('../../../gateway/server/app', {
   express: () => mockExpress
 });
 
@@ -26,6 +31,15 @@ describe('Server', () => {
         '\u001b[32m[-app-]\u001b[39m abc',
         this.spyLog.getCall(0).args[0]
       );
+    });
+  });
+
+  describe('countRequests', () => {
+    it('call next', () => {
+      const next = sinon.spy();
+      const res = {on: sinon.spy()};
+      countRequests(null, res, next);
+      assert(next.calledWith());
     });
   });
 });

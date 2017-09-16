@@ -145,9 +145,24 @@ describe('Server', () => {
       });
     });
 
+    describe('/api/proxied/metrics', () => {
+      it('sets the content type', () => {
+        const endpoint = mockApp.get.getCall(2).args[1];
+        const res = {
+          set: sinon.spy(),
+          end: sinon.spy()
+        };
+        endpoint(null, res);
+        assert(res.set.calledWith(
+          'Content-Type',
+          'text/plain; version=0.0.4; charset=utf-8'
+        ));
+      });
+    });
+
     describe('/api/proxied/session', () => {
       it('returns no user', () => {
-        const endpoint = mockApp.get.getCall(2).args[1];
+        const endpoint = mockApp.get.getCall(3).args[1];
         const req = {
           get: sinon.stub().returns(null)
         };
@@ -166,7 +181,7 @@ describe('Server', () => {
       });
 
       it('returns user data', () => {
-        const endpoint = mockApp.get.getCall(2).args[1];
+        const endpoint = mockApp.get.getCall(3).args[1];
         const req = {
           get: sinon.stub().returns('test@localhost')
         };
