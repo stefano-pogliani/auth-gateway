@@ -1,0 +1,11 @@
+[Unit]
+Description=A fully featured auth gateway for web applications.
+
+[Service]
+Type=simple
+ExecStart=/bin/env npm run auth-gateway run
+ExecReload=/bin/kill -HUP $MAINPID
+WorkingDirectory=/opt/authgateway
+
+[Install]
+WantedBy=multi-user.target

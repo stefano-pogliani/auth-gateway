@@ -15,7 +15,7 @@ const { shutdown } = require('./shutdown');
  *   * Decorate and pipe stdout and stderr streams.
  *   * Gracefully terminate the process (terminate after timeout).
  *   * React to child termination (default to exit).
- *   * TODO: Reload configuration through signals.
+ *   * Reload configuration through signals.
  *   * Stop subprocess as the system shuts down.
  *   * Support for dynamic config files.
  */
@@ -32,9 +32,14 @@ class Spawner {
     this._makeConfig = options.makeConfig || null;
     this._name = name;
     this._output = options.output || console.log;
-    this._stopSignal = options.stopSignal || 'SIGINT';
     this._tagLine = options.tagLine || ((msg) => msg);
     this._tagInformLine = options.tagInformLine || this._tagLine;
+
+    this._signals = {
+      logrotate: options.logrotateSignal || null,
+      reload: options.reloadSignal || null,
+      stop: options.stopSignal || 'SIGINT'
+    };
 
     // Store the ChildProcess instance spawned for this instance.
     this._proc = null;
@@ -48,7 +53,7 @@ class Spawner {
 
     // Track the callback for shutdown stop so we can remove it on exit.
     this._onSystemStop = () => {
-      this._proc.kill(this._stopSignal);
+      this._proc.kill(this._signals.stop);
     };
 
     // Add the config option arguments.
@@ -179,10 +184,36 @@ class Spawner {
   }
 
   /**
+   * Signals the child process with the _signals.logrotate.
+   * Does nothing if the signal is not set.
+   * @returns {bool} True if the child was signalled.
+   */
+  logrotate() {
+    if (this._signals.logrotate) {
+      this._proc.kill(this._signals.logrotate);
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * @returns {string} The name of the child to spawn.
    */
   name() {
     return this._name;
+  }
+
+  /**
+   * Signals the child process with the _signals.reload.
+   * Does nothing if the signal is not set.
+   * @returns {bool} True if the child was signalled.
+   */
+  reload() {
+    if (this._signals.reload) {
+      this._proc.kill(this._signals.reload);
+      return true;
+    }
+    return false;
   }
 
   /**

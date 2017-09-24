@@ -1,6 +1,8 @@
+const process = require('process');
 const tmp = require('tmp');
 
 const Auditor = require('../server/auditor');
+const { logAppMessage } = require('../server/app');
 const { shutdown } = require('../shutdown');
 const { Command } = require('./base');
 const { RunWebServer } = require('../server');
@@ -28,10 +30,26 @@ class RunCommand extends Command {
     tmp.setGracefulCleanup();
     process.on('SIGINT',  () => shutdown.stop());
     process.on('SIGTERM', () => shutdown.stop());
+    process.on('SIGHUP',  () => this._handleReload());
     Auditor.InitialiseAuditor(this._config);
     InitialiseSubProcs(this._config);
     this.auth_proxy = AuthProxy();
     this.http_proxy = HttpProxy();
+  }
+
+  /**
+   * Handle SIGHUP to reload and logrotate subprocesses.
+   */
+  _handleReload() {
+    logAppMessage('Reloading and logrotating subprocesses ...');
+    this.auth_proxy.reload();
+    this.auth_proxy.logrotate();
+    const reloaded = this.http_proxy.reload();
+    if (!reloaded) {
+      throw new Error('HTTP Proxy must support reloading');
+    }
+    this.http_proxy.logrotate();
+    logAppMessage('Subprocesses signaled');
   }
 
   /**

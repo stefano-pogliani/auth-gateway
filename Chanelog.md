@@ -1,3 +1,9 @@
+0.2.4
+-----
+* AuthGateway logo.
+* Acmetool integration.
+* Reload Auth and HTTP proxy (for certs update and logrotate).
+
 0.2.3
 -----
 * Expose metrics.

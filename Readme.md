@@ -67,3 +67,19 @@ AuthGateway is built on top of the following software:
 
   * Nginx
   * Oauth2
+
+
+Let's Encrypt (amcetool)
+------------------------
+Support for automated HTTPS can be achieved with
+[acmetool](https://hlandau.github.io/acme/).
+The suggestion is to use `acmetool` in non-root mode.
+
+Below are some commands to create your local, non-root, state
+and how to re-new certs.
+
+```
+acmetool --state=./acmetool/state --hooks=./acmetool/hooks quickstart
+acmetool --state=./acmetool/state --hooks=./acmetool/hooks want `npm run auth-gateway list-domains`
+acmetool --state=./acmetool/state --hooks=./acmetool/hooks reconcile
+```

@@ -7,7 +7,8 @@ const { ShutdownManager } = require('../../gateway/shutdown');
 // Mocks are configured in beforeEach.
 let mockChild = {
   stderr: {},
-  stdout: {}
+  stdout: {},
+  kill: null
 };
 let mockChildProcess = {};
 let mockFile = {name: 'tmp'};
@@ -37,6 +38,7 @@ describe('Spawner', () => {
     mockChild.on = sinon.spy();
     mockChild.stderr.on = sinon.spy();
     mockChild.stdout.on = sinon.spy();
+    mockChild.kill = sinon.spy();
     mockChildProcess.spawn = sinon.stub().returns(mockChild);
     mockFs.writeFileSync = sinon.spy();
     mockProcess.exit = sinon.spy();
@@ -259,6 +261,52 @@ describe('Spawner', () => {
       this.child._proc = {kill: sinon.spy()};
       onStop();
       assert.equal(1, this.child._proc.kill.callCount);
+    });
+  });
+
+  describe('logrotate', () => {
+    it('does nothing without a signal', () => {
+      this.child = new Spawner('test-child', 'bash', {
+        output: sinon.spy()
+      });
+      this.child.spawn();
+      const signaled = this.child.logrotate();
+      assert.equal(false, signaled);
+      assert.equal(0, mockChild.kill.callCount);
+    });
+
+    it('signals the child', () => {
+      this.child = new Spawner('test-child', 'bash', {
+        logrotateSignal: 'SIGUSR1',
+        output: sinon.spy()
+      });
+      this.child.spawn();
+      const signaled = this.child.logrotate();
+      assert.equal(true, signaled);
+      assert(mockChild.kill.calledWith('SIGUSR1'));
+    });
+  });
+
+  describe('reload', () => {
+    it('does nothing without a signal', () => {
+      this.child = new Spawner('test-child', 'bash', {
+        output: sinon.spy()
+      });
+      this.child.spawn();
+      const signaled = this.child.reload();
+      assert.equal(false, signaled);
+      assert.equal(0, mockChild.kill.callCount);
+    });
+
+    it('signals the child', () => {
+      this.child = new Spawner('test-child', 'bash', {
+        reloadSignal: 'SIGHUP',
+        output: sinon.spy()
+      });
+      this.child.spawn();
+      const signaled = this.child.reload();
+      assert.equal(true, signaled);
+      assert(mockChild.kill.calledWith('SIGHUP'));
     });
   });
 });

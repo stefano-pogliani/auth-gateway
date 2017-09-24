@@ -11,4 +11,6 @@
 # Local testing files.
 allow.emails
 auth-gateway.yaml
+
+acmetool/**
 http_proxy/**

@@ -9,6 +9,8 @@ const {
 
 // Map all known commands.
 const COMMANDS = {
+  'list-domains':
+    require('../gateway/commands/list-domains').ListDomainsCommand,
   'run': require('../gateway/commands/run').RunCommand
 };
 

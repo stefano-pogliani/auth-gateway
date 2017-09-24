@@ -1,6 +1,7 @@
 const assert = require('assert');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
+require('prom-client').register.clear();
 
 const Auditor = require('../../../gateway/server/auditor');
 

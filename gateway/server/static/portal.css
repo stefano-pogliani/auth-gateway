@@ -2,6 +2,10 @@ nav.navbar.sticky-top {
   margin-bottom: 1em;
 }
 
+nav img.logo {
+  width: 2em;
+}
+
 .app-card {
   margin-bottom: 2em;
 }

@@ -15,7 +15,9 @@ module.exports.InitialiseSubProcs = (config) => {
   const auth_opts = {
     args: auth_confg.process.args,
     configFlag: '--config',
+    logrotateSignal: auth_confg.signals.logrotate,
     makeConfig: () => conf_auth.renderMain(config),
+    reloadSignal: auth_confg.signals.reload,
     tagInformLine: (tag) => colors.magenta(`[=${tag}=]`) + ' ',
     tagLine: (tag) => colors.magenta(`[-${tag}-]`) + ' '
   };
@@ -28,7 +30,9 @@ module.exports.InitialiseSubProcs = (config) => {
   const http_opts = {
     args: http_confg.process.args,
     configFlag: '-c',
+    logrotateSignal: http_confg.signals.logrotate,
     makeConfig: () => conf_http.renderMain(config),
+    reloadSignal: http_confg.signals.reload,
     tagInformLine: (tag) => colors.blue(`[=${tag}=]`) + ' ',
     tagLine: (tag) => colors.blue(`[-${tag}-]`) + ' '
   };

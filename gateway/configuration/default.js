@@ -48,6 +48,10 @@ module.exports.auth_proxy = {
     refresh: '0s',
     secret: '',
     ttl: '168h'
+  },
+  signals: {
+    logrotate: null,
+    reload: null
   }
 };
 
@@ -60,16 +64,20 @@ module.exports.http_proxy = {
     address: '*',
     port: 443
   },
+  config_template: path.join(__dirname, '..', '..', 'templates', 'http', 'nginx.ejs'),
   process: {
     name: 'nginx',
     command: 'nginx'
+  },
+  signals: {
+    logrotate: 'SIGUSR1',
+    reload: 'SIGHUP'
   },
   tls: {
     crt_file: '',
     key_file: '',
     terminate: true
-  },
-  config_template: path.join(__dirname, '..', '..', 'templates', 'http', 'nginx.ejs')
+  }
 };
 
 
