@@ -1,3 +1,9 @@
+0.2.5
+-----
+* Add missing `prom-client` dependency.
+* Encode hashed IDs with base64 (not hex).
+* Support `version` command and `--version` flag.
+
 0.2.4
 -----
 * AuthGateway logo.

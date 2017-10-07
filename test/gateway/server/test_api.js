@@ -193,10 +193,10 @@ describe('Server', () => {
         const response = res.json.getCall(0).args[0];
         assert.deepEqual(response, {
           allowed: true,
-          email: "test@localhost",
-          gravatar: "8ea890a677d6a223c591a1beea6ea9d2",
-          id: "579c16373fd007232a1e4eb3e79fd90b3a0dbdbf",
-          user: "test@localhost"
+          email: 'test@localhost',
+          gravatar: '8ea890a677d6a223c591a1beea6ea9d2',
+          id: 'V5wWNz/QByMqHk6z55/ZCzoNvb8=',
+          user: 'test@localhost'
         });
       });
     });

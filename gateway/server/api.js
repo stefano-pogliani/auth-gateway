@@ -138,7 +138,7 @@ app.get('/api/proxied/session', (req, res) => {
   if (token) {
     const hmac = crypto.createHmac(algo, seed);
     hmac.update(token);
-    session_id = hmac.digest('hex');
+    session_id = hmac.digest('base64');
   }
 
   let session = {
