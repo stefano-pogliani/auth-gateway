@@ -1,3 +1,7 @@
+0.2.7
+-----
+* Forgot version bump.
+
 0.2.6
 -----
 * Add Audit Tool command line options.
