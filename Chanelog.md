@@ -1,3 +1,8 @@
+0.2.6
+-----
+* Add Audit Tool command line options.
+* Add Audit Tool external configuration.
+
 0.2.5
 -----
 * Add missing `prom-client` dependency.

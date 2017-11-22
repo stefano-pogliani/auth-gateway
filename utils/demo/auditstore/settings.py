@@ -1,7 +1,3 @@
-# Flask conf.
-DEBUG = True
-
-
 # Global conf.
 ALLOWED_FILTERS = []
 HATEOAS = False
@@ -13,7 +9,7 @@ XML = False
 
 # Mongo conf.
 MONGO_DBNAME = 'authgateway'
-MONGO_HOST = 'mongo'
+MONGO_HOST = 'localhost'
 MONGO_PORT = 27017
 
 

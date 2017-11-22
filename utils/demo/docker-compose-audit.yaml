@@ -9,6 +9,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-auditstore
+    command:
+      - 'python'
+      - 'main.py'
+      - '--debug'
+      - '--config'
+      - '/auditstore/config.py'
     links:
       - mongo
     ports:
