@@ -65,6 +65,9 @@ module.exports.http_proxy = {
     port: 443
   },
   config_template: path.join(__dirname, '..', '..', 'templates', 'http', 'nginx.ejs'),
+  hsts: {
+    age: 0
+  },
   process: {
     name: 'nginx',
     command: 'nginx'

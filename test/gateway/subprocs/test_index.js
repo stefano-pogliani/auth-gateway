@@ -106,6 +106,7 @@ describe('Subprocs', () => {
         '  },',
         '  "https": {',
         '    "crt_file": "/server.crt",',
+        '    "hsts": 0,',
         '    "key_file": "/server.key",',
         '    "terminate": true',
         '  },',

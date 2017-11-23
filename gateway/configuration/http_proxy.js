@@ -44,6 +44,7 @@ module.exports.renderMain = function renderMain(config) {
     },
     proxy: {
       bind: config.http_proxy.bind,
+      hsts: config.http_proxy.hsts,
       tls: config.http_proxy.tls
     }
   };

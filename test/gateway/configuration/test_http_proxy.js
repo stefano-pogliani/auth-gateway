@@ -24,6 +24,7 @@ const TEST_CONF = {
       address: '*',
       port: 443
     },
+    hsts: { age: 8 },
     tls: {
       crt_file: '/server.crt',
       key_file: '/server.key',
@@ -66,6 +67,7 @@ describe('Configuration', () => {
         https: {
           crt_file: '/server.crt',
           key_file: '/server.key',
+          hsts: 8,
           terminate: true
         },
         apps: [{

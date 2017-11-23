@@ -1,3 +1,8 @@
+0.2.8
+-----
+* Harden default nginx configuration.
+* Support HSTS header configuration (disabled by default).
+
 0.2.7
 -----
 * Forgot version bump.
