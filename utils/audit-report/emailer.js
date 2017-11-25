@@ -15,6 +15,14 @@ const TRANSPORTS = {
     });
   },
 
+  smtp(conf) {
+    return nodemailer.createTransport({
+      host: conf.email_smtp_host,
+      port: conf.email_smtp_port,
+      secure: conf.email_smtp_secure
+    });
+  },
+
   stream(conf) {
     return nodemailer.createTransport({
       streamTransport: true,
