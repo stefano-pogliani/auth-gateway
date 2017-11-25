@@ -1,7 +1,7 @@
 {
   "name": "auth-gateway",
   "description": "A fully featured auth gateway for web applications.",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "author": "Stefano Pogliani <stefano@spogliani.net> (http://spogliani.net/)",
   "license": "MIT",
   "main": "gateway/index.js",

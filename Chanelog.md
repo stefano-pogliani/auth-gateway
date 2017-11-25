@@ -1,3 +1,7 @@
+0.2.9
+-----
+* Nginx limis are too tight.
+
 0.2.8
 -----
 * Harden default nginx configuration.
