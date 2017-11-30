@@ -6,7 +6,7 @@ const mockApp = {
   get: sinon.stub()
 };
 const mockUtils = {
-  getCookieSession: sinon.stub()
+  getSession: sinon.stub()
 };
 proxyquire('../../../../gateway/server/views', {
   '../app': {
@@ -64,11 +64,11 @@ describe('Server', () => {
   describe('app', () => {
     describe('views', () => {
       afterEach(() => {
-        mockUtils.getCookieSession.reset();
+        mockUtils.getSession.reset();
       });
 
       const getRender = () => {
-        return mockUtils.getCookieSession.getCall(0).args[2];
+        return mockUtils.getSession.getCall(0).args[2];
       };
 
       const simulateGet = (index) => {
@@ -85,7 +85,7 @@ describe('Server', () => {
 
       it('render index', () => {
         const { makeRequest, res } = simulateGet(0);
-        mockUtils.getCookieSession.resolves({
+        mockUtils.getSession.resolves({
           allowed: false,
           email: null,
           gravatar: null,
@@ -140,7 +140,7 @@ describe('Server', () => {
 
       it('render profile', () => {
         const { makeRequest, res } = simulateGet(1);
-        mockUtils.getCookieSession.resolves({
+        mockUtils.getSession.resolves({
           allowed: false,
           email: null,
           gravatar: null,

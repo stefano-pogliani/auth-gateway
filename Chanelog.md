@@ -1,3 +1,10 @@
+0.3.0
+-----
+* Add session type (cookie only for now).
+* NGINX: Increase server names hash map sizes.
+* NGINX: Support WebSocket connections.
+* Wrap `getCookieSession` into `getSession` for support of more methods.
+
 0.2.10
 ------
 * Support SMTP transport for audit reports.

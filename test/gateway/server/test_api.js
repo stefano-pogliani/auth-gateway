@@ -24,7 +24,7 @@ const mockApp = {
   get: sinon.stub().returns(TEST_CONFIG)
 };
 const mockUtils = {
-  getCookieSession: sinon.stub()
+  getSession: sinon.stub()
 };
 proxyquire('../../../gateway/server/api', {
   './app': {
@@ -39,7 +39,7 @@ describe('Server', () => {
   describe('app', () => {
     afterEach(() => {
       this.clock.restore();
-      mockUtils.getCookieSession.reset()
+      mockUtils.getSession.reset()
       Auditor.Reset();
     });
     beforeEach(() => {
@@ -67,7 +67,7 @@ describe('Server', () => {
 
       it('Sends a 202 when allowed', () => {
         const { makeRequest, res } = simulateGet();
-        mockUtils.getCookieSession.resolves({
+        mockUtils.getSession.resolves({
           allowed: true,
           email: 'a@b.c',
           gravatar: 'acb',
@@ -82,7 +82,7 @@ describe('Server', () => {
 
       it('Sends a 401 when not allowed', () => {
         const { makeRequest, res } = simulateGet();
-        mockUtils.getCookieSession.resolves({
+        mockUtils.getSession.resolves({
           allowed: false,
           email: null,
           gravatar: null,
@@ -97,7 +97,7 @@ describe('Server', () => {
 
       it('audits the request', () => {
         const { makeRequest } = simulateGet();
-        mockUtils.getCookieSession.resolves({
+        mockUtils.getSession.resolves({
           allowed: false,
           email: 'test@example.com',
           gravatar: null,
@@ -121,7 +121,7 @@ describe('Server', () => {
       it('auditor rejects the request', () => {
         const { makeRequest, res } = simulateGet();
         Auditor.Instance().audit.resolves(1234);
-        mockUtils.getCookieSession.resolves({
+        mockUtils.getSession.resolves({
           allowed: false,
           email: 'test@example.com',
           gravatar: null,

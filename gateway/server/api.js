@@ -7,7 +7,7 @@ const Histogram = require('prom-client').Histogram;
 
 const Auditor = require('./auditor');
 const { app } = require('./app');
-const { getCookieSession } = require('./utils');
+const { getSession } = require('./utils');
 
 const REQUEST_DURATION = new Histogram({
   name: 'authgateway_request_duration',
@@ -38,7 +38,7 @@ app.get('/api/auth', (req, res) => {
   const proto = req.get('X-Forwarded-Proto');
   const uri = req.get('X-Original-URI');
   const original_url = `${proto}://${host}${uri}`;
-  return getCookieSession(req, config).then((session) => {
+  return getSession(req, config).then((session) => {
     // Audit the request.
     const audit_event = {
       email: session.email,

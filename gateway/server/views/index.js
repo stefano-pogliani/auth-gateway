@@ -1,6 +1,6 @@
 const { app } = require('../app');
 const { enhanceApp } = require('../../configuration');
-const { getCookieSession } = require('../utils');
+const { getSession } = require('../utils');
 
 
 /**
@@ -8,7 +8,7 @@ const { getCookieSession } = require('../utils');
  */
 app.get('/', (req, res) => {
   let config = app.get('config');
-  return getCookieSession(req, config).then((session) => {
+  return getSession(req, config).then((session) => {
     let context = {
       apps: config.apps.map(enhanceApp),
       auth: {
@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
  */
 app.get('/profile', (req, res) => {
   let config = app.get('config');
-  return getCookieSession(req, config).then((session) => {
+  return getSession(req, config).then((session) => {
     let context = {
       auth: {
         prefix: config.auth_proxy.prefix

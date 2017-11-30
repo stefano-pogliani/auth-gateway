@@ -26,12 +26,25 @@ http {
   keepalive_timeout 5 5;
   types_hash_max_size 2048;
 
+  # Bump up the server_name hash sizes as we expect many names.
+  # NGINX optimises maps up to the limit so in most cases this is fine.
+  # If the limits are still too low uses can always use custom templates.
+  server_names_hash_bucket_size 256;
+  server_names_hash_max_size 1024;
+
   # Override paths so that nginx can run as non-root.
   client_body_temp_path <%- dirs.base %>/tmp/client_body;
   fastcgi_temp_path <%- dirs.base %>/tmp/fastcgi;
   proxy_temp_path <%- dirs.base %>/tmp/proxy;
   scgi_temp_path  <%- dirs.base %>/tmp/scgi;
   uwsgi_temp_path <%- dirs.base %>/tmp/uwsgi;
+
+  # Enable support for websocket connections.
+  # See: http://nginx.org/en/docs/http/websocket.html
+  map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+  }
 
   # Hardening options.
   add_header X-Frame-Options SAMEORIGIN;
@@ -151,6 +164,11 @@ http {
 
       auth_request /__<%- auth.prefix %>__;
       error_page 401 = https://<%- gateway.domain %>:<%- proxy.bind.port %>/;
+
+      # Support websocket connections.
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection $connection_upgrade;
     }
 
     location /__<%- auth.prefix %>__ {

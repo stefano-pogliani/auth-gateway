@@ -8,7 +8,10 @@ const mockRequest = sinon.spy();
 mockRequest.jar = sinon.stub().returns(mockJar);
 mockRequest.cookie = sinon.spy();
 
-const { getCookieSession } = proxyquire('../../../gateway/server/utils', {
+const {
+  getCookieSession,
+  getSession
+} = proxyquire('../../../gateway/server/utils', {
   request: mockRequest
 });
 
@@ -17,6 +20,7 @@ const NULL_SESSION = {
   email: null,
   gravatar: null,
   id: null,
+  type: null,
   user: null
 };
 const TEST_CONFIG = {
@@ -38,23 +42,27 @@ const TEST_SESSION = {
   email: 'abc',
   gravatar: 'def',
   id: 'ghi',
+  type: 'cookie',
   user: 'jkl'
 };
 
 
 describe('Server', () => {
   describe('Utils', () => {
+    afterEach(() => {
+      mockRequest.reset();
+    });
+
+    let simulateRequest = (err, code, body) => {;
+      const callback = mockRequest.getCall(0).args[1];
+      callback(err, {statusCode: code}, body);
+    };
+
     describe('getCookieSession', () => {
       afterEach(() => {
-        mockRequest.reset();
         mockRequest.cookie.reset();
         mockJar.setCookie.reset();
       });
-
-      let simulateRequest = (err, code, body) => {;
-        const callback = mockRequest.getCall(0).args[1];
-        callback(err, {statusCode: code}, body);
-      };
 
       it('Calls out to localhost', () => {
         const getReq = getCookieSession(TEST_REQ, TEST_CONFIG);
@@ -114,6 +122,24 @@ describe('Server', () => {
         simulateRequest(null, 201, JSON.stringify(TEST_SESSION));
         return getReq.then((session) => {
           assert.deepEqual(session, TEST_SESSION);
+        });
+      });
+    });
+
+    describe('getSession', () => {
+      it('Calls getCookieSession when cookies are set', () => {
+        const getReq = getSession(TEST_REQ, TEST_CONFIG);
+        simulateRequest(null, 201, JSON.stringify('test'));
+        return getReq.then((session) => {
+          assert.deepEqual(session, 'test');
+        });
+      });
+
+      it('Fails with NULL_SESSION if no method is available', () => {
+        const req = {cookies: {}};
+        const getReq = getSession(req, TEST_CONFIG);
+        return getReq.then((session) => {
+          assert.deepEqual(session, NULL_SESSION);
         });
       });
     });

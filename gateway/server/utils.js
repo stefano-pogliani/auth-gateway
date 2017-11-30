@@ -4,6 +4,7 @@ const NULL_SESSION = {
   email: null,
   gravatar: null,
   id: null,
+  type: null,
   user: null
 };
 
@@ -38,10 +39,37 @@ module.exports.getCookieSession = (req, config) => {
         return;
       }
       try {
-        resolve(JSON.parse(content));
+        let session = JSON.parse(content);
+        session.type = 'cookie';
+        resolve(session);
       } catch(e) {
         resolve(NULL_SESSION);
       }
     });
+  });
+}
+
+
+/**
+ * Returns session information by calling the session endpoint.
+ *
+ * If the proxied session endpoint returns an error assume the
+ * session is invalid and return a null one.
+ *
+ * Detect the best source for session detection:
+ *
+ *   * Get the session from cookie.
+ *   * TODO: Get the session for HTTP Bearer Token.
+ */
+module.exports.getSession = (req, config) => {
+  const cookie_name = config.auth_proxy.session.name;
+  const cookie = req.cookies[cookie_name];
+  if (cookie) {
+    return module.exports.getCookieSession(req, config);
+  }
+
+  // Failed to find a valid session.
+  return new Promise((resolve) => {
+    resolve(NULL_SESSION);
   });
 }
