@@ -5,9 +5,9 @@ const register = require('prom-client').register;
 const Counter = require('prom-client').Counter;
 const Histogram = require('prom-client').Histogram;
 
-const Auditor = require('./auditor');
-const { app } = require('./app');
-const { getSession } = require('./utils');
+const Auditor = require('../auditor');
+const { app } = require('../app');
+const { getSession } = require('../utils');
 
 const REQUEST_DURATION = new Histogram({
   name: 'authgateway_request_duration',
