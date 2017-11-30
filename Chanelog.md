@@ -3,6 +3,7 @@
 * Add session type (cookie only for now).
 * NGINX: Increase server names hash map sizes.
 * NGINX: Support WebSocket connections.
+* Split API into separate files.
 * Wrap `getCookieSession` into `getSession` for support of more methods.
 
 0.2.10
