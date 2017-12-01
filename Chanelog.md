@@ -2,6 +2,7 @@
 -----
 * Add /api/audit endpoint.
 * Add session type (cookie only for now).
+* Audit Report: whitelisted events without session are not unknown.
 * Define audit record format and helper functions.
 * Define authorization rules in a dedicated module.
 * NGINX: Increase server names hash map sizes.

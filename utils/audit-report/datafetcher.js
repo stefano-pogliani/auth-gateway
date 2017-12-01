@@ -42,11 +42,13 @@ module.exports.fetch = (collection, start_time, end_time) => {
   const unkown_allowed = collection.count({
     session_id: null,
     result: 'allow',
-    timestamp: timestamp
+    timestamp: timestamp,
+    whitelisted: false
   });
   const unkown_total = collection.count({
     session_id: null,
-    timestamp: timestamp
+    timestamp: timestamp,
+    whitelisted: false
   });
 
   // Have MongodB compute a per-day histogram of allowed/rejected.
