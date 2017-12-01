@@ -1,4 +1,18 @@
 /**
+ * Returns an audit result.
+ *
+ * This check is for requests to audited resources
+ * so the state of the session is ignored.
+ */
+module.exports.CheckAuditedRequest = (_) => {
+  return {
+    allowed: true,
+    reason: 'This is an audited request',
+    whitelisted: true
+  };
+};
+
+/**
  * Returns an authorization result based on the session.
  *
  * This check is for requests to protected resources

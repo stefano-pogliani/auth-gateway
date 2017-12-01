@@ -3,25 +3,28 @@ const { getSession } = require('../utils');
 
 const { AuditRecord } = require('../auditor/record');
 const { AuditedResponse } = require('./utils');
-const { CheckProtectedRequest } = require('../auth_logic');
+const { CheckAuditedRequest } = require('../auth_logic');
 
 const { REQUEST_DURATION } = require('./metrics');
 
 
 /**
- * Verify a request received by the HTTP Proxy for authorization.
+ * Audit a request received by the HTTP Proxy.
+ *
+ * Audited requests are always allowed (unless the auditor fails) and are
+ * usually combined with upstreams that implement their own authentication.
+ * Session information is therefore mostly unavailable.
  *
  * Return codes:
  *   - 202: The request is allowed.
- *   - 401: The request is NOT allowed.
  *   - Other: Code possibly returned by the auditor (on error).
  */
-app.get('/api/auth', (req, res) => {
-  const recordDuration = REQUEST_DURATION.labels('/api/auth').startTimer();
+app.get('/api/audit', (req, res) => {
+  const recordDuration = REQUEST_DURATION.labels('/api/audit').startTimer();
   const config = app.get('config');
   const time = Date.now();
   return getSession(req, config).then((session) => {
-    const result = CheckProtectedRequest(session);
+    const result = CheckAuditedRequest(session);
     const audit_event = AuditRecord(req, session, result, 'https', time);
     return AuditedResponse(audit_event, result);
 

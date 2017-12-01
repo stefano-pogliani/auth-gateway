@@ -1,5 +1,6 @@
 0.3.0
 -----
+* Add /api/audit endpoint.
 * Add session type (cookie only for now).
 * Define audit record format and helper functions.
 * Define authorization rules in a dedicated module.

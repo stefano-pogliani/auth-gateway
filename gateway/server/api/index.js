@@ -10,5 +10,6 @@ app.get('/api/health', (req, res) => {
 
 
 // Import routes.
+require('./audit');
 require('./auth');
 require('./proxied');
