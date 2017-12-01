@@ -4,9 +4,7 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 
 const default_config = require('./default');
-const {
-  DEFAULT_CONF_FILE
-} = require('../constants');
+const { DEFAULT_CONF_FILE } = require('../constants');
 
 
 /**
@@ -15,26 +13,36 @@ const {
  *
  * Does not perform validation.
  */
-module.exports.enhanceApp = function enhanceApp(real_app) {
-  const app = deepmerge({}, real_app);
-  if (!app.title) {
-    app.title = app.name;
-  }
-
-  if (!app.type) {
-    if (app.upstream) {
-      app.type = 'upstream';
-    } else if (app.url) {
-      app.type = 'link';
-    } else {
-      app.type = 'unknown';
+module.exports.enhanceApp = (config) => {
+  return (real_app) => {
+    const app = deepmerge({}, real_app);
+    if (!app.title) {
+      app.title = app.name;
     }
-  }
 
-  if (app.type === 'upstream' && !app.upstream.subdomain) {
-    app.upstream.subdomain = app.name.toLowerCase();
-  }
-  return app;
+    if (!app.type) {
+      if (app.audit) {
+        app.type = 'audited';
+      } else if (app.upstream) {
+        app.type = 'upstream';
+      } else if (app.url) {
+        app.type = 'link';
+      } else {
+        app.type = 'unknown';
+      }
+    }
+
+    if (app.type === 'audited' && !app.audit.server_name) {
+      const host = config.gateway.domain;
+      const name = app.name.toLowerCase();
+      const port = config.http_proxy.bind.port;
+      app.audit.server_name = `https://${name}.${host}:${port}/`;
+    }
+    if (app.type === 'upstream' && !app.upstream.subdomain) {
+      app.upstream.subdomain = app.name.toLowerCase();
+    }
+    return app;
+  };
 };
 
 

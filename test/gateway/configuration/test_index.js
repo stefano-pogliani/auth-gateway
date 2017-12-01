@@ -10,9 +10,11 @@ const mockFs = {
   readFileSync: sinon.spy()
 };
 const mockDefaultConf = {
-  gateway: {},
+  gateway: {domain: 'example.com'},
   auth_proxy: {},
-  http_proxy: {},
+  http_proxy: {
+    bind: {port: 443}
+  },
   apps: []
 };
 
@@ -23,6 +25,24 @@ const configuration = proxyquire('../../../gateway/configuration', {
 
 
 describe('Configuration', () => {
+  describe('enhanceApp', () => {
+    const config = configuration.load();
+    const enhanceApp = configuration.enhanceApp(config);
+
+    it('Enhance audited apps', () => {
+      const app = enhanceApp({
+        name: 'test',
+        audit: {}
+      });
+      assert.deepEqual(app, {
+        name: 'test',
+        title: 'test',
+        type: 'audited',
+        audit: {server_name: 'https://test.example.com:443/'}
+      });
+    });
+  });
+
   describe('load', () => {
     it('ignores missing default', () => {
       mockFs.readFileSync = sinon.stub().throws();
@@ -35,9 +55,11 @@ describe('Configuration', () => {
       assert.deepEqual(config, {
         apps: [],
         auditor: {provider: 'null'},
-        gateway: {},
+        gateway: {domain: 'example.com'},
         auth_proxy: {},
-        http_proxy: {}
+        http_proxy: {
+          bind: {port: 443}
+        }
       });
     });
 
@@ -54,9 +76,14 @@ describe('Configuration', () => {
       assert.deepEqual(config, {
         apps: [],
         auditor: {provider: 'null'},
-        gateway: {a: {b: 'c'}},
+        gateway: {
+          a: {b: 'c'},
+          domain: 'example.com'
+        },
         auth_proxy: {},
-        http_proxy: {}
+        http_proxy: {
+          bind: {port: 443}
+        }
       });
     });
   });

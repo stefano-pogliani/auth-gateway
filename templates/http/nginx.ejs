@@ -140,7 +140,7 @@ http {
   }
 
   # Configure upstreams and servers for apps.
-  <% apps.forEach(function(app) { %>
+  <% apps.upstreams.forEach(function(app) { %>
   upstream <%- app.upstream.subdomain %>_upstream {
     server <%- app.upstream.host %>;
   }

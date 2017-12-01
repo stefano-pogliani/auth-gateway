@@ -70,25 +70,27 @@ describe('Configuration', () => {
           hsts: 8,
           terminate: true
         },
-        apps: [{
-          name: 'test1',
-          title: 'test1',
-          type: 'upstream',
-          upstream: {
-            subdomain: 'test1',
-            host: 'server1:port',
-            protocol: 'http'
-          }
-        }, {
-          name: 'test2',
-          title: 'test2',
-          type: 'upstream',
-          upstream: {
-            subdomain: 'test2',
-            host: 'server2:port',
-            protocol: 'http'
-          }
-        }]
+        apps: {
+          upstreams: [{
+            name: 'test1',
+            title: 'test1',
+            type: 'upstream',
+            upstream: {
+              subdomain: 'test1',
+              host: 'server1:port',
+              protocol: 'http'
+            }
+          }, {
+            name: 'test2',
+            title: 'test2',
+            type: 'upstream',
+            upstream: {
+              subdomain: 'test2',
+              host: 'server2:port',
+              protocol: 'http'
+            }
+          }]
+        }
       };
       const config = http_proxy_config.renderMain(TEST_CONF);
       assert.deepEqual(expected, JSON.parse(config));

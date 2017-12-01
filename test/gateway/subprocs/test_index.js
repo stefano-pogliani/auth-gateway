@@ -110,7 +110,7 @@ describe('Subprocs', () => {
         '    "key_file": "/server.key",',
         '    "terminate": true',
         '  },',
-        '  "apps": []',
+        '  "apps": {"upstreams":[]}',
         '}\n'
       ].join('\n'));
       assert.equal('\u001b[34m[=tag=]\u001b[39m ', opts.tagInformLine('tag'));

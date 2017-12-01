@@ -5,10 +5,14 @@
 * Audit Report: whitelisted events without session are not unknown.
 * Define audit record format and helper functions.
 * Define authorization rules in a dedicated module.
+* Introduce audited apps.
 * NGINX: Increase server names hash map sizes.
 * NGINX: Support WebSocket connections.
+* Pass configuration to enhanceApp.
+* Prepare HTTP context and template for audited apps.
 * Shared logic to audit requests and generate response codes.
 * Split API into separate files.
+* Tag protected apps.
 * Wrap `getCookieSession` into `getSession` for support of more methods.
 
 0.2.10

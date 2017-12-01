@@ -7,10 +7,11 @@ const { getSession } = require('../utils');
  * Returns the portal home page.
  */
 app.get('/', (req, res) => {
-  let config = app.get('config');
+  const config = app.get('config');
   return getSession(req, config).then((session) => {
-    let context = {
-      apps: config.apps.map(enhanceApp),
+    const enhance = enhanceApp(config);
+    const context = {
+      apps: config.apps.map(enhance),
       auth: {
         prefix: config.auth_proxy.prefix
       },

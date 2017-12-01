@@ -89,7 +89,7 @@ module.exports.http_proxy = {
  *
  * {
  *   "name": <string>,
- *   "type": <sting{link,upstream}>,
+ *   "type": <sting{audited,link,upstream}>,
  *   "url": <string|null>,
  *   "upstream": {
  *     "host": <string>,

@@ -9,7 +9,8 @@ const configuration = require('../configuration');
 class ListDomainsCommand extends Command {
   run() {
     const conf = this._config;
-    const apps = conf.apps.map(configuration.enhanceApp).filter(
+    const enhanceApp = configuration.enhanceApp(conf);
+    const apps = conf.apps.map(enhanceApp).filter(
       (app) => app.type === 'upstream'
     ).sort((left, right) => {
       if (left.upstream.subdomain < right.upstream.subdomain) {
