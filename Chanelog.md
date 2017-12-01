@@ -1,8 +1,11 @@
 0.3.0
 -----
 * Add session type (cookie only for now).
+* Define audit record format and helper functions.
+* Define authorization rules in a dedicated module.
 * NGINX: Increase server names hash map sizes.
 * NGINX: Support WebSocket connections.
+* Shared logic to audit requests and generate response codes.
 * Split API into separate files.
 * Wrap `getCookieSession` into `getSession` for support of more methods.
 
