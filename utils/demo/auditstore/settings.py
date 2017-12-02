@@ -34,6 +34,10 @@ DOMAIN = {
         'type': 'string',
         'required': True
       },
+      'reason': {
+        'type': 'string',
+        'required': True
+      },
       'result': {
         'type': 'string',
         'required': True
@@ -50,6 +54,10 @@ DOMAIN = {
       'user': {
         'type': 'string',
         'nullable': True,
+        'required': True
+      },
+      'whitelisted': {
+        'type': 'boolean',
         'required': True
       }
     }

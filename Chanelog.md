@@ -2,20 +2,23 @@
 -----
 * Add /api/audit endpoint.
 * Add session type (cookie only for now).
-* Audit Report: whitelisted events without session are not unknown.
 * Define audit record format and helper functions.
 * Define authorization rules in a dedicated module.
-* Introduce audited apps.
 * Introduce app ids (for upstream names).
-* NGINX: Increase server names hash map sizes.
-* NGINX: Default template supports audited apps.
-* NGINX: Support WebSocket connections.
+* Introduce audited apps.
 * Pass configuration to enhanceApp.
 * Prepare HTTP context and template for audited apps.
 * Shared logic to audit requests and generate response codes.
 * Split API into separate files.
 * Tag protected apps.
 * Wrap `getCookieSession` into `getSession` for support of more methods.
+
+* NGINX: Default template supports audited apps.
+* NGINX: Increase server names hash map sizes.
+* NGINX: Support WebSocket connections.
+
+* Audit Report: update receiver schema.
+* Audit Report: whitelisted events without session are not unknown.
 
 0.2.10
 ------
