@@ -44,6 +44,12 @@ const TEST_CONF = {
       host: 'server2:port',
       protocol: 'http'
     }
+  }, {
+    name: 'test3',
+    audit: {
+      host: 'server2:port',
+      protocol: 'http'
+    }
   }]
 };
 
@@ -71,7 +77,20 @@ describe('Configuration', () => {
           terminate: true
         },
         apps: {
+          audited: [{
+            id: 'test3',
+            name: 'test3',
+            title: 'test3',
+            type: "audited",
+            audit: {
+              url: 'https://test3.example:443/',
+              server_name: 'test3.example',
+              host: 'server2:port',
+              protocol: 'http'
+            }
+          }],
           upstreams: [{
+            id: 'test1',
             name: 'test1',
             title: 'test1',
             type: 'upstream',
@@ -81,6 +100,7 @@ describe('Configuration', () => {
               protocol: 'http'
             }
           }, {
+            id: 'test2',
             name: 'test2',
             title: 'test2',
             type: 'upstream',

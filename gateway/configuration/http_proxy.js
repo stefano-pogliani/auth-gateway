@@ -24,11 +24,16 @@ module.exports.renderMain = function renderMain(config) {
   // Get tempate and context.
   const template = config.http_proxy.config_template;
   const enhanceApp = configuration.enhanceApp(config);
+  const audited = config.apps.map(enhanceApp).filter((app) => {
+    return app.type === 'audited';
+  });
   const upstreams = config.apps.map(enhanceApp).filter((app) => {
     return app.type === 'upstream';
   });
+
   let context = {
     apps: {
+      audited: audited,
       upstreams: upstreams
     },
     auth: {

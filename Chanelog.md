@@ -6,7 +6,9 @@
 * Define audit record format and helper functions.
 * Define authorization rules in a dedicated module.
 * Introduce audited apps.
+* Introduce app ids (for upstream names).
 * NGINX: Increase server names hash map sizes.
+* NGINX: Default template supports audited apps.
 * NGINX: Support WebSocket connections.
 * Pass configuration to enhanceApp.
 * Prepare HTTP context and template for audited apps.

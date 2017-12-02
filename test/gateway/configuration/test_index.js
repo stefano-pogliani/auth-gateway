@@ -35,10 +35,14 @@ describe('Configuration', () => {
         audit: {}
       });
       assert.deepEqual(app, {
+        id: 'test',
         name: 'test',
         title: 'test',
         type: 'audited',
-        audit: {server_name: 'https://test.example.com:443/'}
+        audit: {
+          url: 'https://test.example.com:443/',
+          server_name: 'test.example.com'
+        }
       });
     });
   });

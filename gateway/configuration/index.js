@@ -16,6 +16,8 @@ const { DEFAULT_CONF_FILE } = require('../constants');
 module.exports.enhanceApp = (config) => {
   return (real_app) => {
     const app = deepmerge({}, real_app);
+    app.id = app.name.toLowerCase();
+
     if (!app.title) {
       app.title = app.name;
     }
@@ -35,9 +37,14 @@ module.exports.enhanceApp = (config) => {
     if (app.type === 'audited' && !app.audit.server_name) {
       const host = config.gateway.domain;
       const name = app.name.toLowerCase();
-      const port = config.http_proxy.bind.port;
-      app.audit.server_name = `https://${name}.${host}:${port}/`;
+      app.audit.server_name = `${name}.${host}`;
     }
+    if (app.type === 'audited' && !app.audit.url) {
+      const server_name = app.audit.server_name;
+      const port = config.http_proxy.bind.port;
+      app.audit.url = `https://${server_name}:${port}/`;
+    }
+
     if (app.type === 'upstream' && !app.upstream.subdomain) {
       app.upstream.subdomain = app.name.toLowerCase();
     }

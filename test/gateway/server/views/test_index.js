@@ -97,11 +97,13 @@ describe('Server', () => {
           assert.deepEqual(context, {
             auth: {prefix: '/abc'},
             apps: [{
+              id: 'test1',
               name: 'test1',
               title: 'Abc',
               type: 'link',
               url: 'abc'
             }, {
+              id: 'test2',
               name: 'test2',
               title: 'test2',
               type: 'upstream',
@@ -111,6 +113,7 @@ describe('Server', () => {
                 subdomain: 'test2'
               }
             }, {
+              id: 'test3',
               name: 'test3',
               title: 'test3',
               type: 'upstream',
@@ -120,6 +123,7 @@ describe('Server', () => {
                 subdomain: 'domain'
               }
             }, {
+              id: 'test4',
               name: 'test4',
               title: 'test4',
               type: 'unknown'
