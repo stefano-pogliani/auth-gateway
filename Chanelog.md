@@ -1,3 +1,7 @@
+0.4.0
+-----
+- TODO
+
 0.3.0
 -----
 * Add /api/audit endpoint.

@@ -16,7 +16,7 @@ describe('Server', () => {
   describe('Auditor', () => {
     describe('Console', () => {
       afterEach(() => {
-        mockLogAppMessage.reset();
+        mockLogAppMessage.resetHistory();
       });
 
       it('logs the request', () => {

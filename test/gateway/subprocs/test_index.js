@@ -36,7 +36,7 @@ const {
 
 describe('Subprocs', () => {
   beforeEach(() => {
-    spySpawner.reset();
+    spySpawner.resetHistory();
   });
 
   describe('initialise', () => {

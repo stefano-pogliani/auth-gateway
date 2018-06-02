@@ -35,7 +35,7 @@ describe('Server', () => {
   describe('app', () => {
     afterEach(() => {
       this.clock.restore();
-      mockUtils.getSession.reset()
+      mockUtils.getSession.resetHistory()
       Auditor.Reset();
     });
     beforeEach(() => {

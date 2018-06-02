@@ -64,7 +64,7 @@ describe('Server', () => {
   describe('app', () => {
     describe('views', () => {
       afterEach(() => {
-        mockUtils.getSession.reset();
+        mockUtils.getSession.resetHistory();
       });
 
       const getRender = () => {

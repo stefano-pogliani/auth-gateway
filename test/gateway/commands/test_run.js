@@ -37,14 +37,14 @@ const { RunCommand } = proxyquire('../../../gateway/commands/run', {
 describe('Commands', () => {
   describe('Run', () => {
     afterEach(() => {
-      mockAuditor.InitialiseAuditor.reset();
-      mockProcess.on.reset();
-      mockServer.RunWebServer.reset();
-      mockShutdown.shutdown.stop.reset();
-      mockSubprocs.AuthProxy.reset();
-      mockSubprocs.InitialiseSubProcs.reset();
-      mockSubprocs.HttpProxy.reset();
-      mockTmp.setGracefulCleanup.reset();
+      mockAuditor.InitialiseAuditor.resetHistory();
+      mockProcess.on.resetHistory();
+      mockServer.RunWebServer.resetHistory();
+      mockShutdown.shutdown.stop.resetHistory();
+      mockSubprocs.AuthProxy.resetHistory();
+      mockSubprocs.InitialiseSubProcs.resetHistory();
+      mockSubprocs.HttpProxy.resetHistory();
+      mockTmp.setGracefulCleanup.resetHistory();
     });
 
     it('configuration', () => {

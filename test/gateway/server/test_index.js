@@ -27,9 +27,9 @@ const { RunWebServer } = proxyquire('../../../gateway/server', {
 describe('Server', () => {
   describe('instance', () => {
     afterEach(() => {
-      mockApp.app.listen.reset();
-      mockApp.logAppMessage.reset();
-      mockShutdown.once.reset();
+      mockApp.app.listen.resetHistory();
+      mockApp.logAppMessage.resetHistory();
+      mockShutdown.once.resetHistory();
     });
 
     it('starts listening', () => {

@@ -50,7 +50,7 @@ const TEST_SESSION = {
 describe('Server', () => {
   describe('Utils', () => {
     afterEach(() => {
-      mockRequest.reset();
+      mockRequest.resetHistory();
     });
 
     let simulateRequest = (err, code, body) => {;
@@ -60,8 +60,8 @@ describe('Server', () => {
 
     describe('getCookieSession', () => {
       afterEach(() => {
-        mockRequest.cookie.reset();
-        mockJar.setCookie.reset();
+        mockRequest.cookie.resetHistory();
+        mockJar.setCookie.resetHistory();
       });
 
       it('Calls out to localhost', () => {

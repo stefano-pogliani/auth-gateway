@@ -14,7 +14,7 @@ describe('Server', () => {
   describe('Auditor', () => {
     describe('Http', () => {
       afterEach(() => {
-        mockRequest.reset();
+        mockRequest.resetHistory();
       });
 
       const simulateRequest = () => {
