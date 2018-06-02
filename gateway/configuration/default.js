@@ -2,7 +2,7 @@ const path = require('path');
 
 
 /**
- * ???
+ * TODO
  */
 module.exports.gateway = {
   base_dir: path.join(__dirname, '..', '..'),
@@ -16,7 +16,7 @@ module.exports.gateway = {
 
 
 /**
- * ???
+ * TODO
  */
 module.exports.auditor = {
   provider: 'null'
@@ -24,7 +24,7 @@ module.exports.auditor = {
 
 
 /**
- * ???
+ * TODO
  */
 module.exports.auth_proxy = {
   bind: {
@@ -57,7 +57,7 @@ module.exports.auth_proxy = {
 
 
 /**
- * ???
+ * TODO
  */
 module.exports.http_proxy = {
   bind: {
@@ -91,10 +91,17 @@ module.exports.http_proxy = {
  *   "name": <string>,
  *   "type": <sting{audited,link,upstream}>,
  *   "url": <string|null>,
+ *   "audit": {
+ *     "host": <string>,
+ *     "protocol": <string>,
+ *     "server_name": <string>,
+ *     "url": <string>
+ *   },
  *   "upstream": {
  *     "host": <string>,
  *     "protocol": <string>,
- *     "subdomain": <string>
+ *     "subdomain": <string>,
+ *     "whitelist": [<string>]
  *   }
  * }
  */

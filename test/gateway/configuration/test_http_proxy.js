@@ -42,7 +42,8 @@ const TEST_CONF = {
     name: 'test2',
     upstream: {
       host: 'server2:port',
-      protocol: 'http'
+      protocol: 'http',
+      whitelist: ['/.*']
     }
   }, {
     name: 'test3',
@@ -97,7 +98,8 @@ describe('Configuration', () => {
             upstream: {
               subdomain: 'test1',
               host: 'server1:port',
-              protocol: 'http'
+              protocol: 'http',
+              whitelist: []
             }
           }, {
             id: 'test2',
@@ -107,7 +109,8 @@ describe('Configuration', () => {
             upstream: {
               subdomain: 'test2',
               host: 'server2:port',
-              protocol: 'http'
+              protocol: 'http',
+              whitelist: ['/.*']
             }
           }]
         }

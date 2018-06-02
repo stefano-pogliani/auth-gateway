@@ -48,9 +48,9 @@ module.exports.enhanceApp = (config) => {
     if (app.type === 'upstream' && !app.upstream.subdomain) {
       app.upstream.subdomain = app.name.toLowerCase();
     }
-//    if (app.type === 'upstream' && !app.upstream.whitelist) {
-//      app.upstream.whitelist = [];
-//    }
+    if (app.type === 'upstream' && !app.upstream.whitelist) {
+      app.upstream.whitelist = [];
+    }
     return app;
   };
 };

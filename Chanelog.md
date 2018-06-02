@@ -1,6 +1,6 @@
 0.4.0
 -----
-- TODO
+- Support whitelisted paths for protected apps.
 
 0.3.0
 -----

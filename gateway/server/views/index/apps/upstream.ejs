@@ -5,9 +5,15 @@
       <% if (app.description) { %>
         <p class="card-text"><%- app.description %></p>
       <% } %>
+      <% if (app.upstream.whitelist.length) { %>
+      <span class="badge badge-warning" style="font-size: small">
+        Partially Protected
+      </span>
+      <% } else { %>
       <span class="badge badge-success" style="font-size: small">
         Protected
       </span>
+      <% } %>
       <br />
       <a href="https://<%= app.upstream.subdomain %>.<%= proxy.domain %>:<%= proxy.port %>"
           class="card-link">
