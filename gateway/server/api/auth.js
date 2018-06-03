@@ -21,8 +21,7 @@ app.get('/api/auth', (req, res) => {
   const config = app.get('config');
   const time = Date.now();
   return getSession(req, config).then((session) => {
-    // TODO: figure out the app being accessed.
-    const result = CheckProtectedRequest(session/*, req, config*/);
+    const result = CheckProtectedRequest(session, req, config);
     const audit_event = AuditRecord(req, session, result, 'https', time);
     return AuditedResponse(audit_event, result);
 

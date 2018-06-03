@@ -48,7 +48,8 @@ describe('Server', () => {
       const simulateGet = () => {
         const endpoint = mockApp.get.getCall(0).args[1];
         const req = {
-          get: sinon.stub().returns('ABC')
+          get: sinon.stub().returns('ABC'),
+          headers: {}
         };
         const res = {
           end: sinon.spy(),

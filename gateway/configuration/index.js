@@ -8,30 +8,67 @@ const { DEFAULT_CONF_FILE } = require('../constants');
 
 
 /**
- * TODO
+ * Configuration manager and manupulator.
+ *
+ * Stores the loaded condifuration (merged with the defaults)
+ * and provides access to it through helper methods and data structure views.
  */
 class Config {
   constructor(config) {
     this._raw = config;
     this._enhanced_apps = null;
+    this._apps_by_host = null;
   }
 
   /**
-   * TODO
+   * Finds an app configuration based on the host header.
+   *
+   * The apps are indexed by host the first time this method is used
+   * to provide a more efficient lookup of apps.
+   */
+  appForHost(host) {
+    if (this._apps_by_host === null) {
+      const index = {};
+      const domain = this._raw.gateway.domain;
+      this.enhancedApps().forEach((app, idx) => {
+        // Only look at upstream apps.
+        if (app.type !== 'upstream') {
+          return;
+        }
+        const host = `${app.upstream.subdomain}.${domain}`;
+        index[host] = idx;
+      });
+      this._apps_by_host = index;
+    }
+    const idx = this._apps_by_host[host];
+    if (idx) {
+      return this._raw.apps[idx];
+    }
+    return null;
+  }
+
+  /**
+   * Access the autitor configuration.
+   *
+   * TODO: schema
    */
   auditor() {
     return {...this._raw.auditor};
   }
 
   /**
-   * TODO
+   * Access the Auth proxy configuration.
+   * 
+   * TODO: schema
    */
   auth_proxy() {
     return {...this._raw.auth_proxy};
   }
 
   /**
-   * TODO
+   * Returns the list of apps normalized and extedned.
+   *
+   * TODO: schema
    */
   enhancedApps() {
     if (this._enhanced_apps === null) {
@@ -43,14 +80,18 @@ class Config {
   }
 
   /**
-   * TODO
+   * Access gateway configuration.
+   *
+   * TODO: schema
    */
   gateway() {
     return {...this._raw.gateway};
   }
 
   /**
-   * TODO
+   * Access HTTP proxy configuration.
+   *
+   * TODO: schema
    */
   http_proxy() {
     return {...this._raw.http_proxy};
