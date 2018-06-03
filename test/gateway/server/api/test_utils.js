@@ -4,11 +4,12 @@ require('prom-client').register.clear();
 
 const Auditor = require('../../../../gateway/server/auditor');
 const { AuditedResponse } = require('../../../../gateway/server/api/utils');
+const { Config } = require('../../../../gateway/configuration');
 
 
-const TEST_CONFIG = {
+const TEST_CONFIG = new Config({
   auditor: {provider: 'test'}
-};
+});
 
 
 describe('Server', () => {

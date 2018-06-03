@@ -2,8 +2,10 @@ const assert = require('assert');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
+const { Config } = require('../../../../gateway/configuration');
 
-const TEST_CONFIG = {
+
+const TEST_CONFIG = new Config({
   auditor: {
     provider: 'test'
   },
@@ -15,7 +17,7 @@ const TEST_CONFIG = {
       secret: 'abc'
     }
   }
-};
+});
 
 const mockApp = {
   get: sinon.stub().returns(TEST_CONFIG)

@@ -27,7 +27,7 @@ const configuration = proxyquire('../../../gateway/configuration', {
 describe('Configuration', () => {
   describe('enhanceApp', () => {
     const config = configuration.load();
-    const enhanceApp = configuration.enhanceApp(config);
+    const enhanceApp = configuration.enhanceApp(config._raw);
 
     it('Enhance audited apps', () => {
       const app = enhanceApp({
@@ -56,7 +56,7 @@ describe('Configuration', () => {
       assert.deepEqual(mockFs.readFileSync.getCall(0).args, [
         DEFAULT_CONF_FILE, 'utf8'
       ]);
-      assert.deepEqual(config, {
+      assert.deepEqual(config._raw, {
         apps: [],
         auditor: {provider: 'null'},
         gateway: {domain: 'example.com'},
@@ -77,7 +77,7 @@ describe('Configuration', () => {
         'gateway: {a: {b: c}}'
       );
       let config = configuration.load('abc');
-      assert.deepEqual(config, {
+      assert.deepEqual(config._raw, {
         apps: [],
         auditor: {provider: 'null'},
         gateway: {

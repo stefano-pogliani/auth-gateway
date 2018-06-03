@@ -9,15 +9,14 @@ const { getSession } = require('../utils');
 app.get('/', (req, res) => {
   const config = app.get('config');
   return getSession(req, config).then((session) => {
-    const enhance = enhanceApp(config);
     const context = {
-      apps: config.apps.map(enhance),
+      apps: config.enhancedApps(),
       auth: {
-        prefix: config.auth_proxy.prefix
+        prefix: config.auth_proxy().prefix
       },
       proxy: {
-        domain: config.gateway.domain,
-        port: config.http_proxy.bind.port
+        domain: config.gateway().domain,
+        port: config.http_proxy().bind.port
       },
       session: session
     };
@@ -34,7 +33,7 @@ app.get('/profile', (req, res) => {
   return getSession(req, config).then((session) => {
     let context = {
       auth: {
-        prefix: config.auth_proxy.prefix
+        prefix: config.auth_proxy().prefix
       },
       session: session
     };

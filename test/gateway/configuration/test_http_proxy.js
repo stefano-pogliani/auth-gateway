@@ -1,9 +1,10 @@
 const assert = require('assert');
 const deepmerge = require('deepmerge');
 
+const { Config } = require('../../../gateway/configuration');
 const http_proxy_config = require('../../../gateway/configuration/http_proxy');
 
-const TEST_CONF = {
+const TEST_CONF = new Config({
   gateway: {
     base_dir: 'root/',
     bind: {
@@ -52,7 +53,7 @@ const TEST_CONF = {
       protocol: 'http'
     }
   }]
-};
+});
 
 
 describe('Configuration', () => {
@@ -120,9 +121,9 @@ describe('Configuration', () => {
     });
 
     it('renders template with host', () => {
-      const test_conf = deepmerge(TEST_CONF, {
+      const test_conf = new Config(deepmerge(TEST_CONF._raw, {
         gateway: {bind: {address: '1.2.3.4'}}
-      });
+      }));
       const config = http_proxy_config.renderMain(test_conf);
       assert.deepEqual('1.2.3.4', JSON.parse(config).gateway.address);
     });

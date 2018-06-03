@@ -10,15 +10,17 @@ const configuration = require('.');
  * that Auth proxies can be changed without code changes.
  */
 module.exports.renderMain = function renderMain(config) {
+  let auth_conf = config.auth_proxy();
+  let gateway = config.gateway();
+
   // Figure out some options.
   let auth_host = '';
-  let auth_conf = config.auth_proxy;
   let gateway_host = 'localhost';
   if (auth_conf.bind.address !== '*') {
     auth_host = auth_conf.bind.address;
   }
-  if (config.gateway.bind.address !== '*') {
-    gateway_host = config.gateway.bind.address;
+  if (gateway.bind.address !== '*') {
+    gateway_host = gateway.bind.address;
   }
 
   // Get tempate and context.
@@ -35,12 +37,12 @@ module.exports.renderMain = function renderMain(config) {
       session: auth_conf.session
     },
     gateway: {
-      domain: config.gateway.domain,
+      domain: gateway.domain,
       host: gateway_host,
-      port: config.gateway.bind.port
+      port: gateway.bind.port
     },
     proxy: {
-      port: config.http_proxy.bind.port
+      port: config.http_proxy().bind.port
     }
   };
 

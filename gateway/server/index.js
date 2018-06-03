@@ -14,7 +14,7 @@ require('./handle_errors');
 
 
 const RunWebServer = (config) => {
-  const gateway = config.gateway;
+  const gateway = config.gateway();
   const address = gateway.bind.address;
   const port = gateway.bind.port;
   app.set('config', config);

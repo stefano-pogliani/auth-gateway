@@ -2,12 +2,13 @@ const assert = require('assert');
 const sinon = require('sinon');
 require('prom-client').register.clear();
 
+const { Config } = require('../../../gateway/configuration');
 const {
   ListDomainsCommand
 } = require('../../../gateway/commands/list-domains');
 
 
-const TEST_CONF = {
+const TEST_CONF = new Config({
   gateway: {
     domain: 'example.com'
   },
@@ -47,7 +48,7 @@ const TEST_CONF = {
       subdomain: 'domain'
     }
   }]
-};
+});
 
 
 describe('Commands', () => {

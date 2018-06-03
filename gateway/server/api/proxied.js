@@ -46,8 +46,8 @@ app.get('/api/proxied/session', (req, res) => {
   const user = req.get('X-Forwarded-User');
 
   const config = app.get('config');
-  const algo = config.gateway.token_hmac_algorithm;
-  const seed = config.auth_proxy.session.secret;
+  const algo = config.gateway().token_hmac_algorithm;
+  const seed = config.auth_proxy().session.secret;
 
   let session_id = null;
   if (token) {

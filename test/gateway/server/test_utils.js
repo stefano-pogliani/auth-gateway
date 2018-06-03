@@ -3,6 +3,8 @@ const deepmerge = require('deepmerge');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
+const { Config } = require('../../../gateway/configuration');
+
 const mockJar = {setCookie: sinon.spy()};
 const mockRequest = sinon.spy();
 mockRequest.jar = sinon.stub().returns(mockJar);
@@ -23,7 +25,7 @@ const NULL_SESSION = {
   type: null,
   user: null
 };
-const TEST_CONFIG = {
+const TEST_CONFIG = new Config({
   auth_proxy: {
     bind: {
       address: '*',
@@ -33,7 +35,7 @@ const TEST_CONFIG = {
       name: 'authgateway'
     }
   }
-};
+});
 const TEST_REQ = {
   cookies: {authgateway: 'abcd'}
 };
@@ -77,11 +79,11 @@ describe('Server', () => {
       });
 
       it('Calls out to ip', () => {
-        const conf = deepmerge(TEST_CONFIG, {
+        const conf = new Config(deepmerge(TEST_CONFIG._raw, {
           auth_proxy: {
             bind: {address: '1.2.3.4'}
           }
-        });
+        }));
         const getReq = getCookieSession(TEST_REQ, conf);
         simulateRequest(null, 200, '{}');
         return getReq.then((session) => {

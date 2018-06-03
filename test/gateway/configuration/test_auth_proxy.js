@@ -1,9 +1,10 @@
 const assert = require('assert');
 const deepmerge = require('deepmerge');
 
+const { Config } = require('../../../gateway/configuration');
 const auth_proxy_config = require('../../../gateway/configuration/auth_proxy');
 
-const TEST_CONF = {
+const TEST_CONF = new Config({
   gateway: {
     bind: {
       address: '*',
@@ -37,7 +38,7 @@ const TEST_CONF = {
     }
   },
   apps: []
-};
+});
 
 
 describe('Configuration', () => {
@@ -67,10 +68,10 @@ describe('Configuration', () => {
     });
 
     it('renders template with host', () => {
-      const test_conf = deepmerge(TEST_CONF, {
+      const test_conf = new Config(deepmerge(TEST_CONF._raw, {
         auth_proxy: {bind: {address: '2.4.8.16'}},
         gateway: {bind: {address: '1.2.3.4'}}
-      });
+      }));
       const config = auth_proxy_config.renderMain(test_conf);
       assert.deepEqual('2.4.8.16:8081', JSON.parse(config).address);
       assert.deepEqual('http://1.2.3.4:8080/', JSON.parse(config).upstream);

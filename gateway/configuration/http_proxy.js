@@ -11,23 +11,26 @@ const configuration = require('.');
  * that HTTP proxies can be changed without code support.
  */
 module.exports.renderMain = function renderMain(config) {
+  let auth_proxy = config.auth_proxy();
+  let gateway = config.gateway();
+  let http_proxy = config.http_proxy();
+
   // Figure out some options.
   let auth_host = 'localhost';
   let gateway_host = 'localhost';
-  if (config.auth_proxy.bind.address !== '*') {
-    auth_host = config.auth_proxy.bind.address;
+  if (auth_proxy.bind.address !== '*') {
+    auth_host = auth_proxy.bind.address;
   }
-  if (config.gateway.bind.address !== '*') {
-    gateway_host = config.gateway.bind.address;
+  if (gateway.bind.address !== '*') {
+    gateway_host = gateway.bind.address;
   }
 
   // Get tempate and context.
-  const template = config.http_proxy.config_template;
-  const enhanceApp = configuration.enhanceApp(config);
-  const audited = config.apps.map(enhanceApp).filter((app) => {
+  const template = http_proxy.config_template;
+  const audited = config.enhancedApps().filter((app) => {
     return app.type === 'audited';
   });
-  const upstreams = config.apps.map(enhanceApp).filter((app) => {
+  const upstreams = config.enhancedApps().filter((app) => {
     return app.type === 'upstream';
   });
 
@@ -38,22 +41,22 @@ module.exports.renderMain = function renderMain(config) {
     },
     auth: {
       host: auth_host,
-      port: config.auth_proxy.bind.port,
-      prefix: config.auth_proxy.prefix
+      port: auth_proxy.bind.port,
+      prefix: auth_proxy.prefix
     },
     dirs: {
-      base: path.join(config.gateway.base_dir, 'http_proxy'),
+      base: path.join(gateway.base_dir, 'http_proxy'),
       static: path.join(__dirname, '..', 'server', 'static')
     },
     gateway: {
       host: gateway_host,
-      port: config.gateway.bind.port,
-      domain: config.gateway.domain
+      port: gateway.bind.port,
+      domain: gateway.domain
     },
     proxy: {
-      bind: config.http_proxy.bind,
-      hsts: config.http_proxy.hsts,
-      tls: config.http_proxy.tls
+      bind: http_proxy.bind,
+      hsts: http_proxy.hsts,
+      tls: http_proxy.tls
     }
   };
 

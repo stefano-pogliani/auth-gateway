@@ -8,6 +8,58 @@ const { DEFAULT_CONF_FILE } = require('../constants');
 
 
 /**
+ * TODO
+ */
+class Config {
+  constructor(config) {
+    this._raw = config;
+    this._enhanced_apps = null;
+  }
+
+  /**
+   * TODO
+   */
+  auditor() {
+    return {...this._raw.auditor};
+  }
+
+  /**
+   * TODO
+   */
+  auth_proxy() {
+    return {...this._raw.auth_proxy};
+  }
+
+  /**
+   * TODO
+   */
+  enhancedApps() {
+    if (this._enhanced_apps === null) {
+      const enhanceApp = module.exports.enhanceApp(this._raw);
+      const apps = this._raw.apps.map(enhanceApp);
+      this._enhanced_apps = apps;
+    }
+    return this._enhanced_apps;
+  }
+
+  /**
+   * TODO
+   */
+  gateway() {
+    return {...this._raw.gateway};
+  }
+
+  /**
+   * TODO
+   */
+  http_proxy() {
+    return {...this._raw.http_proxy};
+  }
+};
+module.exports.Config = Config;
+
+
+/**
  * Returns a new object with the app configuration plus
  * some automatically detected fields.
  *
@@ -85,7 +137,8 @@ module.exports.load = function load(config_path) {
   }
 
   // Merge default with config file.
-  return deepmerge(default_config, conf);
+  const config = deepmerge(default_config, conf);
+  return new Config(config);
 };
 
 

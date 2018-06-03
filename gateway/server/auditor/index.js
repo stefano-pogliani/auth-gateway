@@ -18,7 +18,7 @@ let auditor_instance = null;
  * Initialises the auditor sub-system with the given config.
  */
 module.exports.InitialiseAuditor = (config) => {
-  const conf = config.auditor;
+  const conf = config.auditor();
   const klass = AUDITORS[conf.provider];
   if (!klass) {
       throw Error(`Unsupported auditor provider '${conf.provider}'`);

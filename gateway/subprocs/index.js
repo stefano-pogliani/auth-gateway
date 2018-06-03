@@ -11,7 +11,7 @@ let http_proxy_singleton = null;
 
 module.exports.InitialiseSubProcs = (config) => {
   // Configure the AuthProxy.
-  const auth_confg = config.auth_proxy
+  const auth_confg = config.auth_proxy();
   const auth_opts = {
     args: auth_confg.process.args,
     configFlag: '--config',
@@ -26,7 +26,7 @@ module.exports.InitialiseSubProcs = (config) => {
   );
 
   // Configure the HttpProxy.
-  const http_confg = config.http_proxy
+  const http_confg = config.http_proxy();
   const http_opts = {
     args: http_confg.process.args,
     configFlag: '-c',

@@ -3,9 +3,10 @@ const deepmerge = require('deepmerge');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
-const config = deepmerge(
+const { Config } = require('../../../gateway/configuration');
+const config = new Config(deepmerge(
   require('../../../gateway/configuration/default'), {}
-);
+));
 
 const mockApp = {
   app: {

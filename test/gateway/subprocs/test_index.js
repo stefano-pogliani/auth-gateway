@@ -3,9 +3,11 @@ const deepmerge = require('deepmerge');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
+const { Config } = require('../../../gateway/configuration');
+
 
 const spySpawner = sinon.spy();
-const config = deepmerge(require('../../../gateway/configuration/default'), {
+const config = new Config(deepmerge(require('../../../gateway/configuration/default'), {
   auth_proxy: {
     config_template: 'test/templates/auth/test.ejs'
   },
@@ -21,7 +23,7 @@ const config = deepmerge(require('../../../gateway/configuration/default'), {
       terminate: true
     }
   }
-});
+}));
 
 const {
   AuthProxy,

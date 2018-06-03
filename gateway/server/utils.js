@@ -16,15 +16,16 @@ const NULL_SESSION = {
  * session is invalid and return a null one.
  */
 module.exports.getCookieSession = (req, config) => {
-  let host = config.auth_proxy.bind.address;
+  const auth_proxy = config.auth_proxy();
+  let host = auth_proxy.bind.address;
   if (host === '*') {
     host = 'localhost';
   }
-  const port = config.auth_proxy.bind.port;
+  const port = auth_proxy.bind.port;
   const url = `http://${host}:${port}/api/proxied/session`;
 
   const jar = request.jar();
-  const cookie_name = config.auth_proxy.session.name;
+  const cookie_name = auth_proxy.session.name;
   const cookie = req.cookies[cookie_name];
   jar.setCookie(request.cookie(`${cookie_name}=${cookie}`), url);
 
@@ -62,7 +63,7 @@ module.exports.getCookieSession = (req, config) => {
  *   * TODO: Get the session for HTTP Bearer Token.
  */
 module.exports.getSession = (req, config) => {
-  const cookie_name = config.auth_proxy.session.name;
+  const cookie_name = config.auth_proxy().session.name;
   const cookie = req.cookies[cookie_name];
   if (cookie) {
     return module.exports.getCookieSession(req, config);

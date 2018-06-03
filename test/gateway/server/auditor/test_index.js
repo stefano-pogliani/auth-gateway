@@ -2,13 +2,14 @@ const assert = require('assert');
 const sinon = require('sinon');
 
 const Auditor = require('../../../../gateway/server/auditor');
+const { Config } = require('../../../../gateway/configuration');
 
 
-const TEST_CONFIG = {
+const TEST_CONFIG = new Config({
   auditor: {
     provider: 'test'
   }
-};
+});
 
 
 describe('Server', () => {
@@ -23,9 +24,9 @@ describe('Server', () => {
       });
 
       it('fails when provide is invalid', () => {
-        const block = () => Auditor.InitialiseAuditor({
+        const block = () => Auditor.InitialiseAuditor(new Config({
           auditor: {provider: 'ABC-What-a-name-it-would-be'}
-        });
+        }));
         assert.throws(block, Error);
       });
 

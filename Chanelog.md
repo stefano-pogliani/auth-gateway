@@ -1,5 +1,6 @@
 0.4.0
 -----
+- Refactor configuration to be a class.
 - Support whitelisted paths for protected apps.
 
 0.3.0

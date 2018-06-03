@@ -4,8 +4,9 @@ const sinon = require('sinon');
 require('prom-client').register.clear();
 
 const Auditor = require('../../../../gateway/server/auditor');
+const { Config } = require('../../../../gateway/configuration');
 
-const TEST_CONFIG = {
+const TEST_CONFIG = new Config({
   auditor: {
     provider: 'test'
   },
@@ -17,7 +18,7 @@ const TEST_CONFIG = {
       secret: 'abc'
     }
   }
-};
+});
 
 const mockApp = {
   get: sinon.stub().returns(TEST_CONFIG)

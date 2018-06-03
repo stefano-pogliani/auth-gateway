@@ -2,6 +2,8 @@ const assert = require('assert');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
+const { Config } = require('../../../../gateway/configuration');
+
 const mockApp = {
   get: sinon.stub()
 };
@@ -17,7 +19,7 @@ proxyquire('../../../../gateway/server/views', {
 });
 
 
-const TEST_CONFIG = {
+const TEST_CONFIG = new Config({
   gateway: {
     domain: 'example.com',
   },
@@ -55,7 +57,7 @@ const TEST_CONFIG = {
   }, {
     name: 'test4'
   }]
-};
+});
 const TEST_REQ = {
   cookies: {authgateway: 'abc'}
 };

@@ -9,8 +9,7 @@ const configuration = require('../configuration');
 class ListDomainsCommand extends Command {
   run() {
     const conf = this._config;
-    const enhanceApp = configuration.enhanceApp(conf);
-    const apps = conf.apps.map(enhanceApp).filter(
+    const apps = conf.enhancedApps().filter(
       (app) => app.type === 'upstream'
     ).sort((left, right) => {
       if (left.upstream.subdomain < right.upstream.subdomain) {
@@ -22,7 +21,7 @@ class ListDomainsCommand extends Command {
       return 0;
     });
 
-    const root_domain = conf.gateway.domain;
+    const root_domain = conf.gateway().domain;
     console.log(root_domain);
 
     for (const app of apps) {
