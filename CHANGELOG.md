@@ -1,3 +1,7 @@
+0.4.2
+-----
+- Add advanced HTTP proxy options for audited apps.
+
 0.4.1
 -----
 - Add robots.txt to deny all.

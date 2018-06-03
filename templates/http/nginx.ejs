@@ -216,6 +216,11 @@ http {
     server_name <%- app.audit.server_name %>;
     <% } %>
 
+    # Advanced proxy options.
+    <% if (app.options.client_max_body_size) { -%>
+    client_max_body_size <%- app.options.client_max_body_size %>;
+    <% } -%>
+
     location / {
       proxy_pass <%- app.audit.protocol %>://<%- app.id %>_upstream;
       proxy_set_header Host $host;
