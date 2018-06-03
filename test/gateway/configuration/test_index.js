@@ -39,6 +39,7 @@ describe('Configuration', () => {
         name: 'test',
         title: 'test',
         type: 'audited',
+        options: {},
         audit: {
           url: 'https://test.example.com:443/',
           server_name: 'test.example.com'

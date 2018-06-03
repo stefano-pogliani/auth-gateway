@@ -1,3 +1,9 @@
+0.4.1
+-----
+- Add robots.txt to deny all.
+- Suppot advanced HTTP proxy options for apps.
+- Suppot client max body size advanced option.
+
 0.4.0
 -----
 - Refactor configuration to be a class.

@@ -110,6 +110,7 @@ describe('Server', () => {
               name: 'test2',
               title: 'test2',
               type: 'upstream',
+              options: {},
               upstream: {
                 host: 'host:port',
                 protocol: 'https',
@@ -121,6 +122,7 @@ describe('Server', () => {
               name: 'test3',
               title: 'test3',
               type: 'upstream',
+              options: {},
               upstream: {
                 host: 'host:port',
                 protocol: 'https',

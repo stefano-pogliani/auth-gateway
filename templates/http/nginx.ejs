@@ -137,6 +137,12 @@ http {
     location /static {
       root <%- dirs.static %>/..;
     }
+
+    location = /robots.txt {
+      access_log off;
+      add_header Content-Type text/plain;
+      return 200 "User-agent: *\nDisallow: /\n";
+    }
   }
 
   # Configure upstreams and servers for protected apps.
@@ -154,6 +160,11 @@ http {
     listen <%- proxy.bind.port %>;
     server_name <%- app.upstream.subdomain %>.<%- gateway.domain %>;
     <% } %>
+
+    # Advanced proxy options.
+    <% if (app.options.client_max_body_size) { -%>
+    client_max_body_size <%- app.options.client_max_body_size %>;
+    <% } -%>
 
     location / {
       proxy_pass <%- app.upstream.protocol %>://<%- app.id %>_upstream;
@@ -179,6 +190,12 @@ http {
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header X-Original-URI $request_uri;
+    }
+
+    location = /robots.txt {
+      access_log off;
+      add_header Content-Type text/plain;
+      return 200 "User-agent: *\nDisallow: /\n";
     }
   }
   <% }); %>
@@ -223,6 +240,12 @@ http {
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header X-Original-URI $request_uri;
+    }
+
+    location = /robots.txt {
+      access_log off;
+      add_header Content-Type text/plain;
+      return 200 "User-agent: *\nDisallow: /\n";
     }
   }
   <% }); %>

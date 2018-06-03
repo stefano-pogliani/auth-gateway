@@ -6,6 +6,8 @@ const yaml = require('js-yaml');
 const default_config = require('./default');
 const { DEFAULT_CONF_FILE } = require('../constants');
 
+const PROXIED_TYPES = new Set(['audited', 'upstream']);
+
 
 /**
  * Configuration manager and manupulator.
@@ -143,6 +145,10 @@ module.exports.enhanceApp = (config) => {
     }
     if (app.type === 'upstream' && !app.upstream.whitelist) {
       app.upstream.whitelist = [];
+    }
+
+    if (PROXIED_TYPES.has(app.type)) {
+      app.options = app.options || {};
     }
     return app;
   };

@@ -84,6 +84,7 @@ describe('Configuration', () => {
             name: 'test3',
             title: 'test3',
             type: "audited",
+            options: {},
             audit: {
               url: 'https://test3.example:443/',
               server_name: 'test3.example',
@@ -96,6 +97,7 @@ describe('Configuration', () => {
             name: 'test1',
             title: 'test1',
             type: 'upstream',
+            options: {},
             upstream: {
               subdomain: 'test1',
               host: 'server1:port',
@@ -107,6 +109,7 @@ describe('Configuration', () => {
             name: 'test2',
             title: 'test2',
             type: 'upstream',
+            options: {},
             upstream: {
               subdomain: 'test2',
               host: 'server2:port',
