@@ -12,6 +12,9 @@ const TEST_CONF = new Config({
   gateway: {
     domain: 'example.com'
   },
+  http_proxy: {
+    bind: {port: 80}
+  },
   apps: [{
     name: 'test4'
   }, {
@@ -47,6 +50,24 @@ const TEST_CONF = new Config({
       protocol: 'https',
       subdomain: 'domain'
     }
+  }, {
+    name: 'test8',
+    type: 'audited',
+    audit: { host: 'host:port' }
+  }, {
+    name: 'test7',
+    type: 'audited',
+    audit: { host: 'host:port' }
+  }, {
+    id: 'test9a',
+    name: 'test9',
+    type: 'audited',
+    audit: { host: 'host:port' }
+  }, {
+    id: 'test9b',
+    name: 'test9',
+    type: 'audited',
+    audit: { host: 'host:port' }
   }]
 });
 
@@ -68,6 +89,10 @@ describe('Commands', () => {
       assert.equal('domain.example.com', this.spyLog.getCall(2).args[0]);
       assert.equal('test2.example.com', this.spyLog.getCall(3).args[0]);
       assert.equal('test5.example.com', this.spyLog.getCall(4).args[0]);
+      assert.equal('test7.example.com', this.spyLog.getCall(5).args[0]);
+      assert.equal('test8.example.com', this.spyLog.getCall(6).args[0]);
+      assert.equal('test9.example.com', this.spyLog.getCall(7).args[0]);
+      assert.equal('test9.example.com', this.spyLog.getCall(8).args[0]);
     });
   });
 });

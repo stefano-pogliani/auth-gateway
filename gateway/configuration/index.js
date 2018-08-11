@@ -32,14 +32,25 @@ class Config {
     if (this._apps_by_host === null) {
       const index = {};
       const domain = this._raw.gateway.domain;
+
+      // Index audited apps.
+      const apps = this.enhancedApps();
+      apps.forEach((app, idx) => {
+        if (app.type !== 'audited') {
+          return;
+        }
+        const host = app.audit.server_name;
+        index[host] = idx;
+      });
+      // Index upstream apps.
       this.enhancedApps().forEach((app, idx) => {
-        // Only look at upstream apps.
         if (app.type !== 'upstream') {
           return;
         }
         const host = `${app.upstream.subdomain}.${domain}`;
         index[host] = idx;
       });
+
       this._apps_by_host = index;
     }
     const idx = this._apps_by_host[host];
