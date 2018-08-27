@@ -16,7 +16,7 @@ const promiseAggregate = (collection, pipeline) => {
         resolve(results);
       }
     });
-  });
+  }).then((results) => results.toArray());
 };
 
 
@@ -31,27 +31,27 @@ module.exports.fetch = (collection, start_time, end_time) => {
   // Run all queries in parallel (could overload MongoDB).
   const users = collection.distinct('email', filter_time);
   const sessions = collection.distinct('session_id', filter_time);
-  const req_allowed = collection.count({
+  const req_allowed = collection.countDocuments({
     result: 'allow',
     timestamp: timestamp
   });
-  const req_denied = collection.count({
+  const req_denied = collection.countDocuments({
     result: {$ne: 'allow'},
     timestamp: timestamp
   });
-  const unkown_allowed = collection.count({
+  const unkown_allowed = collection.countDocuments({
     session_id: null,
     result: 'allow',
     timestamp: timestamp,
     whitelisted: false
   });
-  const unkown_total = collection.count({
+  const unkown_total = collection.countDocuments({
     session_id: null,
     timestamp: timestamp,
     whitelisted: false
   });
 
-  // Have MongodB compute a per-day histogram of allowed/rejected.
+  // Have MongoDB compute a per-day histogram of allowed/rejected.
   const day = {$floor: {$divide: ['$timestamp', MILLISECS_IN_DAY]}};
   const histogram = promiseAggregate(collection, [
     {$match: filter_time},

@@ -30,13 +30,14 @@ const configure = () => {
 const main = () => {
   const conf = configure();
   console.log('Reporting on events since', new Date(conf.start_time));
-  MongoClient.connect(conf.mongo).then((db) => {
+  MongoClient.connect(conf.mongo).then((client) => {
+    const db = client.db();
     const collection = db.collection(conf.collection);
     const fetcher = datafetcher.fetch(
       collection, conf.start_time, conf.end_time
     );
     return fetcher.then((data) => {
-      db.close();
+      client.close();
       console.log('Report data:', JSON.stringify(data, null, 2));
       return data;
     });
