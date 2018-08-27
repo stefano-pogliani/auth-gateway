@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.4] - 2018-08-27
+### Changed
+- Minor dependencies updates.
+
+### Fixed
+- The audit report generator (after MongoDB driver update).
+
 ## [0.4.3] - 2018-08-11
 ### Changed
 - Added audited apps to output of list-domains.
@@ -146,15 +153,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Have the proxy serve WebUI statics.
 - Web portal nav and home page.
 
-0.1.0
------
+## [0.1.0]
+### Added
 - Generate HTTP(S) proxy configuration (nginx).
 - Yaml based configuration file (to override defaults).
 - Start HTTP(S) proxy to serve apps and portal.
 
-0.0.0
------
+## 0.0.0
+### Added
 - Prototype web UI.
 
-[Unreleased]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.4.3...HEAD
+[Unreleased]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.4.4...HEAD
+[0.4.3]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.4.2...v0.4.3
+[0.1.0]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.0.0...v0.1.0
