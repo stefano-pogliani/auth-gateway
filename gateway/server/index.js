@@ -12,13 +12,14 @@ require('./views');
 // Import the error handler last to catch all exceptions.
 require('./handle_errors');
 
+// Collect default metrics once for the process.
+collectDefaultMetrics();
 
 const RunWebServer = (config) => {
   const gateway = config.gateway();
   const address = gateway.bind.address;
   const port = gateway.bind.port;
   app.set('config', config);
-  collectDefaultMetrics();
 
   /*
    * If the server fails to start any of the processes before the
