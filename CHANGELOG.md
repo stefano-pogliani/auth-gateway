@@ -5,8 +5,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- App Cataloge template for hugo static site.
+- Kubernetes deployment example.
+- Rules engine and rules files.
+
 ### Changed
-- Security updates
+- Rewrite in rust.
+
+### Removed
+- **BREAKING**: Apps configuration (users must configure the HTTPS Proxy).
+- **BREAKING**: Process supervision of HTTP(S) and authentication proxies (users must run these processes).
+- **BREAKING**: WebUI and applications catalogue.
 
 ## [0.4.6] - 2020-02-28
 ### Changed

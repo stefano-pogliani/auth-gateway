@@ -1,16 +1,9 @@
-*.crt
-*.csr
-*.key
-*.swp
-
 **/.nyc_output
 **/coverage
 **/dist
 **/node_modules
 
-# Local testing files.
-allow.emails
-auth-gateway.yaml
 
-acmetool/**
-http_proxy/**
+# Added by cargo
+
+/target

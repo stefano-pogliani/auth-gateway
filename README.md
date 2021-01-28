@@ -1,85 +1,44 @@
-AuthGateway
-===========
-A fully featured auth gateway for web applications.
+# AuthGateway
+AuthGateway is a flexible authentication helper for HTTPS proxies to add user authentication and
+verification to all requests received by the proxy before they are sent to upsteram HTTP(S) apps.
 
+AuthGateway also provides some basic authorisation logic.
 
-What is AuthGateway?
---------------------
-AuthGateway is an HTTP(S) proxy that adds user authentication and verification
-to all requests received before they are sent to other HTTP(S) applications.
+The aims of this project are to:
 
-The core aims are simple, AuthGateway provides:
+* Easily ensure HTTPS requests are authenticated.
+* Easily add request auditing to your setup.
+* Decuple the HTTP(S) proxy from the authentication proxy.
+  * Combine any supported HTTPS proxy with any supprted authentication proxy.
 
-  * A proxy to ensure web requests are authenticated.
-  * A login portal with multiple providers (like GitHub, Google, ...).
-  * Session auditing.
-  * An interface to login/logout, view the session history,
-    and list the protected apps.
+## Architecture
 
-There are more ambitious goals too that may be implemented ONLY AFTER
-the core functionality is implemented and stable.
+![AuthGateway architecture diagram](./authgateway.png)
 
+AuthGatheway is a middleware to combine an HTTP(S) proxy with an authentication proxy.
 
-Architecture
-------------
-Below is a diagram of how the various processes interact.
+For components to integrate correctly they must support interfaces that AuthGateway can work with:
 
-```text
-    +----------------+
-    | User's browser |
-    +----------------+
-            |
-          HTTPS
-            |
-            V
-     +-------------+        +---------------------------+
-     | Nginx proxy | --+--> | Web Portal (static files) |
-     +-------------+   |    +---------------------------+
-            |          |      +-------------+ --------\
-         HTTP(S)       +----> | OAuth2Proxy |         |
-            |          |      +-------------+ <--\    |
-    +-------V--------+ |                         |    V
-   +----------------+| |                +---------------------+
-   | Protected apps |+ \--------------> | AuthGateway backend |
-   +----------------+                   +---------------------+
-```
+* An HTTP(S) Proxy able to delegate authentication using the [NGINX auth_request] protocol.
+* A supported authentication proxy that can verify users and return some identity information.
 
-  1. Nginx provides the following:
-      * Proxy requests to protected apps.
-      * Verify sessions with `auth_request` to the backend.
-      * Serve static files for the portal.
-      * Proxy requests to `oauth2_proxy` and to the gateway backend.
+Supported authentication proxies:
+* [OAuth2 Proxy](https://oauth2-proxy.github.io/oauth2-proxy/)
 
-  2. OAuth2 Proxy provides the following:
-      * Configurable provider sign oauth flow (sign in).
-      * Session validation and cookie.
-      * Provide user information through `--pass-*` flags.
+Some HTTP(S) Proxies that support `auth_request`:
+* [ingress-nginx](https://kubernetes.github.io/ingress-nginx/).
+* [NGINX](https://www.nginx.com/).
 
-  3. AuthGateway backend provides the following:
-      * JSON export of user information (thanks to `--pass-*` flags).
-      * Provide a list of apps to the portal Web UI.
-      * Generate nginx and oauth2_proxy configuration files.
+## Configuration
+TODO
 
+### Rules
+TODO
 
-Requirements
-------------
-AuthGateway is built on top of the following software:
+## Deploying
+TODO
 
-  * Nginx
-  * Oauth2
+## Apps Catalogue
+TODO
 
-
-Let's Encrypt (amcetool)
-------------------------
-Support for automated HTTPS can be achieved with
-[acmetool](https://hlandau.github.io/acme/).
-The suggestion is to use `acmetool` in non-root mode.
-
-Below are some commands to create your local, non-root, state
-and how to re-new certs.
-
-```
-acmetool --state=./acmetool/state --hooks=./acmetool/hooks quickstart
-acmetool --state=./acmetool/state --hooks=./acmetool/hooks want `npm run auth-gateway list-domains`
-acmetool --state=./acmetool/state --hooks=./acmetool/hooks reconcile
-```
+[NGINX auth_request]: https://nginx.org/en/docs/http/ngx_http_auth_request_module.html
