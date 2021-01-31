@@ -16,6 +16,10 @@ pub struct Config {
     /// Filter out log events below this severity.
     #[serde(default)]
     pub log_level: LevelFilter,
+
+    /// List of files to load advanced rules from.
+    #[serde(default)]
+    pub rule_files: Vec<String>,
 }
 
 impl Config {

@@ -1,14 +1,17 @@
-// TODO:  3 - API Auth Endpoint(s): auth_request protocol.
-// TODO:  4 - Data models: Rule, PreAuthContext, PostAuthContext.
-// TODO:  5 - Development environment: podman based? minikube?.
+// TODO:  4 - Development environment: podman based? minikube?.
+// TODO:  5 - API Auth Endpoint(s): auth_request protocol + initial unit tests.
 // TODO:  6 - Authentication proxies: model authentication backends + always yes debug backend.
-// TODO:  7 - Rules engine.
-// TODO:  8 - Rules sources.
+// TODO:  7 - Rules sources.
+// TODO:  8 - Rules engine: preauth rules, postauth rules, enrich rules.
 // TODO:  9 - Authentication proxies: oauth2_proxy + supporting API endpoint(s).
 // TODO:      - Prev version made proxy configuration easy, can I keep that?
 // TODO: 10 - Audit support: request hooks + outputs (stdout, HTTP(S) POST).
-// TODO: 11 - Review feature partity.
-// TODO: 12 - K8s deployment and minikube demo.
+// TODO: 11 - Metrics: req count & durations, results by action, rules processed & duration.
+// TODO: 12 - Review feature partity.
+// TODO: 13 - K8s deployment and minikube demo.
+// TODO: 14 - Some sort of config helper?
+// TODO:      AuthGateway generate a context from config and other sources.
+// TODO:      Support rendering of config templates + auth backends provided defaults.
 use actix_web::App;
 use actix_web::HttpServer;
 use anyhow::Result;
@@ -17,6 +20,7 @@ use log::info;
 use structopt::StructOpt;
 
 mod config;
+mod models;
 mod server;
 
 #[derive(Debug, StructOpt)]
