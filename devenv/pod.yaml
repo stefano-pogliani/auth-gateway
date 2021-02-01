@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: auth-gateway-devenv
+  name: auth-gateway-devenv
+spec:
+  containers:
+    - name: app
+      image: 'docker.io/library/rust:1.49.0'
+      command:
+        - 'cat'
+      env:
+        - name: CARGO_TARGET_DIR
+          value: '/rust-target'
+      ports:
+        - containerPort: 8090
+          hostPort: 8090
+      resources: {}
+      stdin: true
+      tty: true
+      volumeMounts:
+        - mountPath: /code
+          name: code
+          readOnly: false
+      workingDir: '/code'
+
+    - name: oauth2
+      image: 'quay.io/oauth2-proxy/oauth2-proxy:v7.0.0'
+      command:
+        - '/bin/oauth2-proxy'
+        - '--config=/etc/oauth2.conf'
+      env:
+        - name: OAUTH2_PROXY_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: auth-gateway-oauth2-client
+              key: client_id
+        - name: OAUTH2_PROXY_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: auth-gateway-oauth2-client
+              key: client_secret
+      resources: {}
+      volumeMounts:
+        - mountPath: /etc/oauth2.conf
+          name: oauth2-config
+          readOnly: true
+
+    - name: nginx
+      image: 'docker.io/library/nginx:1.19-alpine'
+      command:
+        - 'nginx'
+      ports:
+        - containerPort: 80
+          hostPort: 8080
+      resources: {}
+      volumeMounts:
+        - mountPath: /etc/nginx/nginx.conf
+          name: nginx-config
+          readOnly: true
+
+    - name: service
+      image: 'k8s.gcr.io/echoserver:1.4'
+      ports:
+        - containerPort: 8080
+          hostPort: 8081
+      resources: {}
+
+  volumes:
+    - name: code
+      hostPath:
+        path: '/auth-gateway/'
+    - name: oauth2-config
+      hostPath:
+        path: '/auth-gateway/devenv/oauth2.conf'
+    - name: nginx-config
+      hostPath:
+        path: '/auth-gateway/devenv/nginx.conf'

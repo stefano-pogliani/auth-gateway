@@ -1,4 +1,3 @@
-// TODO:  4 - Development environment: podman based? minikube?.
 // TODO:  5 - API Auth Endpoint(s): auth_request protocol + initial unit tests.
 // TODO:  6 - Authentication proxies: model authentication backends + always yes debug backend.
 // TODO:  7 - Rules sources.

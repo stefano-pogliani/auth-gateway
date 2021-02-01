@@ -6,7 +6,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- App Cataloge template for hugo static site.
 - Kubernetes deployment example.
 - Rules engine and rules files.
 

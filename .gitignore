@@ -3,7 +3,7 @@
 **/dist
 **/node_modules
 
+.github_dev_client
 
 # Added by cargo
-
 /target

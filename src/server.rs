@@ -9,6 +9,7 @@ async fn check() -> impl Responder {
     // TODO: request domain.
     // TODO: request URI.
     // TODO: return 400 if required request attributes are missing.
+    //HttpResponse::Ok()
     HttpResponse::Unauthorized()
 }
 
