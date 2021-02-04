@@ -1,7 +1,6 @@
-// TODO:  5 - API Auth Endpoint(s): auth_request protocol + initial unit tests.
 // TODO:  6 - Authentication proxies: model authentication backends + always yes debug backend.
-// TODO:  7 - Rules sources.
-// TODO:  8 - Rules engine: preauth rules, postauth rules, enrich rules.
+// TODO:  7 - Convert authentication result to API response.
+// TODO:  8 - Rules sources + engine: preauth rules, postauth rules, enrich rules.
 // TODO:  9 - Authentication proxies: oauth2_proxy + supporting API endpoint(s).
 // TODO:      - Prev version made proxy configuration easy, can I keep that?
 // TODO: 10 - Audit support: request hooks + outputs (stdout, HTTP(S) POST).
@@ -19,6 +18,7 @@ use log::info;
 use structopt::StructOpt;
 
 mod config;
+mod errors;
 mod models;
 mod server;
 

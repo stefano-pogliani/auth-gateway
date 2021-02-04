@@ -19,3 +19,7 @@ log = "^0.4.14"
 serde = "^1.0.123"
 serde_yaml = "^0.8.15"
 structopt = "^0.3.21"
+thiserror = "^1.0.23"
+
+[dev-dependencies]
+actix-rt = "^1.1.0"
