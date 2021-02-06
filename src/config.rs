@@ -6,9 +6,14 @@ use anyhow::Result;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::authenticator::AuthenticatorConfig;
+
 /// AuthGateway configuration options.
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Config {
+    /// Configure the Authentication proxy to use.
+    pub authenticator: AuthenticatorConfig,
+
     /// Bind address for the HTTP server, in the format `address:port`.
     #[serde(default = "Config::default_bind")]
     pub bind: String,

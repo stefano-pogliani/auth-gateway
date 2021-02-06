@@ -326,6 +326,7 @@ dependencies = [
 name = "authgateway"
 version = "0.5.0"
 dependencies = [
+ "actix-http",
  "actix-rt",
  "actix-web",
  "anyhow",

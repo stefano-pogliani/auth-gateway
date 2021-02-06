@@ -1,1 +1,2 @@
-{}
+authenticator:
+  backend: 'allow-all'

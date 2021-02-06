@@ -1,4 +1,3 @@
-// TODO:  6 - Authentication proxies: model authentication backends + always yes debug backend.
 // TODO:  7 - Convert authentication result to API response.
 // TODO:  8 - Rules sources + engine: preauth rules, postauth rules, enrich rules.
 // TODO:  9 - Authentication proxies: oauth2_proxy + supporting API endpoint(s).
@@ -17,6 +16,7 @@ use env_logger::Builder;
 use log::info;
 use structopt::StructOpt;
 
+mod authenticator;
 mod config;
 mod errors;
 mod models;
@@ -44,9 +44,12 @@ pub async fn run() -> Result<()> {
     builder.filter_level(config.log_level.into()).init();
 
     // Configure and start the API server.
-    let server = HttpServer::new(|| {
+    let authenticator_config = config.authenticator;
+    let server = HttpServer::new(move || {
+        let authenticator = self::authenticator::Authenticator::from_config(&authenticator_config);
         App::new()
             .configure(crate::server::configure)
+            .data(authenticator)
             .wrap(actix_web::middleware::Logger::default())
     });
     info!("AuthGateway API Starting at {}", &config.bind);
