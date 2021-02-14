@@ -12,6 +12,7 @@ pub struct AllowAll {}
 impl AuthenticationProxy for AllowAll {
     fn check(&self, _: &RequestContext, _: &HttpRequest) -> Result<AuthenticationResult> {
         Ok(AuthenticationResult {
+            headers: actix_web::http::HeaderMap::new(),
             status: AuthenticationStatus::Allowed,
         })
     }

@@ -1,3 +1,5 @@
+use actix_web::http::HeaderMap;
+
 mod context;
 mod rule;
 
@@ -12,17 +14,17 @@ pub use rule::RuleMatches;
 pub use rule::RuleSessionMatches;
 
 /// Final outcome from the authentication process.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct AuthenticationResult {
     /// Set of headers from the authenticator to propagate back to the HTTP proxy.
-    //pub headers: bool,
+    pub headers: HeaderMap,
 
     /// Result of the Authentication proxy decision on the request.
     pub status: AuthenticationStatus,
 }
 
 /// Result of the Authentication proxy decision on the request.
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum AuthenticationStatus {
     /// The request is allowed.
     Allowed,

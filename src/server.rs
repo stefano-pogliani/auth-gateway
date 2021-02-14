@@ -6,6 +6,7 @@ use actix_web::HttpResponse;
 use actix_web::Responder;
 
 use crate::authenticator::Authenticator;
+use crate::errors::AuthenticationCheckError;
 use crate::errors::InvalidAuthRequest;
 use crate::models::AuthenticationStatus;
 
@@ -45,18 +46,19 @@ async fn check(
     };
 
     // Check the request for authentication and rules.
-    let result = authenticator.check(&context, &request);
-    // TODO: handle authenticator errors.
-    println!("~~~ {:?}", result);
-    let result = result.unwrap();
+    let result = authenticator
+        .check(&context, &request)
+        .map_err(AuthenticationCheckError::from)?;
 
     // Build the auth_request response from the authentication result.
-    let response = match result.status {
+    let mut response = match result.status {
         AuthenticationStatus::Allowed => HttpResponse::Ok(),
         AuthenticationStatus::Denied => HttpResponse::Forbidden(),
         AuthenticationStatus::MustLogin => HttpResponse::Unauthorized(),
     };
-    // TODO: Inject response headers.
+    for (header, value) in result.headers.iter() {
+        response.header(header, value.to_owned());
+    }
     Ok(response)
 }
 
@@ -85,10 +87,17 @@ mod tests {
 
     use crate::authenticator::Authenticator;
 
-    // Instantiate an Acitx App to run tests against.
+    // Create an Acitx App to run tests using the default test authenticator.
     async fn test_app(
     ) -> impl Service<Request = Request, Response = ServiceResponse<Body>, Error = Error> {
         let auth = crate::authenticator::tests::Authenticator::default();
+        test_app_with_authenticator(auth).await
+    }
+
+    // Create an Acitx App to run tests using the provided test authenticator.
+    async fn test_app_with_authenticator(
+        auth: crate::authenticator::tests::Authenticator,
+    ) -> impl Service<Request = Request, Response = ServiceResponse<Body>, Error = Error> {
         let app = App::new()
             .data(Authenticator::from(auth))
             .service(super::check);
@@ -121,8 +130,94 @@ mod tests {
         );
     }
 
-    // TODO: check derived RequestContext.
-    // TODO: check response when request is allowed.
-    // TODO: check response when request is denied.
-    // TODO: check response when request is forbidden.
+    #[actix_rt::test]
+    async fn check_allowed() {
+        let mut app = test_app().await;
+        let request = test::TestRequest::get()
+            .header("Host", "domain.example.com")
+            .header("X-Original-URI", "/")
+            .uri("/v1/check")
+            .to_request();
+        let response = test::call_service(&mut app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = test::read_body(response).await;
+        assert_eq!(body, Bytes::from_static(b""));
+    }
+
+    #[actix_rt::test]
+    async fn check_appends_headers() {
+        let mut app = test_app().await;
+        let request = test::TestRequest::get()
+            .header("Host", "domain.example.com")
+            .header("X-Original-URI", "/")
+            .uri("/v1/check")
+            .to_request();
+        let response = test::call_service(&mut app, request).await;
+        let mut actual: Vec<(String, String)> = response
+            .headers()
+            .iter()
+            .map(|(h, v)| (h.to_string(), v.to_str().unwrap().to_string()))
+            .collect();
+        actual.sort();
+        let expected = vec![
+            ("x-authenticator".into(), "Tests".into()),
+            ("x-test-header".into(), "Value1".into()),
+            ("x-test-header".into(), "Value2".into()),
+        ];
+        assert_eq!(actual, expected);
+    }
+
+    #[actix_rt::test]
+    async fn check_denied() {
+        let auth = crate::authenticator::tests::Authenticator::denied();
+        let mut app = test_app_with_authenticator(auth).await;
+        let request = test::TestRequest::get()
+            .header("Host", "domain.example.com")
+            .header("X-Original-URI", "/")
+            .uri("/v1/check")
+            .to_request();
+        let response = test::call_service(&mut app, request).await;
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+        let body = test::read_body(response).await;
+        assert_eq!(body, Bytes::from_static(b""));
+    }
+
+    #[actix_rt::test]
+    async fn check_fails() {
+        let auth = crate::authenticator::tests::Authenticator::failing();
+        let mut app = test_app_with_authenticator(auth).await;
+        let request = test::TestRequest::get()
+            .header("Host", "domain.example.com")
+            .header("X-Original-URI", "/")
+            .uri("/v1/check")
+            .to_request();
+        let response = test::call_service(&mut app, request).await;
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        let body = test::read_body(response).await;
+        assert_eq!(
+            body,
+            Bytes::from_static(
+                r#"{
+  "error": true,
+  "message": "Error checking authentication for a request"
+}"#
+                .as_bytes()
+            )
+        );
+    }
+
+    #[actix_rt::test]
+    async fn check_must_login() {
+        let auth = crate::authenticator::tests::Authenticator::must_login();
+        let mut app = test_app_with_authenticator(auth).await;
+        let request = test::TestRequest::get()
+            .header("Host", "domain.example.com")
+            .header("X-Original-URI", "/")
+            .uri("/v1/check")
+            .to_request();
+        let response = test::call_service(&mut app, request).await;
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+        let body = test::read_body(response).await;
+        assert_eq!(body, Bytes::from_static(b""));
+    }
 }

@@ -1,4 +1,3 @@
-// TODO:  7 - Convert authentication result to API response.
 // TODO:  8 - Rules sources + engine: preauth rules, postauth rules, enrich rules.
 // TODO:  9 - Authentication proxies: oauth2_proxy + supporting API endpoint(s).
 // TODO:      - Prev version made proxy configuration easy, can I keep that?
