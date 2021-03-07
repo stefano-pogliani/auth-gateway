@@ -23,6 +23,24 @@ pub struct AuthenticationResult {
     pub status: AuthenticationStatus,
 }
 
+impl AuthenticationResult {
+    /// Create an authentication result that allows requests.
+    pub fn allowed() -> AuthenticationResult {
+        AuthenticationResult {
+            headers: HeaderMap::new(),
+            status: AuthenticationStatus::Denied,
+        }
+    }
+
+    /// Create an authentication result that denies requests.
+    pub fn denied() -> AuthenticationResult {
+        AuthenticationResult {
+            headers: HeaderMap::new(),
+            status: AuthenticationStatus::Denied,
+        }
+    }
+}
+
 /// Result of the Authentication proxy decision on the request.
 #[derive(Clone, Copy, Debug)]
 pub enum AuthenticationStatus {

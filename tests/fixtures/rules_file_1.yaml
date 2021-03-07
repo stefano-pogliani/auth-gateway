@@ -1,0 +1,18 @@
+- phase: post-auth
+  action: deny
+  session_matches:
+    user:
+      - 'some@email.com'
+
+- phase: pre-auth
+  action: allow
+  matches:
+    domain:
+      - 'example.com'
+
+- phase: enrich-response
+  headers_remove:
+    - server
+    - version
+  matches:
+    any: true

@@ -1,0 +1,5 @@
+- phase: pre-auth
+  action: deny
+  matches:
+    header_equal:
+      auth-test-action: block

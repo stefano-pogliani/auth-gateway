@@ -1,3 +1,5 @@
+use std::convert::TryFrom;
+
 use actix_web::get;
 use actix_web::web::Data;
 use actix_web::web::ServiceConfig;
@@ -7,7 +9,6 @@ use actix_web::Responder;
 
 use crate::authenticator::Authenticator;
 use crate::errors::AuthenticationCheckError;
-use crate::errors::InvalidAuthRequest;
 use crate::models::AuthenticationStatus;
 
 /// Endpoint implementing the [auth_request] protocol.
@@ -29,21 +30,7 @@ async fn check(
     authenticator: Data<Authenticator>,
 ) -> actix_web::Result<impl Responder> {
     // Extract required attributes about the request to check.
-    let domain = request
-        .headers()
-        .get("Host")
-        .ok_or(InvalidAuthRequest::NoHost)?;
-    let uri = request
-        .headers()
-        .get("X-Original-URI")
-        .ok_or(InvalidAuthRequest::NoUri)?;
-
-    // Build a request context for rules evaluation.
-    let context = crate::models::RequestContext {
-        domain,
-        headers: request.headers(),
-        uri,
-    };
+    let context = crate::models::RequestContext::try_from(&request)?;
 
     // Check the request for authentication and rules.
     let result = authenticator

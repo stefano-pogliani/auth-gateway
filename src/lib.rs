@@ -1,5 +1,9 @@
 // TODO:  8 - Rules sources + engine: preauth rules, postauth rules, enrich rules.
+// TODO:      - Find first matching post-auth rule and allow/deny if !delegate.
+// TODO:      - Find first matching enrich rule and enrich response.
+// TODO:      - Use engine to process requests.
 // TODO:  9 - Authentication proxies: oauth2_proxy + supporting API endpoint(s).
+// TODO:      - Authentication proxy pre-auth rules: trait method?
 // TODO:      - Prev version made proxy configuration easy, can I keep that?
 // TODO: 10 - Audit support: request hooks + outputs (stdout, HTTP(S) POST).
 // TODO: 11 - Metrics: req count & durations, results by action, rules processed & duration.
@@ -17,6 +21,7 @@ use structopt::StructOpt;
 
 mod authenticator;
 mod config;
+mod engine;
 mod errors;
 mod models;
 mod server;
@@ -44,8 +49,14 @@ pub async fn run() -> Result<()> {
 
     // Configure and start the API server.
     let authenticator_config = config.authenticator;
+    let rules_engine = self::engine::RulesEngine::builder()
+        .rule_files(&config.rule_files)
+        .build()?;
     let server = HttpServer::new(move || {
-        let authenticator = self::authenticator::Authenticator::from_config(&authenticator_config);
+        let authenticator = self::authenticator::Authenticator::from_config(
+            rules_engine.clone(),
+            &authenticator_config,
+        );
         App::new()
             .configure(crate::server::configure)
             .data(authenticator)

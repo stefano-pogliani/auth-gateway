@@ -1,2 +1,5 @@
 authenticator:
   backend: 'allow-all'
+
+rule_files:
+ - test_rules.yaml

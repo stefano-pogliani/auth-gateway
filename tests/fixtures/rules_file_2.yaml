@@ -1,0 +1,17 @@
+- phase: post-auth
+  action: allow
+  session_matches:
+    user:
+      - 'some@email.com'
+
+- phase: pre-auth
+  action: deny
+  matches:
+    domain:
+      - 'example.com'
+
+- phase: enrich-response
+  headers_set:
+    'x-test-inject': 'fixture-2'
+  matches:
+    any: true

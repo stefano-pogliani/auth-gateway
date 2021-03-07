@@ -4,8 +4,14 @@ use std::collections::HashSet;
 use serde::Deserialize;
 use serde::Serialize;
 
+mod matches;
+mod session_matches;
+
+pub use self::matches::RuleMatches;
+pub use self::session_matches::RuleSessionMatches;
+
 /// Configure a response customisation rule.
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct EnrichResponseRule {
     /// Remove headers before sending the response.
     #[serde(default)]
@@ -20,7 +26,7 @@ pub struct EnrichResponseRule {
 }
 
 /// Configure an authentication rule to run after authentication is performed.
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PostAuthRule {
     /// Set the authentication action for matching requests.
     pub action: RuleAction,
@@ -35,7 +41,7 @@ pub struct PostAuthRule {
 }
 
 /// Configure an authentication rule to run before authentication is performed.
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PreAuthRule {
     /// Set the authentication action for matching requests.
     ///
@@ -55,16 +61,16 @@ pub enum Rule {
     EnrichResponse(EnrichResponseRule),
 
     /// Rule to override authentication decisions after they are checked with authenticators.
-    #[serde(rename = "postatuh")]
+    #[serde(rename = "post-auth")]
     PostAuth(PostAuthRule),
 
     /// Rule to override authentication decisions before they are checked with authenticators.
-    #[serde(rename = "preauth")]
-    PreAuth,
+    #[serde(rename = "pre-auth")]
+    PreAuth(PreAuthRule),
 }
 
 /// Possible actions to perform when authentication rules match.
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Copy, Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum RuleAction {
     /// Unconditionally allow the request.
     #[serde(rename = "allow")]
@@ -77,36 +83,4 @@ pub enum RuleAction {
     /// Unconditionally deny the request.
     #[serde(rename = "deny")]
     Deny,
-}
-
-/// Define attributes a request must match for a rule to be applied.
-///
-/// All attributes defined must match for a rule to match overall.
-#[derive(Debug, Default, Deserialize, Serialize)]
-pub struct RuleMatches {
-    /// Requests for any domains in the list will match.
-    #[serde(default)]
-    pub domain: HashSet<String>,
-
-    /// Requests with any header set to the corresponding value will match.
-    #[serde(default)]
-    pub header_equal: HashMap<String, String>,
-
-    /// Requests for any URI in the list will match.
-    #[serde(default)]
-    pub uri: HashSet<String>,
-}
-
-/// Define attributes a request's authentication result must match for a rule to be applied.
-///
-/// All attributes defined must match for a rule to match overall.
-#[derive(Debug, Default, Deserialize, Serialize)]
-pub struct RuleSessionMatches {
-    /// Match requests by authenticator result.
-    #[serde(default)]
-    pub authenticated: Option<bool>,
-
-    /// Requests originating from any of these users will match.
-    #[serde(default)]
-    pub user: HashSet<String>,
 }

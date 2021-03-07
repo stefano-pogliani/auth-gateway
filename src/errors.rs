@@ -33,11 +33,20 @@ impl ResponseError for AuthenticationCheckError {
 /// The authentication request does not meet the auth_request protocol.
 #[derive(Error, Debug)]
 pub enum InvalidAuthRequest {
+    #[error("Value for header '{}' is not UTF8 encoded", _0)]
+    HeaderValueNotUtf8(String),
+
+    #[error("Host header is not UTF8 encoded")]
+    HostNotUtf8,
+
     #[error("Required Host header is missing")]
     NoHost,
 
     #[error("Required X-Original-URI header is missing")]
     NoUri,
+
+    #[error("X-Original-URI header is not UTF8 encoded")]
+    UriNotUtf8,
 }
 
 impl ResponseError for InvalidAuthRequest {
