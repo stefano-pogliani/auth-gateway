@@ -3,6 +3,7 @@ use std::fs::File;
 use anyhow::Context;
 use anyhow::Result;
 
+use crate::models::AuthenticationContext;
 use crate::models::EnrichResponseRule;
 use crate::models::PostAuthRule;
 use crate::models::PreAuthRule;
@@ -38,13 +39,26 @@ impl RulesEngine {
         }
     }
 
+    /// Evaluate postauth rules.
+    pub fn eval_postauth(
+        &self,
+        context: &RequestContext,
+        auth_context: &AuthenticationContext,
+    ) -> RuleAction {
+        self.rules_postauth
+            .iter()
+            .find(|rule| rule.check(context, auth_context))
+            .map(|rule| rule.action)
+            .unwrap_or(RuleAction::Delegate)
+    }
+
     /// Evaluate preauth rules.
     pub fn eval_preauth(&self, context: &RequestContext) -> RuleAction {
-        let rule = self
-            .rules_preauth
+        self.rules_preauth
             .iter()
-            .find(|rule| rule.matches.check(context));
-        rule.map(|rule| rule.action).unwrap_or(RuleAction::Delegate)
+            .find(|rule| rule.check(context))
+            .map(|rule| rule.action)
+            .unwrap_or(RuleAction::Delegate)
     }
 }
 
@@ -92,6 +106,13 @@ impl RulesEngineBuilder {
         I: IntoIterator<Item = &'iter String>,
     {
         self.files = files.into_iter().map(String::to_owned).collect();
+        self
+    }
+
+    /// Insert a post-auth phase rule.
+    #[cfg(test)]
+    pub fn rule_postauth(mut self, rule: PostAuthRule) -> RulesEngineBuilder {
+        self.rules_postauth.push(rule);
         self
     }
 

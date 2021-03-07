@@ -3,3 +3,11 @@
   matches:
     header_equal:
       auth-test-action: block
+
+- phase: post-auth
+  action: deny
+  matches:
+    domain:
+      - extra.secret.local
+  session_matches:
+    authenticated: false

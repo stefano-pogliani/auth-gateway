@@ -5,6 +5,7 @@ use std::convert::TryFrom;
 use actix_web::test::TestRequest;
 
 use super::RulesEngine;
+use crate::models::AuthenticationContext;
 use crate::models::EnrichResponseRule;
 use crate::models::PostAuthRule;
 use crate::models::PreAuthRule;
@@ -56,20 +57,15 @@ fn build_one_source() {
         engine.rules_postauth,
         vec![PostAuthRule {
             action: RuleAction::Deny,
-            matches: RuleMatches {
-                any: false,
-                domain: HashSet::default(),
-                header_equal: HashMap::default(),
-                uri: HashSet::default(),
-            },
-            session_matches: RuleSessionMatches {
+            matches: None,
+            session_matches: Some(RuleSessionMatches {
                 authenticated: None,
                 user: {
                     let mut set = HashSet::new();
                     set.insert("some@email.com".to_string());
                     set
                 }
-            }
+            }),
         }]
     );
     assert_eq!(
@@ -102,6 +98,70 @@ fn build_two_sources() {
     assert_eq!(engine.rules_enrich.len(), 2);
     assert_eq!(engine.rules_postauth.len(), 2);
     assert_eq!(engine.rules_preauth.len(), 2);
+}
+
+#[test]
+fn check_postauth_no_rules() {
+    let request = test_request("domain", "/path/to/page").to_http_request();
+    let auth_context = AuthenticationContext::unauthenticated();
+    let context = RequestContext::try_from(&request).unwrap();
+    let engine = RulesEngine::builder().build().unwrap();
+    let action = engine.eval_postauth(&context, &auth_context);
+    assert_eq!(action, RuleAction::Delegate);
+}
+
+#[test]
+fn check_postauth_rule_allow() {
+    let request = test_request("domain", "/path/to/page").to_http_request();
+    let auth_context = AuthenticationContext {
+        authenticated: true,
+        user: None,
+    };
+    let context = RequestContext::try_from(&request).unwrap();
+    let engine = RulesEngine::builder()
+        .rule_postauth(PostAuthRule {
+            action: RuleAction::Deny,
+            matches: None,
+            session_matches: Some(RuleSessionMatches {
+                authenticated: Some(false),
+                user: Default::default(),
+            }),
+        })
+        .rule_postauth(PostAuthRule {
+            action: RuleAction::Allow,
+            matches: None,
+            session_matches: Some(RuleSessionMatches {
+                authenticated: Some(true),
+                user: Default::default(),
+            }),
+        })
+        .build()
+        .unwrap();
+    let action = engine.eval_postauth(&context, &auth_context);
+    assert_eq!(action, RuleAction::Allow);
+}
+
+#[test]
+fn check_postauth_rule_does_not_match() {
+    let request = test_request("domain", "/path/to/page").to_http_request();
+    let auth_context = AuthenticationContext {
+        authenticated: true,
+        user: None,
+    };
+    let context = RequestContext::try_from(&request).unwrap();
+    let engine = RulesEngine::builder()
+        .rule_postauth(PostAuthRule {
+            action: RuleAction::Allow,
+            matches: None,
+            session_matches: Some(RuleSessionMatches {
+                authenticated: Some(false),
+                user: Default::default(),
+            }),
+        })
+        .build()
+        .unwrap();
+    let action = engine.eval_postauth(&context, &auth_context);
+    assert_eq!(action, RuleAction::Delegate);
 }
 
 #[test]

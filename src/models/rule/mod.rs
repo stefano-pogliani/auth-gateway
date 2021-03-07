@@ -4,6 +4,9 @@ use std::collections::HashSet;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::models::AuthenticationContext;
+use crate::models::RequestContext;
+
 mod matches;
 mod session_matches;
 
@@ -33,11 +36,28 @@ pub struct PostAuthRule {
 
     /// Match requests to apply this rule to.
     #[serde(default)]
-    pub matches: RuleMatches,
+    pub matches: Option<RuleMatches>,
 
     /// Match requests to apply this rule to based on authentication results.
     #[serde(default)]
-    pub session_matches: RuleSessionMatches,
+    pub session_matches: Option<RuleSessionMatches>,
+}
+
+impl PostAuthRule {
+    /// Check if the contexts match this rule.
+    pub fn check(&self, context: &RequestContext, auth_context: &AuthenticationContext) -> bool {
+        (self.matches.is_some() || self.session_matches.is_some())
+            && self
+                .matches
+                .as_ref()
+                .map(|matches| matches.check(context))
+                .unwrap_or(true)
+            && self
+                .session_matches
+                .as_ref()
+                .map(|matches| matches.check(auth_context))
+                .unwrap_or(true)
+    }
 }
 
 /// Configure an authentication rule to run before authentication is performed.
@@ -50,6 +70,13 @@ pub struct PreAuthRule {
 
     /// Match requests to apply this rule to.
     pub matches: RuleMatches,
+}
+
+impl PreAuthRule {
+    /// Check if the context matches this rule.
+    pub fn check(&self, context: &RequestContext) -> bool {
+        self.matches.check(context)
+    }
 }
 
 /// Advanced rules to process requests.

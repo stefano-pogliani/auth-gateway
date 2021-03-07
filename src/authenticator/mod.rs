@@ -5,6 +5,7 @@ use serde::Serialize;
 
 use crate::engine::RulesEngine;
 use crate::models::AuthenticationResult;
+use crate::models::AuthenticationStatus;
 use crate::models::RequestContext;
 use crate::models::RuleAction;
 
@@ -50,6 +51,7 @@ impl Authenticator {
         context: &RequestContext,
         request: &HttpRequest,
     ) -> Result<AuthenticationResult> {
+        // Process pre-authentication rules and exit early if possible.
         match self.rules.eval_preauth(context) {
             RuleAction::Allow => {
                 let result = AuthenticationResult::allowed();
@@ -59,9 +61,28 @@ impl Authenticator {
             RuleAction::Delegate => (),
             RuleAction::Deny => return Ok(AuthenticationResult::denied()),
         };
-        self.proxy.check(context, request)
-        // TODO: check post-auth rules.
-        // TODO: enrich response.
+
+        // Authenticate against the AuthProxy, directing users to login if needed.
+        let result = self.proxy.check(context, request)?;
+        if let AuthenticationStatus::MustLogin = result.status {
+            return Ok(result);
+        }
+
+        // Process post-authentication rules.
+        let mut result = result;
+        let postauth = self
+            .rules
+            .eval_postauth(context, &result.authentication_context);
+        match postauth {
+            RuleAction::Allow => result.status = AuthenticationStatus::Allowed,
+            RuleAction::Delegate => (),
+            RuleAction::Deny => result.status = AuthenticationStatus::Denied,
+        };
+        let result = result;
+
+        // Process enrich rules for allowed responses.
+        // TODO: enrich rules.
+        Ok(result)
     }
 }
 

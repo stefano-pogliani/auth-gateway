@@ -6,7 +6,7 @@ use actix_web::HttpRequest;
 use crate::errors::InvalidAuthRequest;
 
 /// Rule evaluation context obtained from the authenticator.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct AuthenticationContext {
     /// Result of the authenticator process for the request.
     pub authenticated: bool,
@@ -16,6 +16,16 @@ pub struct AuthenticationContext {
     /// The value a user ID takes depends on the selected authenticator.
     /// For example, this could be an email address.
     pub user: Option<String>,
+}
+
+impl AuthenticationContext {
+    /// Return an unauthenticated AuthenticationContext.
+    pub fn unauthenticated() -> AuthenticationContext {
+        AuthenticationContext {
+            authenticated: false,
+            user: None,
+        }
+    }
 }
 
 /// Rule evaluation context obtained from the request to authenticate.

@@ -5,6 +5,7 @@ use actix_web::HttpRequest;
 use anyhow::Result;
 
 use crate::authenticator::AuthenticationProxy;
+use crate::models::AuthenticationContext;
 use crate::models::AuthenticationResult;
 use crate::models::AuthenticationStatus;
 use crate::models::RequestContext;
@@ -40,6 +41,7 @@ impl AuthenticationProxy for Authenticator {
         if self.fail_check {
             anyhow::bail!("Test request check returning error");
         }
+        let authentication_context = AuthenticationContext::unauthenticated();
         let mut headers = HeaderMap::new();
         headers.append(
             HeaderName::from_static("x-test-header"),
@@ -54,7 +56,11 @@ impl AuthenticationProxy for Authenticator {
             HeaderValue::from_static("Value1"),
         );
         let status = self.check_result;
-        Ok(AuthenticationResult { headers, status })
+        Ok(AuthenticationResult {
+            authentication_context,
+            headers,
+            status,
+        })
     }
 }
 

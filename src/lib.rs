@@ -1,7 +1,6 @@
 // TODO:  8 - Rules sources + engine: preauth rules, postauth rules, enrich rules.
-// TODO:      - Find first matching post-auth rule and allow/deny if !delegate.
 // TODO:      - Find first matching enrich rule and enrich response.
-// TODO:      - Use engine to process requests.
+// TODO:      - Set configurable header to inject user ID.
 // TODO:  9 - Authentication proxies: oauth2_proxy + supporting API endpoint(s).
 // TODO:      - Authentication proxy pre-auth rules: trait method?
 // TODO:      - Prev version made proxy configuration easy, can I keep that?

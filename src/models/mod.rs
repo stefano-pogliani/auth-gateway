@@ -16,6 +16,9 @@ pub use rule::RuleSessionMatches;
 /// Final outcome from the authentication process.
 #[derive(Clone, Debug)]
 pub struct AuthenticationResult {
+    /// Authentication context to match post-auth rules and to build authentication responses.
+    pub authentication_context: AuthenticationContext,
+
     /// Set of headers from the authenticator to propagate back to the HTTP proxy.
     pub headers: HeaderMap,
 
@@ -27,6 +30,7 @@ impl AuthenticationResult {
     /// Create an authentication result that allows requests.
     pub fn allowed() -> AuthenticationResult {
         AuthenticationResult {
+            authentication_context: AuthenticationContext::unauthenticated(),
             headers: HeaderMap::new(),
             status: AuthenticationStatus::Denied,
         }
@@ -35,10 +39,20 @@ impl AuthenticationResult {
     /// Create an authentication result that denies requests.
     pub fn denied() -> AuthenticationResult {
         AuthenticationResult {
+            authentication_context: AuthenticationContext::unauthenticated(),
             headers: HeaderMap::new(),
             status: AuthenticationStatus::Denied,
         }
     }
+
+    ///// Create an authentication result that asks ussers to login.
+    //pub fn must_login() -> AuthenticationResult {
+    //    AuthenticationResult {
+    //        authentication_context: AuthenticationContext::unauthenticated(),
+    //        headers: HeaderMap::new(),
+    //        status: AuthenticationStatus::MustLogin,
+    //    }
+    //}
 }
 
 /// Result of the Authentication proxy decision on the request.
