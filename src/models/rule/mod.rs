@@ -14,6 +14,10 @@ pub use self::matches::RuleMatches;
 pub use self::session_matches::RuleSessionMatches;
 
 /// Configure a response customisation rule.
+///
+/// Modifies are applied in the following order:
+/// * headers_remove
+/// * headers_set
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct EnrichResponseRule {
     /// Remove headers before sending the response.
@@ -24,8 +28,30 @@ pub struct EnrichResponseRule {
     #[serde(default)]
     pub headers_set: HashMap<String, String>,
 
-    /// Match requests to enrich with this rule.
-    pub matches: RuleMatches,
+    /// Match requests to apply this rule to.
+    #[serde(default)]
+    pub matches: Option<RuleMatches>,
+
+    /// Match requests to apply this rule to based on authentication results.
+    #[serde(default)]
+    pub session_matches: Option<RuleSessionMatches>,
+}
+
+impl EnrichResponseRule {
+    /// Check if the contexts match this rule.
+    pub fn check(&self, context: &RequestContext, auth_context: &AuthenticationContext) -> bool {
+        (self.matches.is_some() || self.session_matches.is_some())
+            && self
+                .matches
+                .as_ref()
+                .map(|matches| matches.check(context))
+                .unwrap_or(true)
+            && self
+                .session_matches
+                .as_ref()
+                .map(|matches| matches.check(auth_context))
+                .unwrap_or(true)
+    }
 }
 
 /// Configure an authentication rule to run after authentication is performed.

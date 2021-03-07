@@ -1,9 +1,13 @@
 use std::fs::File;
 
+use actix_web::http::HeaderName;
+use actix_web::http::HeaderValue;
 use anyhow::Context;
 use anyhow::Result;
 
+use crate::errors::InvalidEnrichResponseRule;
 use crate::models::AuthenticationContext;
+use crate::models::AuthenticationResult;
 use crate::models::EnrichResponseRule;
 use crate::models::PostAuthRule;
 use crate::models::PreAuthRule;
@@ -37,6 +41,47 @@ impl RulesEngine {
             rules_postauth: Vec::new(),
             rules_preauth: Vec::new(),
         }
+    }
+
+    /// Evaluate enrich rules.
+    pub fn eval_enrich(
+        &self,
+        context: &RequestContext,
+        mut result: AuthenticationResult,
+    ) -> Result<AuthenticationResult> {
+        // Look for a matching enrich rule.
+        let rule = self
+            .rules_enrich
+            .iter()
+            .find(|rule| rule.check(context, &result.authentication_context));
+
+        // Return the unmodified result if no rule matches.
+        let rule = match rule {
+            None => return Ok(result),
+            Some(rule) => rule,
+        };
+
+        // Remove headers.
+        for name in &rule.headers_remove {
+            let name = HeaderName::from_bytes(name.as_bytes())
+                .map_err(anyhow::Error::from)
+                .map_err(InvalidEnrichResponseRule::from)?;
+            result.headers.remove(name);
+        }
+
+        // Set headers.
+        for (name, value) in &rule.headers_set {
+            let name = HeaderName::from_bytes(name.as_bytes())
+                .map_err(anyhow::Error::from)
+                .map_err(InvalidEnrichResponseRule::from)?;
+            let value = HeaderValue::from_str(&value)
+                .map_err(anyhow::Error::from)
+                .map_err(InvalidEnrichResponseRule::from)?;
+            result.headers.insert(name, value);
+        }
+
+        // Return the modified result.
+        Ok(result)
     }
 
     /// Evaluate postauth rules.
@@ -106,6 +151,13 @@ impl RulesEngineBuilder {
         I: IntoIterator<Item = &'iter String>,
     {
         self.files = files.into_iter().map(String::to_owned).collect();
+        self
+    }
+
+    /// Insert am enrich phase rule.
+    #[cfg(test)]
+    pub fn rule_enrich(mut self, rule: EnrichResponseRule) -> RulesEngineBuilder {
+        self.rules_enrich.push(rule);
         self
     }
 

@@ -2,10 +2,13 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::convert::TryFrom;
 
+use actix_web::http::HeaderName;
+use actix_web::http::HeaderValue;
 use actix_web::test::TestRequest;
 
 use super::RulesEngine;
 use crate::models::AuthenticationContext;
+use crate::models::AuthenticationResult;
 use crate::models::EnrichResponseRule;
 use crate::models::PostAuthRule;
 use crate::models::PreAuthRule;
@@ -45,12 +48,13 @@ fn build_one_source() {
                 set
             },
             headers_set: HashMap::default(),
-            matches: RuleMatches {
+            matches: Some(RuleMatches {
                 any: true,
                 domain: HashSet::default(),
                 header_equal: HashMap::default(),
                 uri: HashSet::default(),
-            }
+            }),
+            session_matches: None,
         }]
     );
     assert_eq!(
@@ -101,7 +105,89 @@ fn build_two_sources() {
 }
 
 #[test]
-fn check_postauth_no_rules() {
+fn eval_enrich_no_rules() {
+    let request = test_request("domain", "/path/to/page").to_http_request();
+    let context = RequestContext::try_from(&request).unwrap();
+    let engine = RulesEngine::builder().build().unwrap();
+    let expected = AuthenticationResult::denied();
+    let actual = engine.eval_enrich(&context, expected.clone()).unwrap();
+    assert_eq!(format!("{:?}", actual), format!("{:?}", expected));
+}
+
+#[test]
+fn eval_enrich_rule_does_not_match() {
+    let request = test_request("domain", "/path/to/page").to_http_request();
+    let context = RequestContext::try_from(&request).unwrap();
+    let engine = RulesEngine::builder()
+        .rule_enrich(EnrichResponseRule {
+            headers_remove: {
+                let mut set = HashSet::new();
+                set.insert("X-Test-Remove".to_string());
+                set.insert("X-Remove".to_string());
+                set
+            },
+            headers_set: {
+                let mut map = HashMap::new();
+                map.insert("X-Test".to_string(), "set".to_string());
+                map
+            },
+            matches: None,
+            session_matches: Some(RuleSessionMatches {
+                authenticated: Some(true),
+                user: Default::default(),
+            }),
+        })
+        .build()
+        .unwrap();
+    let mut result = AuthenticationResult::denied();
+    result.headers.insert(
+        HeaderName::from_static("x-remove"),
+        HeaderValue::from_str("kept").unwrap(),
+    );
+    let result = engine.eval_enrich(&context, result).unwrap();
+    let actual = result.headers.get("x-remove").unwrap().to_str().unwrap();
+    assert_eq!(actual, "kept");
+    assert_eq!(result.headers.get("x-test"), None);
+}
+
+#[test]
+fn eval_enrich_rule_matches() {
+    let request = test_request("domain", "/path/to/page").to_http_request();
+    let context = RequestContext::try_from(&request).unwrap();
+    let engine = RulesEngine::builder()
+        .rule_enrich(EnrichResponseRule {
+            headers_remove: {
+                let mut set = HashSet::new();
+                set.insert("X-Test-Remove".to_string());
+                set.insert("X-Remove".to_string());
+                set
+            },
+            headers_set: {
+                let mut map = HashMap::new();
+                map.insert("X-Test".to_string(), "set".to_string());
+                map
+            },
+            matches: None,
+            session_matches: Some(RuleSessionMatches {
+                authenticated: Some(false),
+                user: Default::default(),
+            }),
+        })
+        .build()
+        .unwrap();
+    let mut result = AuthenticationResult::denied();
+    result.headers.insert(
+        HeaderName::from_static("x-remove"),
+        HeaderValue::from_str("ok").unwrap(),
+    );
+    let result = engine.eval_enrich(&context, result).unwrap();
+    let actual = result.headers.get("x-test").unwrap().to_str().unwrap();
+    assert_eq!(result.headers.get("x-remove"), None);
+    assert_eq!(actual, "set");
+}
+
+#[test]
+fn eval_postauth_no_rules() {
     let request = test_request("domain", "/path/to/page").to_http_request();
     let auth_context = AuthenticationContext::unauthenticated();
     let context = RequestContext::try_from(&request).unwrap();
@@ -111,7 +197,7 @@ fn check_postauth_no_rules() {
 }
 
 #[test]
-fn check_postauth_rule_allow() {
+fn eval_postauth_rule_allow() {
     let request = test_request("domain", "/path/to/page").to_http_request();
     let auth_context = AuthenticationContext {
         authenticated: true,
@@ -142,7 +228,7 @@ fn check_postauth_rule_allow() {
 }
 
 #[test]
-fn check_postauth_rule_does_not_match() {
+fn eval_postauth_rule_does_not_match() {
     let request = test_request("domain", "/path/to/page").to_http_request();
     let auth_context = AuthenticationContext {
         authenticated: true,
@@ -165,7 +251,7 @@ fn check_postauth_rule_does_not_match() {
 }
 
 #[test]
-fn check_preauth_no_rules() {
+fn eval_preauth_no_rules() {
     let request = test_request("domain", "/path/to/page").to_http_request();
     let context = RequestContext::try_from(&request).unwrap();
     let engine = RulesEngine::builder().build().unwrap();
@@ -174,7 +260,7 @@ fn check_preauth_no_rules() {
 }
 
 #[test]
-fn check_preauth_rule_allow() {
+fn eval_preauth_rule_allow() {
     let request = test_request("domain", "/path/to/page")
         .header("X-Test-Rule-Case", "vAlUe-SeNsItIvE")
         .header("X-Test-Rule-Case", "header-insensitive")
@@ -220,7 +306,7 @@ fn check_preauth_rule_allow() {
 }
 
 #[test]
-fn check_preauth_rule_does_not_match() {
+fn eval_preauth_rule_does_not_match() {
     let request = test_request("domain", "/path/to/page").to_http_request();
     let context = RequestContext::try_from(&request).unwrap();
     let engine = RulesEngine::builder()

@@ -11,3 +11,9 @@
       - extra.secret.local
   session_matches:
     authenticated: false
+
+- phase: enrich-response
+  headers_set:
+    x-auth-rule: evaluated
+  matches:
+    any: true

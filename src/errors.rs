@@ -54,3 +54,11 @@ impl ResponseError for InvalidAuthRequest {
         StatusCode::BAD_REQUEST
     }
 }
+
+/// Error enriching the Authentication response.
+#[derive(Error, Debug)]
+#[error("Error enriching the Authentication response")]
+pub struct InvalidEnrichResponseRule {
+    #[from]
+    source: anyhow::Error,
+}

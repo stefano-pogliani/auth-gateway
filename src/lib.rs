@@ -1,5 +1,4 @@
 // TODO:  8 - Rules sources + engine: preauth rules, postauth rules, enrich rules.
-// TODO:      - Find first matching enrich rule and enrich response.
 // TODO:      - Set configurable header to inject user ID.
 // TODO:  9 - Authentication proxies: oauth2_proxy + supporting API endpoint(s).
 // TODO:      - Authentication proxy pre-auth rules: trait method?

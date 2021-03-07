@@ -55,21 +55,19 @@ impl Authenticator {
         match self.rules.eval_preauth(context) {
             RuleAction::Allow => {
                 let result = AuthenticationResult::allowed();
-                // TODO: enrich resposnse using an empty AuthenticationContext.
-                return Ok(result);
+                return self.rules.eval_enrich(context, result);
             }
             RuleAction::Delegate => (),
             RuleAction::Deny => return Ok(AuthenticationResult::denied()),
         };
 
         // Authenticate against the AuthProxy, directing users to login if needed.
-        let result = self.proxy.check(context, request)?;
+        let mut result = self.proxy.check(context, request)?;
         if let AuthenticationStatus::MustLogin = result.status {
             return Ok(result);
         }
 
         // Process post-authentication rules.
-        let mut result = result;
         let postauth = self
             .rules
             .eval_postauth(context, &result.authentication_context);
@@ -78,11 +76,9 @@ impl Authenticator {
             RuleAction::Delegate => (),
             RuleAction::Deny => result.status = AuthenticationStatus::Denied,
         };
-        let result = result;
 
         // Process enrich rules for allowed responses.
-        // TODO: enrich rules.
-        Ok(result)
+        self.rules.eval_enrich(context, result)
     }
 }
 
