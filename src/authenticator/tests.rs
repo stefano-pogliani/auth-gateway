@@ -13,10 +13,21 @@ use crate::models::RequestContext;
 /// Mock authenticator for tests.
 pub struct Authenticator {
     check_result: AuthenticationStatus,
+    context: AuthenticationContext,
     fail_check: bool,
 }
 
 impl Authenticator {
+    /// Return an authenticator for the authenticated Alice user.
+    pub fn alice() -> Authenticator {
+        let mut auth = Authenticator::default();
+        auth.context = AuthenticationContext {
+            authenticated: true,
+            user: Some("alice".to_string()),
+        };
+        auth
+    }
+
     pub fn denied() -> Authenticator {
         let mut auth = Authenticator::default();
         auth.check_result = AuthenticationStatus::Denied;
@@ -41,7 +52,6 @@ impl AuthenticationProxy for Authenticator {
         if self.fail_check {
             anyhow::bail!("Test request check returning error");
         }
-        let authentication_context = AuthenticationContext::unauthenticated();
         let mut headers = HeaderMap::new();
         headers.append(
             HeaderName::from_static("x-test-header"),
@@ -57,7 +67,7 @@ impl AuthenticationProxy for Authenticator {
         );
         let status = self.check_result;
         Ok(AuthenticationResult {
-            authentication_context,
+            authentication_context: self.context.clone(),
             headers,
             status,
         })
@@ -68,6 +78,7 @@ impl Default for Authenticator {
     fn default() -> Authenticator {
         Authenticator {
             check_result: AuthenticationStatus::Allowed,
+            context: AuthenticationContext::unauthenticated(),
             fail_check: false,
         }
     }

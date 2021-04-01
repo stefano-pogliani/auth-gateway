@@ -46,6 +46,9 @@ async fn check(
     for (header, value) in result.headers.iter() {
         response.header(header, value.to_owned());
     }
+    if let Some(user) = result.authentication_context.user {
+        response.header(&authenticator.headers.user_id, user);
+    }
     Ok(response)
 }
 
@@ -73,6 +76,7 @@ mod tests {
     use actix_web::Error;
 
     use crate::authenticator::Authenticator;
+    use crate::config::AuthenticatorConfig;
 
     // Create an Acitx App to run tests using the default test authenticator.
     async fn test_app(
@@ -191,6 +195,24 @@ mod tests {
                 .as_bytes()
             )
         );
+    }
+
+    #[actix_rt::test]
+    async fn check_identity_headers_user_id() {
+        let auth = crate::authenticator::tests::Authenticator::alice();
+        let mut app = test_app_with_authenticator(auth).await;
+        let request = test::TestRequest::get()
+            .header("Host", "domain.example.com")
+            .header("X-Original-URI", "/")
+            .uri("/v1/check")
+            .to_request();
+        let response = test::call_service(&mut app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let user_id = response
+            .headers()
+            .get(AuthenticatorConfig::default_user_id_header())
+            .expect("a user ID must be returned");
+        assert_eq!(user_id, "alice");
     }
 
     #[actix_rt::test]

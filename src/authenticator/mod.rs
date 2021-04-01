@@ -1,8 +1,10 @@
+use actix_web::http::HeaderName;
 use actix_web::HttpRequest;
+use anyhow::Context;
 use anyhow::Result;
-use serde::Deserialize;
-use serde::Serialize;
 
+use crate::config::AuthenticatorBackend;
+use crate::config::AuthenticatorConfig;
 use crate::engine::RulesEngine;
 use crate::models::AuthenticationResult;
 use crate::models::AuthenticationStatus;
@@ -16,6 +18,9 @@ pub mod tests;
 
 /// Wrap logic around authentication proxy and rules engine.
 pub struct Authenticator {
+    /// Headers to inject user identity information into.
+    pub headers: IdentityHeaders,
+
     /// The Authenticator proxy to check requests with.
     proxy: Box<dyn AuthenticationProxy>,
 
@@ -30,17 +35,30 @@ impl Authenticator {
     where
         A: AuthenticationProxy + 'static,
     {
+        let headers = IdentityHeaders::default();
         let rules = RulesEngine::builder().build().unwrap();
         let proxy = Box::new(authenticator);
-        Authenticator { proxy, rules }
+        Authenticator {
+            headers,
+            proxy,
+            rules,
+        }
     }
 
     /// Instantiate the configured authentication proxy .
-    pub fn from_config(rules: RulesEngine, config: &AuthenticatorConfig) -> Authenticator {
-        let proxy = match config {
-            AuthenticatorConfig::AllowAll => Box::new(self::allow_all::AllowAll {}),
+    pub fn from_config(
+        headers: IdentityHeaders,
+        rules: RulesEngine,
+        config: &AuthenticatorConfig,
+    ) -> Authenticator {
+        let proxy = match config.backend {
+            AuthenticatorBackend::AllowAll => Box::new(self::allow_all::AllowAll {}),
         };
-        Authenticator { proxy, rules }
+        Authenticator {
+            headers,
+            proxy,
+            rules,
+        }
     }
 }
 
@@ -92,12 +110,26 @@ pub trait AuthenticationProxy {
     ) -> Result<AuthenticationResult>;
 }
 
-/// Supported authenticators and their configuration options.
-#[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "backend")]
-pub enum AuthenticatorConfig {
-    /// Debug authenticator to allow all requests.
-    #[cfg(debug_assertions)]
-    #[serde(rename = "allow-all")]
-    AllowAll,
+/// Headers to store user identity information from the authenticator.
+#[derive(Clone, Debug)]
+pub struct IdentityHeaders {
+    /// Header to place the user ID in.
+    pub user_id: HeaderName,
+}
+
+impl IdentityHeaders {
+    /// Load the headers to report user identity in from the configuration.
+    pub fn from_config(config: &AuthenticatorConfig) -> Result<IdentityHeaders> {
+        let user_id = HeaderName::from_bytes(config.user_id_header.as_bytes())
+            .with_context(|| "user ID identity reporting is not valid")?;
+        Ok(IdentityHeaders { user_id })
+    }
+}
+
+impl Default for IdentityHeaders {
+    fn default() -> IdentityHeaders {
+        IdentityHeaders {
+            user_id: HeaderName::from_static("x-auth-request-user"),
+        }
+    }
 }

@@ -6,7 +6,33 @@ use anyhow::Result;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::authenticator::AuthenticatorConfig;
+/// Supported authenticators and their configuration options.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(tag = "backend")]
+pub enum AuthenticatorBackend {
+    /// Debug authenticator to allow all requests.
+    #[cfg(debug_assertions)]
+    #[serde(rename = "allow-all")]
+    AllowAll,
+}
+
+/// Authenticator configuration and backend options.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct AuthenticatorConfig {
+    /// Selected backend and configuration.
+    #[serde(flatten)]
+    pub backend: AuthenticatorBackend,
+
+    /// If the authenticator returns a user ID, return it in this response header.
+    #[serde(default = "AuthenticatorConfig::default_user_id_header")]
+    pub user_id_header: String,
+}
+
+impl AuthenticatorConfig {
+    pub fn default_user_id_header() -> String {
+        "x-auth-request-user".into()
+    }
+}
 
 /// AuthGateway configuration options.
 #[derive(Debug, Deserialize, Serialize)]
