@@ -1,12 +1,6 @@
-**/.nyc_output
-**/coverage
-**/dist
-**/node_modules
-
+# GitHub creds for local dev.
 .github_dev_client
 
-# Added by cargo
-/target
-
-# TMP: nodejs code while re-write is in progess.
-__njs_auth-gateway/
+# Development tools directories.
+**/node_modules
+**/target

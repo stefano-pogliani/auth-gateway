@@ -1,6 +1,5 @@
 // TODO:  9 - Authentication proxies: oauth2_proxy + supporting API endpoint(s).
-// TODO:      - Authentication proxy pre-auth rules: trait method?
-// TODO:      - Prev version made proxy configuration easy, can I keep that?
+// TODO:      - Convert OAuth2Proxy response to AuthenticationResult.
 // TODO: 10 - Audit support: request hooks + outputs (stdout, HTTP(S) POST).
 // TODO: 11 - Metrics: req count & durations, results by action, rules processed & duration.
 // TODO: 12 - Review feature partity.
@@ -9,6 +8,7 @@
 // TODO? 15 - Some sort of config helper?
 // TODO?      AuthGateway generate a context from config and other sources.
 // TODO?      Support rendering of config templates + auth backends provided defaults.
+// ROADMAP: Support for OAuth2Proxy cookie refresh (return Set-Cookie header from oauth2_proxy).
 // ROADMAP: Additional user identity: Email and Peferred-Username.
 // ROADMAP: Authorization phase to lookup groups (post authenticate; pre enrigh).
 //          - User ID key to lookup groups (list of strings).
@@ -24,7 +24,6 @@ use actix_web::App;
 use actix_web::HttpServer;
 use anyhow::Result;
 use env_logger::Builder;
-use log::info;
 use structopt::StructOpt;
 
 mod authenticator;
@@ -75,8 +74,8 @@ pub async fn run() -> Result<()> {
             .data(authenticator)
             .wrap(actix_web::middleware::Logger::default())
     });
-    info!("AuthGateway API Starting at {}", &config.bind);
+    log::info!("AuthGateway API Starting at {}", &config.bind);
     server.bind(config.bind)?.run().await?;
-    info!("AuthGateway exiting");
+    log::info!("AuthGateway exiting");
     Ok(())
 }

@@ -47,8 +47,9 @@ impl Authenticator {
     }
 }
 
+#[async_trait::async_trait(?Send)]
 impl AuthenticationProxy for Authenticator {
-    fn check(&self, _: &RequestContext, _: &HttpRequest) -> Result<AuthenticationResult> {
+    async fn check(&self, _: &RequestContext, _: &HttpRequest) -> Result<AuthenticationResult> {
         if self.fail_check {
             anyhow::bail!("Test request check returning error");
         }

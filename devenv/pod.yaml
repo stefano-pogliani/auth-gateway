@@ -26,7 +26,7 @@ spec:
       workingDir: '/code'
 
     - name: oauth2
-      image: 'quay.io/oauth2-proxy/oauth2-proxy:v7.0.0'
+      image: 'quay.io/oauth2-proxy/oauth2-proxy:v7.1.2'
       command:
         - '/bin/oauth2-proxy'
         - '--config=/etc/oauth2.conf'

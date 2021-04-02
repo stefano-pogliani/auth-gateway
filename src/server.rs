@@ -10,6 +10,7 @@ use actix_web::Responder;
 use crate::authenticator::Authenticator;
 use crate::errors::AuthenticationCheckError;
 use crate::models::AuthenticationStatus;
+use crate::models::RequestContext;
 
 /// Endpoint implementing the [auth_request] protocol.
 ///
@@ -30,11 +31,12 @@ async fn check(
     authenticator: Data<Authenticator>,
 ) -> actix_web::Result<impl Responder> {
     // Extract required attributes about the request to check.
-    let context = crate::models::RequestContext::try_from(&request)?;
+    let context = RequestContext::try_from(&request)?;
 
     // Check the request for authentication and rules.
     let result = authenticator
         .check(&context, &request)
+        .await
         .map_err(AuthenticationCheckError::from)?;
 
     // Build the auth_request response from the authentication result.

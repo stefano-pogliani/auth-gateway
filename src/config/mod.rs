@@ -6,6 +6,10 @@ use anyhow::Result;
 use serde::Deserialize;
 use serde::Serialize;
 
+mod oauth2_proxy;
+
+pub use self::oauth2_proxy::OAuth2ProxyConfig;
+
 /// Supported authenticators and their configuration options.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(tag = "backend")]
@@ -14,6 +18,10 @@ pub enum AuthenticatorBackend {
     #[cfg(debug_assertions)]
     #[serde(rename = "allow-all")]
     AllowAll,
+
+    /// Authenticate users with [oauth2_proxy](https://oauth2-proxy.github.io/oauth2-proxy/).
+    #[serde(rename = "oauth2-proxy")]
+    OAuth2Proxy(OAuth2ProxyConfig),
 }
 
 /// Authenticator configuration and backend options.

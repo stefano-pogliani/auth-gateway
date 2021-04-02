@@ -321,6 +321,7 @@ dependencies = [
  "actix-rt",
  "actix-web",
  "anyhow",
+ "async-trait",
  "env_logger",
  "log",
  "serde",

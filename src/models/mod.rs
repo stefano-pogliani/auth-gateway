@@ -32,7 +32,7 @@ impl AuthenticationResult {
         AuthenticationResult {
             authentication_context: AuthenticationContext::unauthenticated(),
             headers: HeaderMap::new(),
-            status: AuthenticationStatus::Denied,
+            status: AuthenticationStatus::Allowed,
         }
     }
 
@@ -45,14 +45,14 @@ impl AuthenticationResult {
         }
     }
 
-    ///// Create an authentication result that asks ussers to login.
-    //pub fn must_login() -> AuthenticationResult {
-    //    AuthenticationResult {
-    //        authentication_context: AuthenticationContext::unauthenticated(),
-    //        headers: HeaderMap::new(),
-    //        status: AuthenticationStatus::MustLogin,
-    //    }
-    //}
+    /// Create an authentication result that asks ussers to login.
+    pub fn must_login() -> AuthenticationResult {
+        AuthenticationResult {
+            authentication_context: AuthenticationContext::unauthenticated(),
+            headers: HeaderMap::new(),
+            status: AuthenticationStatus::MustLogin,
+        }
+    }
 }
 
 /// Result of the Authentication proxy decision on the request.

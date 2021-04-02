@@ -10,8 +10,9 @@ use crate::models::RequestContext;
 /// Authenticator that always allows requests for debuging.
 pub struct AllowAll {}
 
+#[async_trait::async_trait(?Send)]
 impl AuthenticationProxy for AllowAll {
-    fn check(&self, _: &RequestContext, _: &HttpRequest) -> Result<AuthenticationResult> {
+    async fn check(&self, _: &RequestContext, _: &HttpRequest) -> Result<AuthenticationResult> {
         Ok(AuthenticationResult {
             authentication_context: AuthenticationContext::unauthenticated(),
             headers: actix_web::http::HeaderMap::new(),

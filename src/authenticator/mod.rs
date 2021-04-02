@@ -12,6 +12,7 @@ use crate::models::RequestContext;
 use crate::models::RuleAction;
 
 mod allow_all;
+mod oauth2_proxy;
 
 #[cfg(test)]
 pub mod tests;
@@ -51,8 +52,11 @@ impl Authenticator {
         rules: RulesEngine,
         config: &AuthenticatorConfig,
     ) -> Authenticator {
-        let proxy = match config.backend {
+        let proxy: Box<dyn AuthenticationProxy> = match config.backend {
             AuthenticatorBackend::AllowAll => Box::new(self::allow_all::AllowAll {}),
+            AuthenticatorBackend::OAuth2Proxy(ref oauth2_proxy) => {
+                Box::new(self::oauth2_proxy::OAuth2Proxy::from_config(oauth2_proxy))
+            }
         };
         Authenticator {
             headers,
@@ -64,9 +68,9 @@ impl Authenticator {
 
 impl Authenticator {
     /// Check a request for valid authentication.
-    pub fn check(
+    pub async fn check(
         &self,
-        context: &RequestContext,
+        context: &RequestContext<'_>,
         request: &HttpRequest,
     ) -> Result<AuthenticationResult> {
         // Process pre-authentication rules and exit early if possible.
@@ -80,7 +84,7 @@ impl Authenticator {
         };
 
         // Authenticate against the AuthProxy, directing users to login if needed.
-        let mut result = self.proxy.check(context, request)?;
+        let mut result = self.proxy.check(context, request).await?;
         if let AuthenticationStatus::MustLogin = result.status {
             return Ok(result);
         }
@@ -101,9 +105,10 @@ impl Authenticator {
 }
 
 /// Interface to authentication implementations.
+#[async_trait::async_trait(?Send)]
 pub trait AuthenticationProxy {
     /// Check if the request is authenticated context.
-    fn check(
+    async fn check(
         &self,
         context: &RequestContext,
         request: &HttpRequest,

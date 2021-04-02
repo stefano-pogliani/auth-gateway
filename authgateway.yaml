@@ -1,5 +1,7 @@
 authenticator:
-  backend: 'allow-all'
+  #backend: 'allow-all'
+  backend: 'oauth2-proxy'
+  #auth-domain: 'auth.example.com'
 
 rule_files:
  - test_rules.yaml
