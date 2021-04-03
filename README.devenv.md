@@ -20,8 +20,8 @@ echo "$(minikube ip) auth.gateway.test service.gateway.test" | sudo tee -a /etc/
 curl "http://service.gateway.test:8080/"
 
 # Run the proxy app or enter the app container
-minikube kubectl -- exec -it auth-gateway-devenv app -- cargo run
-minikube kubectl -- exec -it auth-gateway-devenv app -- bash
+kubectl exec auth-gateway-devenv -c app -it -- cargo run
+kubectl exec auth-gateway-devenv -c app -it -- bash
 
 # Delete the pod (needed to force restart && apply changes).
 minikube kubectl -- delete pod auth-gateway-devenv

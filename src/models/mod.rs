@@ -44,15 +44,6 @@ impl AuthenticationResult {
             status: AuthenticationStatus::Denied,
         }
     }
-
-    /// Create an authentication result that asks ussers to login.
-    pub fn must_login() -> AuthenticationResult {
-        AuthenticationResult {
-            authentication_context: AuthenticationContext::unauthenticated(),
-            headers: HeaderMap::new(),
-            status: AuthenticationStatus::MustLogin,
-        }
-    }
 }
 
 /// Result of the Authentication proxy decision on the request.
@@ -66,4 +57,11 @@ pub enum AuthenticationStatus {
 
     /// The request is denied, a new authentication session may be required.
     MustLogin,
+}
+
+impl AuthenticationStatus {
+    /// Check if the AuthenticationStatus is allowed.
+    pub fn authenticated(&self) -> bool {
+        matches!(self, AuthenticationStatus::Allowed)
+    }
 }

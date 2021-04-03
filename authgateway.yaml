@@ -1,7 +1,8 @@
 authenticator:
   #backend: 'allow-all'
   backend: 'oauth2-proxy'
-  #auth-domain: 'auth.example.com'
+  address: 'http://127.0.0.1:8091'
+  proxy-prefix: '/authenticator'
 
 rule_files:
  - test_rules.yaml

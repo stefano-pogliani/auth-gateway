@@ -1,5 +1,3 @@
-// TODO:  9 - Authentication proxies: oauth2_proxy + supporting API endpoint(s).
-// TODO:      - Convert OAuth2Proxy response to AuthenticationResult.
 // TODO: 10 - Audit support: request hooks + outputs (stdout, HTTP(S) POST).
 // TODO: 11 - Metrics: req count & durations, results by action, rules processed & duration.
 // TODO: 12 - Review feature partity.
@@ -9,6 +7,7 @@
 // TODO?      AuthGateway generate a context from config and other sources.
 // TODO?      Support rendering of config templates + auth backends provided defaults.
 // ROADMAP: Support for OAuth2Proxy cookie refresh (return Set-Cookie header from oauth2_proxy).
+// ROADMAP: Support for OAuth2Proxy Authentication header (how does it work?).
 // ROADMAP: Additional user identity: Email and Peferred-Username.
 // ROADMAP: Authorization phase to lookup groups (post authenticate; pre enrigh).
 //          - User ID key to lookup groups (list of strings).

@@ -6,10 +6,11 @@ use anyhow::Result;
 
 use crate::authenticator::AuthenticationProxy;
 use crate::config::OAuth2ProxyConfig;
-//use crate::models::AuthenticationContext;
 use crate::models::AuthenticationResult;
-//use crate::models::AuthenticationStatus;
+use crate::models::AuthenticationStatus;
 use crate::models::RequestContext;
+
+const USER_ID_HEADER: &str = "x-auth-request-user";
 
 /// Authenticate users with [oauth2_proxy](https://oauth2-proxy.github.io/oauth2-proxy/).
 pub struct OAuth2Proxy {
@@ -23,6 +24,9 @@ impl OAuth2Proxy {
         let mut config = config.clone();
         if config.address.ends_with('/') {
             config.address = config.address.trim_end_matches('/').to_string();
+        }
+        if !config.prefix.starts_with('/') {
+            config.prefix = format!("/{}", config.prefix);
         }
         if !config.prefix.ends_with('/') {
             config.prefix = format!("{}/", config.prefix);
@@ -64,10 +68,39 @@ impl AuthenticationProxy for OAuth2Proxy {
             }
         };
 
-        // TODO: Validate response for HTTP-level errors (500, 404, etc ...).
-        println!("~~~ {:?}", response);
+        // Validate response for HTTP-level errors (500, 404, etc ...).
+        let status = match response.status().as_u16() {
+            202 => AuthenticationStatus::Allowed,
+            401 => AuthenticationStatus::MustLogin,
+            _ => {
+                let mut response = response;
+                let body = response.body().await;
+                log::error!(
+                    "Unexpected status code from OAuth2Proxy: {}",
+                    response.status()
+                );
+                log::debug!("Response body for unexpected status code: {:?}", body);
+                return Ok(AuthenticationResult::denied());
+            }
+        };
 
-        // TODO: Extract user information from oauth2_proxy response.
-        Ok(AuthenticationResult::must_login())
+        // Extract user information from oauth2_proxy response.
+        let user = match response.headers().get(USER_ID_HEADER) {
+            None => None,
+            Some(user) => match String::from_utf8(user.as_bytes().to_vec()) {
+                Ok(user) => Some(user),
+                Err(error) => {
+                    log::error!("Unable to UTF8 decode user ID {:?}", error);
+                    None
+                }
+            },
+        };
+
+        // Return generated authentication result and context.
+        let mut result = AuthenticationResult::denied();
+        result.authentication_context.authenticated = status.authenticated();
+        result.authentication_context.user = user;
+        result.status = status;
+        Ok(result)
     }
 }
