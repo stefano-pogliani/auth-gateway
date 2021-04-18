@@ -1,4 +1,9 @@
 // TODO: 10 - Audit support: request hooks + outputs (stdout, HTTP(S) POST).
+// TODO:      - Audit record model and result reason enum.
+// TODO:      - Populate audit record while request processes.
+// TODO:      - Audit reported trait, audit reporter config and stdout reporter.
+// TODO:      - HTTP(S) audit reporter.
+// TODO:      - MongoDB audit reporter.
 // TODO: 11 - Metrics: req count & durations, results by action, rules processed & duration.
 // TODO: 12 - Review feature partity.
 // TODO: 13 - K8s deployment and minikube demo.
@@ -6,19 +11,6 @@
 // TODO? 15 - Some sort of config helper?
 // TODO?      AuthGateway generate a context from config and other sources.
 // TODO?      Support rendering of config templates + auth backends provided defaults.
-// ROADMAP: Support for OAuth2Proxy cookie refresh (return Set-Cookie header from oauth2_proxy).
-// ROADMAP: Support for OAuth2Proxy Authentication header (how does it work?).
-// ROADMAP: Additional user identity: Email and Peferred-Username.
-// ROADMAP: Authorization phase to lookup groups (post authenticate; pre enrigh).
-//          - User ID key to lookup groups (list of strings).
-//          - Support different lookup backends but only one at a time.
-//          - Filter roles in enrich phase? (use case: limit groups to app they are for).
-//          - Configurable concatentation method (with overrides in enrigh phase).
-// ROADMAP: Static roles lookup: all users get list of groups.
-// ROADMAP: File roles lookup: YAML/JSON files indexed by user id.
-// ROADMAP: LDAP roles lookup: memberOf attribute from user-driven LDAP search.
-// ROADMAP: Authentication attributes: a space for authenticators to store extra use info (use case: saml assertions).
-// ROADMAP: Authentication attributes lookup (use case: SAML assertions to user roles).
 use actix_web::App;
 use actix_web::HttpServer;
 use anyhow::Result;
