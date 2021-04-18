@@ -31,11 +31,11 @@ impl AuthenticationContext {
 /// Rule evaluation context obtained from the request to authenticate.
 #[derive(Debug)]
 pub struct RequestContext<'request> {
-    /// The domain, as determined by the `Host` header.
-    pub domain: &'request str,
-
     /// HTTP headers extracted from the auth_request request.
     pub headers: HashMap<&'request str, Vec<&'request str>>,
+
+    /// The host the request is for, as determined by the `Host` header.
+    pub host: &'request str,
 
     /// URI of the request to authenticate.
     pub uri: &'request str,
@@ -46,12 +46,12 @@ impl<'request> TryFrom<&'request HttpRequest> for RequestContext<'request> {
 
     fn try_from(request: &'request HttpRequest) -> Result<RequestContext<'request>, Self::Error> {
         // Extract required attributes about the request to check.
-        let domain = request
+        let host = request
             .headers()
             .get("Host")
             .ok_or(InvalidAuthRequest::NoHost)?;
-        let domain =
-            std::str::from_utf8(domain.as_bytes()).map_err(|_| InvalidAuthRequest::HostNotUtf8)?;
+        let host =
+            std::str::from_utf8(host.as_bytes()).map_err(|_| InvalidAuthRequest::HostNotUtf8)?;
         let uri = request
             .headers()
             .get("X-Original-URI")
@@ -70,8 +70,8 @@ impl<'request> TryFrom<&'request HttpRequest> for RequestContext<'request> {
 
         // Build a request context for rules evaluation.
         let context = crate::models::RequestContext {
-            domain,
             headers,
+            host,
             uri,
         };
         Ok(context)

@@ -32,7 +32,7 @@ impl RuleMatches {
     /// Check if the context matches this rule.
     pub fn check(&self, context: &RequestContext) -> bool {
         self.any
-            || self.domain.contains(context.domain)
+            || self.domain.contains(context.host)
             || self.uri.contains(context.uri)
             || self.check_header_equal(context)
     }
@@ -63,7 +63,7 @@ mod tests {
     #[test]
     fn match_any() {
         let context = RequestContext {
-            domain: "not.me",
+            host: "not.me",
             headers: Default::default(),
             uri: &"/path/to/nowhere",
         };
@@ -79,7 +79,7 @@ mod tests {
     #[test]
     fn match_domain() {
         let context = RequestContext {
-            domain: "not.me",
+            host: "not.me",
             headers: Default::default(),
             uri: &"/path/to/nowhere",
         };
@@ -100,7 +100,7 @@ mod tests {
     #[test]
     fn match_header() {
         let context = RequestContext {
-            domain: "not.me",
+            host: "not.me",
             headers: {
                 let mut map = std::collections::HashMap::new();
                 map.insert("x-header-check", vec!["no"]);
@@ -126,7 +126,7 @@ mod tests {
     #[test]
     fn match_uri() {
         let context = RequestContext {
-            domain: "not.me",
+            host: "not.me",
             headers: Default::default(),
             uri: &"/path/to/nowhere",
         };

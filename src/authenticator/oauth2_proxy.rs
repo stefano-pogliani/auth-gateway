@@ -50,7 +50,7 @@ impl AuthenticationProxy for OAuth2Proxy {
         // If an auth domain is set it also has to match the request.
         let mut auth_ui = context.uri.starts_with(&self.config.prefix);
         if let Some(domain) = &self.config.auth_domain {
-            auth_ui = auth_ui && (context.domain == domain);
+            auth_ui = auth_ui && (context.host == domain);
         }
         if auth_ui {
             return Ok(AuthenticationResult::allowed());
