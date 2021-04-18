@@ -1,10 +1,12 @@
 use actix_web::http::HeaderMap;
 
+mod audit;
 mod context;
 mod rule;
 
 pub use context::AuthenticationContext;
 pub use context::RequestContext;
+pub use context::RequestProtocol;
 pub use rule::EnrichResponseRule;
 pub use rule::PostAuthRule;
 pub use rule::PreAuthRule;

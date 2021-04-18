@@ -77,3 +77,11 @@ impl<'request> TryFrom<&'request HttpRequest> for RequestContext<'request> {
         Ok(context)
     }
 }
+
+/// Protocol used to request the protcted resource.
+#[derive(Clone, Debug)]
+pub enum RequestProtocol {
+    Http,
+    Https,
+    Other(String),
+}
