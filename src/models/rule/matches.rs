@@ -59,12 +59,14 @@ impl RuleMatches {
 mod tests {
     use super::RuleMatches;
     use crate::models::RequestContext;
+    use crate::models::RequestProtocol;
 
     #[test]
     fn match_any() {
         let context = RequestContext {
-            host: "not.me",
             headers: Default::default(),
+            host: "not.me",
+            protocol: RequestProtocol::Https,
             uri: &"/path/to/nowhere",
         };
         let rule = RuleMatches {
@@ -79,8 +81,9 @@ mod tests {
     #[test]
     fn match_domain() {
         let context = RequestContext {
-            host: "not.me",
             headers: Default::default(),
+            host: "not.me",
+            protocol: RequestProtocol::Https,
             uri: &"/path/to/nowhere",
         };
         let rule = RuleMatches {
@@ -100,13 +103,14 @@ mod tests {
     #[test]
     fn match_header() {
         let context = RequestContext {
-            host: "not.me",
             headers: {
                 let mut map = std::collections::HashMap::new();
                 map.insert("x-header-check", vec!["no"]);
                 map.insert("header-eq-test", vec!["No", "Yes"]);
                 map
             },
+            host: "not.me",
+            protocol: RequestProtocol::Https,
             uri: &"/path/to/nowhere",
         };
         let rule = RuleMatches {
@@ -126,8 +130,9 @@ mod tests {
     #[test]
     fn match_uri() {
         let context = RequestContext {
-            host: "not.me",
             headers: Default::default(),
+            host: "not.me",
+            protocol: RequestProtocol::Https,
             uri: &"/path/to/nowhere",
         };
         let rule = RuleMatches {

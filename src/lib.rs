@@ -1,5 +1,4 @@
 // TODO: 10 - Audit support: request hooks + outputs (stdout, HTTP(S) POST).
-// TODO:      - Populate audit record while request processes.
 // TODO:      - Audit reported trait, audit reporter config and stdout reporter.
 // TODO:      - HTTP(S) audit reporter.
 // TODO:      - MongoDB audit reporter.

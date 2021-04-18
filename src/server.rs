@@ -9,6 +9,7 @@ use actix_web::Responder;
 
 use crate::authenticator::Authenticator;
 use crate::errors::AuthenticationCheckError;
+use crate::models::AuditRecordBuilder;
 use crate::models::AuthenticationStatus;
 use crate::models::RequestContext;
 
@@ -16,6 +17,7 @@ use crate::models::RequestContext;
 ///
 /// Required headers:
 ///  * `Host` - Provides the domain the request to authenticate is for.
+///  * `X-Forwarded-Proto` - Provides the protocol the request to authenticate is using.
 ///  * `X-Original-URI` - Provides the URI the request to authenticate is requesting.
 ///
 /// Returns the following codes:
@@ -34,10 +36,12 @@ async fn check(
     let context = RequestContext::try_from(&request)?;
 
     // Check the request for authentication and rules.
+    let audit = AuditRecordBuilder::start(&context);
     let result = authenticator
         .check(&context, &request)
         .await
         .map_err(AuthenticationCheckError::from)?;
+    let audit = audit.finish(&result);
 
     // Build the auth_request response from the authentication result.
     let mut response = match result.status {
@@ -51,6 +55,9 @@ async fn check(
     if let Some(user) = result.authentication_context.user {
         response.header(&authenticator.headers.user_id, user);
     }
+
+    // TODO: Send audit record to configured auditor.
+    println!("~~~ {:?}", audit);
     Ok(response)
 }
 
@@ -108,10 +115,27 @@ mod tests {
     }
 
     #[actix_rt::test]
+    async fn bad_request_without_protocol() {
+        let mut app = test_app().await;
+        let request = test::TestRequest::get()
+            .header("Host", "domain.example.com")
+            .uri("/v1/check")
+            .to_request();
+        let response = test::call_service(&mut app, request).await;
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+        let body = test::read_body(response).await;
+        assert_eq!(
+            body,
+            Bytes::from_static(b"Required X-Forwarded-Proto header is missing")
+        );
+    }
+
+    #[actix_rt::test]
     async fn bad_request_without_uri() {
         let mut app = test_app().await;
         let request = test::TestRequest::get()
             .header("Host", "domain.example.com")
+            .header("X-Forwarded-Proto", "https")
             .uri("/v1/check")
             .to_request();
         let response = test::call_service(&mut app, request).await;
@@ -128,6 +152,7 @@ mod tests {
         let mut app = test_app().await;
         let request = test::TestRequest::get()
             .header("Host", "domain.example.com")
+            .header("X-Forwarded-Proto", "https")
             .header("X-Original-URI", "/")
             .uri("/v1/check")
             .to_request();
@@ -142,6 +167,7 @@ mod tests {
         let mut app = test_app().await;
         let request = test::TestRequest::get()
             .header("Host", "domain.example.com")
+            .header("X-Forwarded-Proto", "https")
             .header("X-Original-URI", "/")
             .uri("/v1/check")
             .to_request();
@@ -166,6 +192,7 @@ mod tests {
         let mut app = test_app_with_authenticator(auth).await;
         let request = test::TestRequest::get()
             .header("Host", "domain.example.com")
+            .header("X-Forwarded-Proto", "https")
             .header("X-Original-URI", "/")
             .uri("/v1/check")
             .to_request();
@@ -181,6 +208,7 @@ mod tests {
         let mut app = test_app_with_authenticator(auth).await;
         let request = test::TestRequest::get()
             .header("Host", "domain.example.com")
+            .header("X-Forwarded-Proto", "https")
             .header("X-Original-URI", "/")
             .uri("/v1/check")
             .to_request();
@@ -205,6 +233,7 @@ mod tests {
         let mut app = test_app_with_authenticator(auth).await;
         let request = test::TestRequest::get()
             .header("Host", "domain.example.com")
+            .header("X-Forwarded-Proto", "https")
             .header("X-Original-URI", "/")
             .uri("/v1/check")
             .to_request();
@@ -223,6 +252,7 @@ mod tests {
         let mut app = test_app_with_authenticator(auth).await;
         let request = test::TestRequest::get()
             .header("Host", "domain.example.com")
+            .header("X-Forwarded-Proto", "https")
             .header("X-Original-URI", "/")
             .uri("/v1/check")
             .to_request();

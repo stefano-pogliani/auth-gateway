@@ -42,8 +42,14 @@ pub enum InvalidAuthRequest {
     #[error("Required Host header is missing")]
     NoHost,
 
+    #[error("Required X-Forwarded-Proto header is missing")]
+    NoProtocol,
+
     #[error("Required X-Original-URI header is missing")]
     NoUri,
+
+    #[error("X-Forwarded-Proto header is not UTF8 encoded")]
+    ProtocolNotUtf8,
 
     #[error("X-Original-URI header is not UTF8 encoded")]
     UriNotUtf8,

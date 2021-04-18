@@ -45,6 +45,7 @@ mod tests {
         let context = AuthenticationContext {
             authenticated: true,
             user: None,
+            session: None,
         };
         let rule = RuleSessionMatches {
             authenticated: Some(true),
@@ -58,6 +59,7 @@ mod tests {
         let context = AuthenticationContext {
             authenticated: false,
             user: None,
+            session: None,
         };
         let rule = RuleSessionMatches {
             authenticated: Some(false),
@@ -71,6 +73,7 @@ mod tests {
         let context = AuthenticationContext {
             authenticated: true,
             user: Some("email@dev.local".to_string()),
+            session: None,
         };
         let rule = RuleSessionMatches {
             authenticated: None,
@@ -89,6 +92,7 @@ mod tests {
         let context = AuthenticationContext {
             authenticated: true,
             user: None,
+            session: None,
         };
         let rule = RuleSessionMatches {
             authenticated: None,
@@ -98,6 +102,7 @@ mod tests {
         let context = AuthenticationContext {
             authenticated: false,
             user: None,
+            session: None,
         };
         assert!(!rule.check(&context));
     }
@@ -107,6 +112,7 @@ mod tests {
         let context = AuthenticationContext {
             authenticated: true,
             user: Some("email@dev.local".to_string()),
+            session: None,
         };
         let rule = RuleSessionMatches {
             authenticated: None,

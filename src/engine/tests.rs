@@ -20,6 +20,7 @@ use crate::models::RuleSessionMatches;
 fn test_request(host: &'static str, uri: &'static str) -> TestRequest {
     TestRequest::get()
         .header("Host", host)
+        .header("X-Forwarded-Proto", "https")
         .header("X-Original-URI", uri)
         .uri("/v1/check")
 }
@@ -202,6 +203,7 @@ fn eval_postauth_rule_allow() {
     let auth_context = AuthenticationContext {
         authenticated: true,
         user: None,
+        session: None,
     };
     let context = RequestContext::try_from(&request).unwrap();
     let engine = RulesEngine::builder()
@@ -233,6 +235,7 @@ fn eval_postauth_rule_does_not_match() {
     let auth_context = AuthenticationContext {
         authenticated: true,
         user: None,
+        session: None,
     };
     let context = RequestContext::try_from(&request).unwrap();
     let engine = RulesEngine::builder()

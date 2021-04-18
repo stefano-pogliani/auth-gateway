@@ -1,8 +1,11 @@
 use std::time::Duration;
 
 use actix_web::client::Client;
+use actix_web::http::HeaderMap;
 use actix_web::HttpRequest;
 use anyhow::Result;
+use sha3::Digest;
+use sha3::Sha3_512 as Sha512;
 
 use crate::authenticator::AuthenticationProxy;
 use crate::config::OAuth2ProxyConfig;
@@ -11,6 +14,41 @@ use crate::models::AuthenticationStatus;
 use crate::models::RequestContext;
 
 const USER_ID_HEADER: &str = "x-auth-request-user";
+const SESSION_ID_HEADER: &str = "x-auth-request-access-token";
+
+/// Attempt to extract the user ID from response headers.
+fn extract_user(headers: &HeaderMap) -> Option<String> {
+    match headers.get(USER_ID_HEADER) {
+        None => None,
+        Some(user) => match String::from_utf8(user.as_bytes().to_vec()) {
+            Ok(user) => Some(user),
+            Err(error) => {
+                log::error!("Unable to UTF8 decode user ID {:?}", error);
+                None
+            }
+        },
+    }
+}
+
+/// Attempt to extract the session ID from response headers.
+fn extract_session(headers: &HeaderMap) -> Option<String> {
+    let session = match headers.get(SESSION_ID_HEADER) {
+        None => None,
+        Some(session) => match String::from_utf8(session.as_bytes().to_vec()) {
+            Ok(session) => Some(session),
+            Err(error) => {
+                log::error!("Unable to UTF8 decode session ID {:?}", error);
+                None
+            }
+        },
+    };
+
+    // One-way encrypt the Authentication token to derive a session ID.
+    session.map(|session| {
+        let session = Sha512::digest(session.as_bytes());
+        format!("{:X}", session)
+    })
+}
 
 /// Authenticate users with [oauth2_proxy](https://oauth2-proxy.github.io/oauth2-proxy/).
 pub struct OAuth2Proxy {
@@ -85,22 +123,15 @@ impl AuthenticationProxy for OAuth2Proxy {
         };
 
         // Extract user information from oauth2_proxy response.
-        let user = match response.headers().get(USER_ID_HEADER) {
-            None => None,
-            Some(user) => match String::from_utf8(user.as_bytes().to_vec()) {
-                Ok(user) => Some(user),
-                Err(error) => {
-                    log::error!("Unable to UTF8 decode user ID {:?}", error);
-                    None
-                }
-            },
-        };
+        let headers = response.headers();
+        let user = extract_user(headers);
+        let session = extract_session(headers);
 
         // Return generated authentication result and context.
-        let mut result = AuthenticationResult::denied();
+        let mut result = AuthenticationResult::from_status(status);
         result.authentication_context.authenticated = status.authenticated();
         result.authentication_context.user = user;
-        result.status = status;
+        result.authentication_context.session = session;
         Ok(result)
     }
 }

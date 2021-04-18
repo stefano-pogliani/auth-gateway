@@ -16,6 +16,12 @@ pub struct AuthenticationContext {
     /// The value a user ID takes depends on the selected authenticator.
     /// For example, this could be an email address.
     pub user: Option<String>,
+
+    /// Session ID provided by the authenticator, if possible.
+    ///
+    /// The value of the session ID depends on the selected authenticator.
+    /// AuthGateway treats this as an opaque string value.
+    pub session: Option<String>,
 }
 
 impl AuthenticationContext {
@@ -24,6 +30,7 @@ impl AuthenticationContext {
         AuthenticationContext {
             authenticated: false,
             user: None,
+            session: None,
         }
     }
 }
@@ -36,6 +43,9 @@ pub struct RequestContext<'request> {
 
     /// The host the request is for, as determined by the `Host` header.
     pub host: &'request str,
+
+    /// Protocol of the request to authenticate.
+    pub protocol: RequestProtocol,
 
     /// URI of the request to authenticate.
     pub uri: &'request str,
@@ -52,6 +62,18 @@ impl<'request> TryFrom<&'request HttpRequest> for RequestContext<'request> {
             .ok_or(InvalidAuthRequest::NoHost)?;
         let host =
             std::str::from_utf8(host.as_bytes()).map_err(|_| InvalidAuthRequest::HostNotUtf8)?;
+        let protocol = request
+            .headers()
+            .get("X-Forwarded-Proto")
+            .ok_or(InvalidAuthRequest::NoProtocol)?;
+        let protocol = std::str::from_utf8(protocol.as_bytes())
+            .map_err(|_| InvalidAuthRequest::ProtocolNotUtf8)?
+            .to_lowercase();
+        let protocol = match protocol.as_str() {
+            "http" => RequestProtocol::Http,
+            "https" => RequestProtocol::Https,
+            _ => RequestProtocol::Other(protocol),
+        };
         let uri = request
             .headers()
             .get("X-Original-URI")
@@ -72,6 +94,7 @@ impl<'request> TryFrom<&'request HttpRequest> for RequestContext<'request> {
         let context = crate::models::RequestContext {
             headers,
             host,
+            protocol,
             uri,
         };
         Ok(context)
@@ -79,9 +102,19 @@ impl<'request> TryFrom<&'request HttpRequest> for RequestContext<'request> {
 }
 
 /// Protocol used to request the protcted resource.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum RequestProtocol {
     Http,
     Https,
     Other(String),
+}
+
+impl std::fmt::Display for RequestProtocol {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            RequestProtocol::Http => write!(f, "http"),
+            RequestProtocol::Https => write!(f, "https"),
+            RequestProtocol::Other(proto) => proto.fmt(f),
+        }
+    }
 }

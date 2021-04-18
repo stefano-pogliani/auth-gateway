@@ -4,6 +4,8 @@ mod audit;
 mod context;
 mod rule;
 
+pub use audit::AuditReason;
+pub use audit::AuditRecordBuilder;
 pub use context::AuthenticationContext;
 pub use context::RequestContext;
 pub use context::RequestProtocol;
@@ -18,6 +20,9 @@ pub use rule::RuleSessionMatches;
 /// Final outcome from the authentication process.
 #[derive(Clone, Debug)]
 pub struct AuthenticationResult {
+    /// Reason for the authentication result for the audit record.
+    pub audit_reason: AuditReason,
+
     /// Authentication context to match post-auth rules and to build authentication responses.
     pub authentication_context: AuthenticationContext,
 
@@ -32,6 +37,7 @@ impl AuthenticationResult {
     /// Create an authentication result that allows requests.
     pub fn allowed() -> AuthenticationResult {
         AuthenticationResult {
+            audit_reason: AuditReason::Allowed,
             authentication_context: AuthenticationContext::unauthenticated(),
             headers: HeaderMap::new(),
             status: AuthenticationStatus::Allowed,
@@ -41,15 +47,31 @@ impl AuthenticationResult {
     /// Create an authentication result that denies requests.
     pub fn denied() -> AuthenticationResult {
         AuthenticationResult {
+            audit_reason: AuditReason::Denied,
             authentication_context: AuthenticationContext::unauthenticated(),
             headers: HeaderMap::new(),
             status: AuthenticationStatus::Denied,
         }
     }
+
+    /// Create an authentication result from an AuthenticationStatus.
+    pub fn from_status(status: AuthenticationStatus) -> AuthenticationResult {
+        let audit_reason = match status {
+            AuthenticationStatus::Allowed => AuditReason::Allowed,
+            AuthenticationStatus::Denied => AuditReason::Denied,
+            AuthenticationStatus::MustLogin => AuditReason::InvalidSession,
+        };
+        AuthenticationResult {
+            audit_reason,
+            authentication_context: AuthenticationContext::unauthenticated(),
+            headers: HeaderMap::new(),
+            status,
+        }
+    }
 }
 
 /// Result of the Authentication proxy decision on the request.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum AuthenticationStatus {
     /// The request is allowed.
     Allowed,

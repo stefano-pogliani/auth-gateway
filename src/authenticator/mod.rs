@@ -6,6 +6,7 @@ use anyhow::Result;
 use crate::config::AuthenticatorBackend;
 use crate::config::AuthenticatorConfig;
 use crate::engine::RulesEngine;
+use crate::models::AuditReason;
 use crate::models::AuthenticationResult;
 use crate::models::AuthenticationStatus;
 use crate::models::RequestContext;
@@ -76,11 +77,16 @@ impl Authenticator {
         // Process pre-authentication rules and exit early if possible.
         match self.rules.eval_preauth(context) {
             RuleAction::Allow => {
-                let result = AuthenticationResult::allowed();
+                let mut result = AuthenticationResult::allowed();
+                result.audit_reason = AuditReason::PreAuthAllowed;
                 return self.rules.eval_enrich(context, result);
             }
             RuleAction::Delegate => (),
-            RuleAction::Deny => return Ok(AuthenticationResult::denied()),
+            RuleAction::Deny => {
+                let mut result = AuthenticationResult::denied();
+                result.audit_reason = AuditReason::PreAuthDenied;
+                return Ok(result);
+            }
         };
 
         // Authenticate against the AuthProxy, directing users to login if needed.
@@ -94,9 +100,15 @@ impl Authenticator {
             .rules
             .eval_postauth(context, &result.authentication_context);
         match postauth {
-            RuleAction::Allow => result.status = AuthenticationStatus::Allowed,
+            RuleAction::Allow => {
+                result.audit_reason = AuditReason::PostAuthAllowed;
+                result.status = AuthenticationStatus::Allowed;
+            }
             RuleAction::Delegate => (),
-            RuleAction::Deny => result.status = AuthenticationStatus::Denied,
+            RuleAction::Deny => {
+                result.audit_reason = AuditReason::PostAuthDenied;
+                result.status = AuthenticationStatus::Denied;
+            }
         };
 
         // Process enrich rules for allowed responses.
