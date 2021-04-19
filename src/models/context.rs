@@ -105,8 +105,13 @@ impl<'request> TryFrom<&'request HttpRequest> for RequestContext<'request> {
 /// Protocol used to request the protcted resource.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub enum RequestProtocol {
+    #[serde(rename = "http")]
     Http,
+
+    #[serde(rename = "https")]
     Https,
+
+    #[serde(rename = "other")]
     Other(String),
 }
 

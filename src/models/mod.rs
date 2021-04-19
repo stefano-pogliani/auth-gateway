@@ -76,12 +76,15 @@ impl AuthenticationResult {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 pub enum AuthenticationStatus {
     /// The request is allowed.
+    #[serde(rename = "allowed")]
     Allowed,
 
     /// The request is denied.
+    #[serde(rename = "denied")]
     Denied,
 
     /// The request is denied, a new authentication session may be required.
+    #[serde(rename = "must-login")]
     MustLogin,
 }
 
