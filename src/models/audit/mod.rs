@@ -3,6 +3,7 @@ use std::time::Instant;
 
 use chrono::DateTime;
 use chrono::Utc;
+use serde::Serialize;
 
 use super::AuthenticationResult;
 use super::AuthenticationStatus;
@@ -13,32 +14,39 @@ use super::RequestProtocol;
 mod tests;
 
 /// Reason for the authentication response provided for a request.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 pub enum AuditReason {
     /// The request was allowed by the authentication proxy.
+    #[serde(rename = "allowed")]
     Allowed,
 
     /// The request was denied by the authentication proxy or by a rule.
+    #[serde(rename = "denied")]
     Denied,
 
     /// The request was denied by the authentication proxy requesting a new session.
+    #[serde(rename = "invalid-session")]
     InvalidSession,
 
     /// The request was allowed by a post-auth phase rule.
+    #[serde(rename = "post-auth-allowed")]
     PostAuthAllowed,
 
     /// The request was denied by a post-auth phase rule.
+    #[serde(rename = "post-auth-denied")]
     PostAuthDenied,
 
     /// The request was allowed by a pre-auth phase rule.
+    #[serde(rename = "pre-auth-allowed")]
     PreAuthAllowed,
 
     /// The request was denied by a pre-auth phase rule.
+    #[serde(rename = "pre-auth-denied")]
     PreAuthDenied,
 }
 
 /// Record of information about an authorisation request for auditing.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct AuditRecord {
     /// The request was ultimatelly allowed.
     pub authenticated: bool,

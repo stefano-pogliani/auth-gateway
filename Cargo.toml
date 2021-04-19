@@ -15,7 +15,7 @@ repository = "https://github.com/stefano-pogliani/auth-gateway"
 actix-web = "^3.3.2"
 anyhow = "^1.0.38"
 async-trait = "^0.1.48"
-chrono = "^0.4.9"
+chrono = { features = ["serde"], version = "^0.4.9" }
 env_logger = "^0.8.2"
 log = "^0.4.14"
 serde = "^1.0.123"

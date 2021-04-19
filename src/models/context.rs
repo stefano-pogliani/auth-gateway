@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::convert::TryFrom;
 
 use actix_web::HttpRequest;
+use serde::Serialize;
 
 use crate::errors::InvalidAuthRequest;
 
@@ -102,7 +103,7 @@ impl<'request> TryFrom<&'request HttpRequest> for RequestContext<'request> {
 }
 
 /// Protocol used to request the protcted resource.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub enum RequestProtocol {
     Http,
     Https,

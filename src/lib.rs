@@ -1,6 +1,4 @@
-// TODO: 10 - Audit support: request hooks + outputs (stdout, HTTP(S) POST).
-// TODO:      - Audit reported trait, audit reporter config and stdout reporter.
-// TODO:      - HTTP(S) audit reporter.
+// TODO: 10 - Audit support: request hooks + outputs:
 // TODO:      - MongoDB audit reporter.
 // TODO: 11 - Metrics: req count & durations, results by action, rules processed & duration.
 // TODO: 12 - Review feature partity.
@@ -15,6 +13,7 @@ use anyhow::Result;
 use env_logger::Builder;
 use structopt::StructOpt;
 
+mod audit;
 mod authenticator;
 mod config;
 mod engine;
@@ -22,6 +21,7 @@ mod errors;
 mod models;
 mod server;
 
+use self::audit::Auditor;
 use self::authenticator::Authenticator;
 use self::authenticator::IdentityHeaders;
 
@@ -46,6 +46,10 @@ pub async fn run() -> Result<()> {
     let mut builder = Builder::from_default_env();
     builder.filter_level(config.log_level.into()).init();
 
+    // Configure audit reporter and authenticator proxy.
+    let auditor = Auditor::factory(config.audit)?;
+    // TODO: convert authenticator to factory approach.
+
     // Configure and start the API server.
     let authenticator_config = config.authenticator;
     let identity_headers = IdentityHeaders::from_config(&authenticator_config)?;
@@ -60,6 +64,7 @@ pub async fn run() -> Result<()> {
         );
         App::new()
             .configure(crate::server::configure)
+            .data(auditor.make())
             .data(authenticator)
             .wrap(actix_web::middleware::Logger::default())
     });

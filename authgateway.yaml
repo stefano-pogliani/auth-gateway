@@ -1,3 +1,6 @@
+audit:
+  backend: log
+
 authenticator:
   #backend: 'allow-all'
   backend: 'oauth2-proxy'

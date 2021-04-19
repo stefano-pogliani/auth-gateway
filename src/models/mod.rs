@@ -1,10 +1,12 @@
 use actix_web::http::HeaderMap;
+use serde::Serialize;
 
 mod audit;
 mod context;
 mod rule;
 
 pub use audit::AuditReason;
+pub use audit::AuditRecord;
 pub use audit::AuditRecordBuilder;
 pub use context::AuthenticationContext;
 pub use context::RequestContext;
@@ -71,7 +73,7 @@ impl AuthenticationResult {
 }
 
 /// Result of the Authentication proxy decision on the request.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 pub enum AuthenticationStatus {
     /// The request is allowed.
     Allowed,

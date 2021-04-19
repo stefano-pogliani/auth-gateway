@@ -10,6 +10,25 @@ mod oauth2_proxy;
 
 pub use self::oauth2_proxy::OAuth2ProxyConfig;
 
+/// Supported audit record backends and their configuration options.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(tag = "backend")]
+pub enum AuditBackend {
+    /// Emit audit records as log events.
+    #[serde(rename = "log")]
+    Log,
+
+    /// Drop all audit records.
+    #[serde(rename = "noop")]
+    Noop,
+}
+
+impl Default for AuditBackend {
+    fn default() -> AuditBackend {
+        AuditBackend::Noop
+    }
+}
+
 /// Supported authenticators and their configuration options.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(tag = "backend")]
@@ -45,6 +64,10 @@ impl AuthenticatorConfig {
 /// AuthGateway configuration options.
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Config {
+    /// Configure the audit reporter to use.
+    #[serde(default)]
+    pub audit: AuditBackend,
+
     /// Configure the Authentication proxy to use.
     pub authenticator: AuthenticatorConfig,
 

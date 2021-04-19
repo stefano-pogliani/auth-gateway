@@ -7,7 +7,9 @@ use actix_web::HttpRequest;
 use actix_web::HttpResponse;
 use actix_web::Responder;
 
+use crate::audit::Auditor;
 use crate::authenticator::Authenticator;
+use crate::errors::AuditSendError;
 use crate::errors::AuthenticationCheckError;
 use crate::models::AuditRecordBuilder;
 use crate::models::AuthenticationStatus;
@@ -30,6 +32,7 @@ use crate::models::RequestContext;
 #[get("/v1/check")]
 async fn check(
     request: HttpRequest,
+    auditor: Data<Auditor>,
     authenticator: Data<Authenticator>,
 ) -> actix_web::Result<impl Responder> {
     // Extract required attributes about the request to check.
@@ -56,8 +59,8 @@ async fn check(
         response.header(&authenticator.headers.user_id, user);
     }
 
-    // TODO: Send audit record to configured auditor.
-    println!("~~~ {:?}", audit);
+    // Send audit record to configured auditor.
+    auditor.send(audit).await.map_err(AuditSendError::from)?;
     Ok(response)
 }
 
@@ -84,7 +87,9 @@ mod tests {
     use actix_web::App;
     use actix_web::Error;
 
+    use crate::audit::Auditor;
     use crate::authenticator::Authenticator;
+    use crate::config::AuditBackend;
     use crate::config::AuthenticatorConfig;
 
     // Create an Acitx App to run tests using the default test authenticator.
@@ -98,7 +103,9 @@ mod tests {
     async fn test_app_with_authenticator(
         auth: crate::authenticator::tests::Authenticator,
     ) -> impl Service<Request = Request, Response = ServiceResponse<Body>, Error = Error> {
+        let auditor = Auditor::factory(AuditBackend::Noop).unwrap();
         let app = App::new()
+            .data(auditor.make())
             .data(Authenticator::from(auth))
             .service(super::check);
         test::init_service(app).await
