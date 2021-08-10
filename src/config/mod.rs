@@ -113,7 +113,7 @@ impl Config {
 }
 
 /// Serialize and Deserialize copy of log::LevelFilter.
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum LevelFilter {
     /// A level lower than all log levels.
     #[serde(rename = "off")]

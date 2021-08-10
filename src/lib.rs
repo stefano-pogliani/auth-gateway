@@ -21,7 +21,6 @@ mod server;
 
 use self::audit::Auditor;
 use self::authenticator::Authenticator;
-use self::authenticator::IdentityHeaders;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -42,28 +41,18 @@ pub async fn run() -> Result<()> {
 
     // Configure logging.
     let mut builder = Builder::from_default_env();
-    builder.filter_level(config.log_level.into()).init();
+    builder.filter_level(config.log_level.clone().into()).init();
 
     // Configure audit reporter and authenticator proxy.
+    let authenticator = Authenticator::factory(&config)?;
     let auditor = Auditor::factory(config.audit).await?;
-    // TODO: convert authenticator to factory approach.
 
     // Configure and start the API server.
-    let authenticator_config = config.authenticator;
-    let identity_headers = IdentityHeaders::from_config(&authenticator_config)?;
-    let rules_engine = self::engine::RulesEngine::builder()
-        .rule_files(&config.rule_files)
-        .build()?;
     let server = HttpServer::new(move || {
-        let authenticator = Authenticator::from_config(
-            identity_headers.clone(),
-            rules_engine.clone(),
-            &authenticator_config,
-        );
         App::new()
             .configure(crate::server::configure)
             .data(auditor.make())
-            .data(authenticator)
+            .data(authenticator.make())
             .wrap(actix_web::middleware::Logger::default())
     });
     log::info!("AuthGateway API Starting at {}", &config.bind);

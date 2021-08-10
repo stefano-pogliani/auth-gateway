@@ -8,6 +8,7 @@ use sha3::Digest;
 use sha3::Sha3_512 as Sha512;
 
 use crate::authenticator::AuthenticationProxy;
+use crate::authenticator::AuthenticationProxyFactory;
 use crate::config::OAuth2ProxyConfig;
 use crate::models::AuthenticationResult;
 use crate::models::AuthenticationStatus;
@@ -133,5 +134,23 @@ impl AuthenticationProxy for OAuth2Proxy {
         result.authentication_context.user = user;
         result.authentication_context.session = session;
         Ok(result)
+    }
+}
+
+/// Instantiate per-thread `OAuth2Proxy` instances.
+pub struct OAuth2ProxyFactory {
+    config: OAuth2ProxyConfig,
+}
+
+impl OAuth2ProxyFactory {
+    pub fn from_config(config: &OAuth2ProxyConfig) -> OAuth2ProxyFactory {
+        let config = config.clone();
+        OAuth2ProxyFactory { config }
+    }
+}
+
+impl AuthenticationProxyFactory for OAuth2ProxyFactory {
+    fn make(&self) -> Box<dyn AuthenticationProxy> {
+        Box::new(OAuth2Proxy::from_config(&self.config))
     }
 }

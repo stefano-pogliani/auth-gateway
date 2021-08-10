@@ -74,7 +74,7 @@ impl RulesEngine {
             let name = HeaderName::from_bytes(name.as_bytes())
                 .map_err(anyhow::Error::from)
                 .map_err(InvalidEnrichResponseRule::from)?;
-            let value = HeaderValue::from_str(&value)
+            let value = HeaderValue::from_str(value)
                 .map_err(anyhow::Error::from)
                 .map_err(InvalidEnrichResponseRule::from)?;
             result.headers.insert(name, value);

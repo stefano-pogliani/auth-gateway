@@ -1,10 +1,10 @@
-use actix_web::http::HeaderName;
+use std::sync::Arc;
+
 use actix_web::HttpRequest;
-use anyhow::Context;
 use anyhow::Result;
 
 use crate::config::AuthenticatorBackend;
-use crate::config::AuthenticatorConfig;
+use crate::config::Config;
 use crate::engine::RulesEngine;
 use crate::models::AuditReason;
 use crate::models::AuthenticationResult;
@@ -13,10 +13,33 @@ use crate::models::RequestContext;
 use crate::models::RuleAction;
 
 mod allow_all;
+mod identity_headers;
 mod oauth2_proxy;
 
 #[cfg(test)]
 pub mod tests;
+
+use self::identity_headers::IdentityHeaders;
+
+/// Interface to authentication implementations.
+#[async_trait::async_trait(?Send)]
+pub trait AuthenticationProxy {
+    /// Check if the request is authenticated context.
+    async fn check(
+        &self,
+        context: &RequestContext,
+        request: &HttpRequest,
+    ) -> Result<AuthenticationResult>;
+}
+
+/// Thread-safe logic to create thread-scoped `AuthenticationProxy` instances.
+///
+/// Used by `AuthenticatorFactory` instances to create authentication proxy
+/// while reusing as much logic as possible.
+pub trait AuthenticationProxyFactory: Send + Sync {
+    /// Return a new `AuthenticationProxy` instance.
+    fn make(&self) -> Box<dyn AuthenticationProxy>;
+}
 
 /// Wrap logic around authentication proxy and rules engine.
 pub struct Authenticator {
@@ -31,6 +54,25 @@ pub struct Authenticator {
 }
 
 impl Authenticator {
+    /// Create an AuthenticatorFactory from configuration options.
+    pub fn factory(config: &Config) -> Result<AuthenticatorFactory> {
+        let factory: Arc<dyn AuthenticationProxyFactory> = match config.authenticator.backend {
+            AuthenticatorBackend::AllowAll => Arc::new(self::allow_all::AllowAll {}),
+            AuthenticatorBackend::OAuth2Proxy(ref oauth2_proxy) => Arc::new(
+                self::oauth2_proxy::OAuth2ProxyFactory::from_config(oauth2_proxy),
+            ),
+        };
+        let headers = IdentityHeaders::from_config(&config.authenticator)?;
+        let rules = RulesEngine::builder()
+            .rule_files(&config.rule_files)
+            .build()?;
+        Ok(AuthenticatorFactory {
+            factory,
+            headers,
+            rules,
+        })
+    }
+
     /// Instantiate an authenticator from the given authentication proxy.
     #[cfg(test)]
     pub fn from<A>(authenticator: A) -> Authenticator
@@ -47,27 +89,6 @@ impl Authenticator {
         }
     }
 
-    /// Instantiate the configured authentication proxy .
-    pub fn from_config(
-        headers: IdentityHeaders,
-        rules: RulesEngine,
-        config: &AuthenticatorConfig,
-    ) -> Authenticator {
-        let proxy: Box<dyn AuthenticationProxy> = match config.backend {
-            AuthenticatorBackend::AllowAll => Box::new(self::allow_all::AllowAll {}),
-            AuthenticatorBackend::OAuth2Proxy(ref oauth2_proxy) => {
-                Box::new(self::oauth2_proxy::OAuth2Proxy::from_config(oauth2_proxy))
-            }
-        };
-        Authenticator {
-            headers,
-            proxy,
-            rules,
-        }
-    }
-}
-
-impl Authenticator {
     /// Check a request for valid authentication.
     pub async fn check(
         &self,
@@ -116,37 +137,24 @@ impl Authenticator {
     }
 }
 
-/// Interface to authentication implementations.
-#[async_trait::async_trait(?Send)]
-pub trait AuthenticationProxy {
-    /// Check if the request is authenticated context.
-    async fn check(
-        &self,
-        context: &RequestContext,
-        request: &HttpRequest,
-    ) -> Result<AuthenticationResult>;
+/// Thread-safe logic to create thread-scoped `Authenticator` instances.
+///
+/// This allows implementations to initiate and share global state once for the entire process
+/// while also allowing the use of thread-scoped objects where needed.
+#[derive(Clone)]
+pub struct AuthenticatorFactory {
+    factory: Arc<dyn AuthenticationProxyFactory>,
+    headers: IdentityHeaders,
+    rules: RulesEngine,
 }
 
-/// Headers to store user identity information from the authenticator.
-#[derive(Clone, Debug)]
-pub struct IdentityHeaders {
-    /// Header to place the user ID in.
-    pub user_id: HeaderName,
-}
-
-impl IdentityHeaders {
-    /// Load the headers to report user identity in from the configuration.
-    pub fn from_config(config: &AuthenticatorConfig) -> Result<IdentityHeaders> {
-        let user_id = HeaderName::from_bytes(config.user_id_header.as_bytes())
-            .with_context(|| "user ID identity reporting is not valid")?;
-        Ok(IdentityHeaders { user_id })
-    }
-}
-
-impl Default for IdentityHeaders {
-    fn default() -> IdentityHeaders {
-        IdentityHeaders {
-            user_id: HeaderName::from_static("x-auth-request-user"),
+impl AuthenticatorFactory {
+    /// Return a new `Authenticator` instance.
+    pub fn make(&self) -> Authenticator {
+        Authenticator {
+            headers: self.headers.clone(),
+            proxy: self.factory.make(),
+            rules: self.rules.clone(),
         }
     }
 }
