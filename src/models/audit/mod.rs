@@ -3,6 +3,7 @@ use std::time::Instant;
 
 use chrono::DateTime;
 use chrono::Utc;
+use serde::Deserialize;
 use serde::Serialize;
 
 use super::AuthenticationResult;
@@ -14,7 +15,7 @@ use super::RequestProtocol;
 mod tests;
 
 /// Reason for the authentication response provided for a request.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum AuditReason {
     /// The request was allowed by the authentication proxy.
     #[serde(rename = "allowed")]
@@ -46,7 +47,7 @@ pub enum AuditReason {
 }
 
 /// Record of information about an authorisation request for auditing.
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AuditRecord {
     /// The request was ultimatelly allowed.
     pub authenticated: bool,

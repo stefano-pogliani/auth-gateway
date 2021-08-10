@@ -6,6 +6,7 @@ use crate::config::AuditBackend;
 use crate::models::AuditRecord;
 
 mod log;
+mod mongodb;
 mod noop;
 
 /// Wrap an audit record backend with a fixed type and common logic.
@@ -18,9 +19,13 @@ impl Auditor {
     }
 
     /// Create an AuditorFactory trait object from configuration options.
-    pub fn factory(config: AuditBackend) -> Result<Arc<dyn AuditorFactory>> {
+    pub async fn factory(config: AuditBackend) -> Result<Arc<dyn AuditorFactory>> {
         match config {
             AuditBackend::Log => Ok(Arc::new(self::log::LogReporter {})),
+            AuditBackend::MongoDB(config) => {
+                let factory = self::mongodb::ReporterFactory::new(config);
+                Ok(Arc::new(factory.await?))
+            }
             AuditBackend::Noop => Ok(Arc::new(self::noop::NoopReporter {})),
         }
     }

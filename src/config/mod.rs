@@ -6,8 +6,10 @@ use anyhow::Result;
 use serde::Deserialize;
 use serde::Serialize;
 
+mod mongodb;
 mod oauth2_proxy;
 
+pub use self::mongodb::MongoDBAuditConfig;
 pub use self::oauth2_proxy::OAuth2ProxyConfig;
 
 /// Supported audit record backends and their configuration options.
@@ -17,6 +19,10 @@ pub enum AuditBackend {
     /// Emit audit records as log events.
     #[serde(rename = "log")]
     Log,
+
+    /// Store audit records in a MongoDB collection.
+    #[serde(rename = "mongodb")]
+    MongoDB(MongoDBAuditConfig),
 
     /// Drop all audit records.
     #[serde(rename = "noop")]

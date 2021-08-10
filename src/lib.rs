@@ -1,5 +1,3 @@
-// TODO: 10 - Audit support: request hooks + outputs:
-// TODO:      - MongoDB audit reporter.
 // TODO: 11 - Metrics: req count & durations, results by action, rules processed & duration.
 // TODO: 12 - Review feature partity.
 // TODO: 13 - K8s deployment and minikube demo.
@@ -47,7 +45,7 @@ pub async fn run() -> Result<()> {
     builder.filter_level(config.log_level.into()).init();
 
     // Configure audit reporter and authenticator proxy.
-    let auditor = Auditor::factory(config.audit)?;
+    let auditor = Auditor::factory(config.audit).await?;
     // TODO: convert authenticator to factory approach.
 
     // Configure and start the API server.

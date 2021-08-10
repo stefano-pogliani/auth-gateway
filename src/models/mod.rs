@@ -1,4 +1,5 @@
 use actix_web::http::HeaderMap;
+use serde::Deserialize;
 use serde::Serialize;
 
 mod audit;
@@ -73,7 +74,7 @@ impl AuthenticationResult {
 }
 
 /// Result of the Authentication proxy decision on the request.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum AuthenticationStatus {
     /// The request is allowed.
     #[serde(rename = "allowed")]

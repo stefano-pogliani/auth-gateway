@@ -103,7 +103,7 @@ mod tests {
     async fn test_app_with_authenticator(
         auth: crate::authenticator::tests::Authenticator,
     ) -> impl Service<Request = Request, Response = ServiceResponse<Body>, Error = Error> {
-        let auditor = Auditor::factory(AuditBackend::Noop).unwrap();
+        let auditor = Auditor::factory(AuditBackend::Noop).await.unwrap();
         let app = App::new()
             .data(auditor.make())
             .data(Authenticator::from(auth))

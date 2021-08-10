@@ -25,6 +25,26 @@ spec:
           readOnly: false
       workingDir: '/code'
 
+    - name: mongo
+      image: 'docker.io/library/mongo:5.0'
+      ports:
+        - containerPort: 27017
+          hostPort: 27017
+      resources: {}
+
+    - name: nginx
+      image: 'docker.io/library/nginx:1.19-alpine'
+      command:
+        - 'nginx'
+      ports:
+        - containerPort: 80
+          hostPort: 8080
+      resources: {}
+      volumeMounts:
+        - mountPath: /etc/nginx/nginx.conf
+          name: nginx-config
+          readOnly: true
+
     - name: oauth2
       image: 'quay.io/oauth2-proxy/oauth2-proxy:v7.1.2'
       command:
@@ -45,19 +65,6 @@ spec:
       volumeMounts:
         - mountPath: /etc/oauth2.conf
           name: oauth2-config
-          readOnly: true
-
-    - name: nginx
-      image: 'docker.io/library/nginx:1.19-alpine'
-      command:
-        - 'nginx'
-      ports:
-        - containerPort: 80
-          hostPort: 8080
-      resources: {}
-      volumeMounts:
-        - mountPath: /etc/nginx/nginx.conf
-          name: nginx-config
           readOnly: true
 
     - name: service
