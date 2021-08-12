@@ -1,10 +1,3 @@
-// TODO: 11 - Metrics: req count & durations, results by action, rules processed & duration.
-// TODO: 12 - Review feature partity.
-// TODO: 13 - K8s deployment and minikube demo.
-// TODO: 14 - GitHub actions for tests and lints.
-// TODO? 15 - Some sort of config helper?
-// TODO?      AuthGateway generate a context from config and other sources.
-// TODO?      Support rendering of config templates + auth backends provided defaults.
 use actix_web::App;
 use actix_web::HttpServer;
 use anyhow::Result;
