@@ -1,7 +1,6 @@
 use std::time::Duration;
 
-use chrono::DateTime;
-use chrono::Utc;
+use mongodb::bson::DateTime;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -10,23 +9,30 @@ use crate::models::AuditRecord as NativeAuditRecord;
 use crate::models::AuthenticationStatus;
 use crate::models::RequestProtocol;
 
-/// AuditRecord with duration encoded in a BSON supported type.
+/// AuditRecord with fields encoded in BSON supported types.
 ///
 /// By default `Duration` objects are encoded using unsigned integers for seconds and nanoseconds.
 /// BSON documents don't have support for unsigned integers so encoding fails.
+/// 
+/// By default `chrono::DateTime` objects are encoded as strings.
+/// Wrapping them in `bson::UtcDateTime` allows timestamp operations in MongoDB.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AuditRecord {
     pub authenticated: bool,
+
+    /// Duration in a BSON compatible format.
+    pub duration: SignedDuration,
+
     pub protocol: RequestProtocol,
     pub reason: AuditReason,
     pub resource: String,
     pub result: AuthenticationStatus,
     pub session_id: Option<String>,
-    pub timestamp: DateTime<Utc>,
-    pub user_id: Option<String>,
 
-    /// Duration in a BSON compatible format.
-    pub duration: SignedDuration,
+    /// Timestamp in a BSON compatible format.
+    pub timestamp: DateTime,
+
+    pub user_id: Option<String>,
 }
 
 impl From<NativeAuditRecord> for AuditRecord {
@@ -39,7 +45,7 @@ impl From<NativeAuditRecord> for AuditRecord {
             resource: native.resource,
             result: native.result,
             session_id: native.session_id,
-            timestamp: native.timestamp,
+            timestamp: native.timestamp.into(),
             user_id: native.user_id,
         }
     }

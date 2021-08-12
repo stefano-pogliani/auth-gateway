@@ -36,7 +36,7 @@ const TRANSPORTS = {
 /**
  * Send the report off as an HTML email.
  */
-module.exports.email = (conf, subject, report) => {
+module.exports.email = async (conf, subject, report) => {
   const email_transport = conf.email_transport;
   const makeTransport = TRANSPORTS[email_transport];
   if (!makeTransport) {
@@ -51,7 +51,7 @@ module.exports.email = (conf, subject, report) => {
     html: report
   };
 
-  const sending = new Promise((resolve, reject) => {
+  const sendMail = new Promise((resolve, reject) => {
     transport.sendMail(options, (err, res) => {
       if (err) {
         reject(err);
@@ -60,15 +60,15 @@ module.exports.email = (conf, subject, report) => {
       }
     });
   });
-  return sending.then((info) => {
-    if (info.message) {
-      console.log('Email body:', info.message.toString());
-    } else {
-      console.log('Email sent:', JSON.stringify({
-        from: info.envelope.from,
-        to: info.envelope.to,
-        messageId: info.messageId
-      }, null, 2));
-    }
-  });
+
+  const info = await sendMail;
+  if (info.message) {
+    console.log('Email body:', info.message.toString());
+  } else {
+    console.log('Email sent:', JSON.stringify({
+      from: info.envelope.from,
+      to: info.envelope.to,
+      messageId: info.messageId
+    }, null, 2));
+  }
 };

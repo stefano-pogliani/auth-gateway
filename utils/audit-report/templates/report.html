@@ -39,13 +39,13 @@
 
           <h1>Anonymous requests</h1>
           <hr />
-          <% if (report.unkown.allowed) { %>
+          <% if (report.invalid.allowed) { %>
           <div class="danger">
-            <%- report.unkown.allowed %> anonymous requests were allowed!<br />
+            <%- report.invalid.allowed %> requests without a valid session were allowed!<br />
             This could be an indication of a break in!!!
           </div>
           <% } %>
-          <h3><%- report.unkown.total %> Request(s) seen</h3>
+          <h3><%- report.invalid.total %> Request(s) seen</h3>
 
           <h1>Requests by day</h1>
           <hr />
