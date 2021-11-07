@@ -19,7 +19,7 @@ pub struct Reporter {
 #[async_trait::async_trait(?Send)]
 impl AuditReporter for Reporter {
     async fn send(&self, record: AuditRecord) -> Result<()> {
-        let record = record.into();
+        let record: MongoDBAuditRecord = record.into();
         self.collection.insert_one(record, None).await?;
         Ok(())
     }
@@ -38,7 +38,7 @@ impl ReporterFactory {
         options.app_name = Some(env!("CARGO_PKG_NAME").into());
         let collection = Client::with_options(options)?
             .database(&config.database)
-            .collection_with_type(&config.collection);
+            .collection(&config.collection);
         Ok(ReporterFactory { collection })
     }
 }
