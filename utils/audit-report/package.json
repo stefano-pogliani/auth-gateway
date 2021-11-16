@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/stefano-pogliani/auth-gateway#readme",
   "dependencies": {
-    "aws-sdk": "^2.302.0",
+    "aws-sdk": "^2.814.0",
     "dateformat": "^3.0.3",
     "ejs": "^2.6.1",
     "js-yaml": "^3.12.0",
