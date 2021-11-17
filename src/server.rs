@@ -53,10 +53,10 @@ async fn check(
         AuthenticationStatus::MustLogin => HttpResponse::Unauthorized(),
     };
     for (header, value) in result.headers.iter() {
-        response.header(header, value.to_owned());
+        response.append_header((header, value.to_owned()));
     }
     if let Some(user) = result.authentication_context.user {
-        response.header(&authenticator.headers.user_id, user);
+        response.append_header((&authenticator.headers.user_id, user));
     }
 
     // Send audit record to configured auditor.
@@ -84,6 +84,7 @@ mod tests {
     use actix_web::http::StatusCode;
     use actix_web::test;
     use actix_web::web::Bytes;
+    use actix_web::web::Data;
     use actix_web::App;
     use actix_web::Error;
 
@@ -94,7 +95,7 @@ mod tests {
 
     // Create an Acitx App to run tests using the default test authenticator.
     async fn test_app(
-    ) -> impl Service<Request = Request, Response = ServiceResponse<Body>, Error = Error> {
+    ) -> impl Service<Request, Response = ServiceResponse<Body>, Error = Error> {
         let auth = crate::authenticator::tests::Authenticator::default();
         test_app_with_authenticator(auth).await
     }
@@ -102,11 +103,11 @@ mod tests {
     // Create an Acitx App to run tests using the provided test authenticator.
     async fn test_app_with_authenticator(
         auth: crate::authenticator::tests::Authenticator,
-    ) -> impl Service<Request = Request, Response = ServiceResponse<Body>, Error = Error> {
+    ) -> impl Service<Request, Response = ServiceResponse<Body>, Error = Error> {
         let auditor = Auditor::factory(AuditBackend::Noop).await.unwrap();
         let app = App::new()
-            .data(auditor.make())
-            .data(Authenticator::from(auth))
+            .app_data(Data::new(auditor.make()))
+            .app_data(Data::new(Authenticator::from(auth)))
             .service(super::check);
         test::init_service(app).await
     }
@@ -125,7 +126,7 @@ mod tests {
     async fn bad_request_without_protocol() {
         let mut app = test_app().await;
         let request = test::TestRequest::get()
-            .header("Host", "domain.example.com")
+            .append_header(("Host", "domain.example.com"))
             .uri("/v1/check")
             .to_request();
         let response = test::call_service(&mut app, request).await;
@@ -141,8 +142,8 @@ mod tests {
     async fn bad_request_without_uri() {
         let mut app = test_app().await;
         let request = test::TestRequest::get()
-            .header("Host", "domain.example.com")
-            .header("X-Forwarded-Proto", "https")
+            .append_header(("Host", "domain.example.com"))
+            .append_header(("X-Forwarded-Proto", "https"))
             .uri("/v1/check")
             .to_request();
         let response = test::call_service(&mut app, request).await;
@@ -158,9 +159,9 @@ mod tests {
     async fn check_allowed() {
         let mut app = test_app().await;
         let request = test::TestRequest::get()
-            .header("Host", "domain.example.com")
-            .header("X-Forwarded-Proto", "https")
-            .header("X-Original-URI", "/")
+            .append_header(("Host", "domain.example.com"))
+            .append_header(("X-Forwarded-Proto", "https"))
+            .append_header(("X-Original-URI", "/"))
             .uri("/v1/check")
             .to_request();
         let response = test::call_service(&mut app, request).await;
@@ -173,9 +174,9 @@ mod tests {
     async fn check_appends_headers() {
         let mut app = test_app().await;
         let request = test::TestRequest::get()
-            .header("Host", "domain.example.com")
-            .header("X-Forwarded-Proto", "https")
-            .header("X-Original-URI", "/")
+            .append_header(("Host", "domain.example.com"))
+            .append_header(("X-Forwarded-Proto", "https"))
+            .append_header(("X-Original-URI", "/"))
             .uri("/v1/check")
             .to_request();
         let response = test::call_service(&mut app, request).await;
@@ -198,9 +199,9 @@ mod tests {
         let auth = crate::authenticator::tests::Authenticator::denied();
         let mut app = test_app_with_authenticator(auth).await;
         let request = test::TestRequest::get()
-            .header("Host", "domain.example.com")
-            .header("X-Forwarded-Proto", "https")
-            .header("X-Original-URI", "/")
+            .append_header(("Host", "domain.example.com"))
+            .append_header(("X-Forwarded-Proto", "https"))
+            .append_header(("X-Original-URI", "/"))
             .uri("/v1/check")
             .to_request();
         let response = test::call_service(&mut app, request).await;
@@ -214,9 +215,9 @@ mod tests {
         let auth = crate::authenticator::tests::Authenticator::failing();
         let mut app = test_app_with_authenticator(auth).await;
         let request = test::TestRequest::get()
-            .header("Host", "domain.example.com")
-            .header("X-Forwarded-Proto", "https")
-            .header("X-Original-URI", "/")
+            .append_header(("Host", "domain.example.com"))
+            .append_header(("X-Forwarded-Proto", "https"))
+            .append_header(("X-Original-URI", "/"))
             .uri("/v1/check")
             .to_request();
         let response = test::call_service(&mut app, request).await;
@@ -239,9 +240,9 @@ mod tests {
         let auth = crate::authenticator::tests::Authenticator::alice();
         let mut app = test_app_with_authenticator(auth).await;
         let request = test::TestRequest::get()
-            .header("Host", "domain.example.com")
-            .header("X-Forwarded-Proto", "https")
-            .header("X-Original-URI", "/")
+            .append_header(("Host", "domain.example.com"))
+            .append_header(("X-Forwarded-Proto", "https"))
+            .append_header(("X-Original-URI", "/"))
             .uri("/v1/check")
             .to_request();
         let response = test::call_service(&mut app, request).await;
@@ -258,9 +259,9 @@ mod tests {
         let auth = crate::authenticator::tests::Authenticator::must_login();
         let mut app = test_app_with_authenticator(auth).await;
         let request = test::TestRequest::get()
-            .header("Host", "domain.example.com")
-            .header("X-Forwarded-Proto", "https")
-            .header("X-Original-URI", "/")
+            .append_header(("Host", "domain.example.com"))
+            .append_header(("X-Forwarded-Proto", "https"))
+            .append_header(("X-Original-URI", "/"))
             .uri("/v1/check")
             .to_request();
         let response = test::call_service(&mut app, request).await;

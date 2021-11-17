@@ -1,3 +1,4 @@
+use actix_web::web::Data;
 use actix_web::App;
 use actix_web::HttpServer;
 use anyhow::Result;
@@ -44,8 +45,8 @@ pub async fn run() -> Result<()> {
     let server = HttpServer::new(move || {
         App::new()
             .configure(crate::server::configure)
-            .data(auditor.make())
-            .data(authenticator.make())
+            .app_data(Data::new(auditor.make()))
+            .app_data(Data::new(authenticator.make()))
             .wrap(actix_web::middleware::Logger::default())
     });
     log::info!("AuthGateway API Starting at {}", &config.bind);

@@ -12,9 +12,10 @@ readme = "README.md"
 repository = "https://github.com/stefano-pogliani/auth-gateway"
 
 [dependencies]
-actix-web = "^3.3.2"
+actix-web = "^4.0.0-beta.1"
 anyhow = "^1.0.38"
 async-trait = "^0.1.48"
+awc = "^3.0.0-beta.1"
 chrono = { features = ["serde"], version = "^0.4.9" }
 env_logger = "^0.9.0"
 log = "^0.4.14"
@@ -27,5 +28,5 @@ structopt = "^0.3.21"
 thiserror = "^1.0.23"
 
 [dev-dependencies]
-actix-http = "^2.2.0"
+actix-http = "^3.0.0-beta.1"
 actix-rt = "^2.2.0"

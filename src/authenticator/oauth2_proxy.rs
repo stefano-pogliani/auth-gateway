@@ -1,9 +1,9 @@
 use std::time::Duration;
 
-use actix_web::client::Client;
 use actix_web::http::HeaderMap;
 use actix_web::HttpRequest;
 use anyhow::Result;
+use awc::Client;
 use sha3::Digest;
 use sha3::Sha3_512 as Sha512;
 

@@ -19,9 +19,9 @@ use crate::models::RuleSessionMatches;
 
 fn test_request(host: &'static str, uri: &'static str) -> TestRequest {
     TestRequest::get()
-        .header("Host", host)
-        .header("X-Forwarded-Proto", "https")
-        .header("X-Original-URI", uri)
+        .append_header(("Host", host))
+        .append_header(("X-Forwarded-Proto", "https"))
+        .append_header(("X-Original-URI", uri))
         .uri("/v1/check")
 }
 
@@ -265,8 +265,8 @@ fn eval_preauth_no_rules() {
 #[test]
 fn eval_preauth_rule_allow() {
     let request = test_request("domain", "/path/to/page")
-        .header("X-Test-Rule-Case", "vAlUe-SeNsItIvE")
-        .header("X-Test-Rule-Case", "header-insensitive")
+        .append_header(("X-Test-Rule-Case", "vAlUe-SeNsItIvE"))
+        .append_header(("X-Test-Rule-Case", "header-insensitive"))
         .to_http_request();
     let context = RequestContext::try_from(&request).unwrap();
     let engine = RulesEngine::builder()

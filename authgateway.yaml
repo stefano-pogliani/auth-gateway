@@ -1,8 +1,8 @@
 audit:
-  backend: log
-  #backend: mongodb
-  #database: 'authgateway'
-  #uri: 'mongodb://localhost:27017'
+  #backend: log
+  backend: mongodb
+  database: 'authgateway'
+  uri: 'mongodb://localhost:27017'
 
 authenticator:
   #backend: 'allow-all'
