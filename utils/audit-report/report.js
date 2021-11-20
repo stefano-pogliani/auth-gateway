@@ -1,10 +1,11 @@
-const fs = require('fs');
-const yaml = require('js-yaml');
-const MongoClient = require('mongodb').MongoClient;
+import fs from 'fs';
+import yaml from 'js-yaml';
+import { MongoClient } from 'mongodb';
 
-const datafetcher = require('./datafetcher');
-const emailer = require('./emailer');
-const renderer = require('./renderer');
+import { fetch as datafetch } from './datafetcher.js';
+import { MILLISECS_IN_DAY } from './datafetcher.js';
+import { email } from './emailer.js';
+import { render } from './renderer.js';
 
 
 /**
@@ -17,7 +18,7 @@ const configure = () => {
   const conf = yaml.load(data, {filename: config_path});
 
   // Extend the configuration with derived parameters.
-  const millisec_before = conf.report_days * datafetcher.MILLISECS_IN_DAY;
+  const millisec_before = conf.report_days * MILLISECS_IN_DAY;
   conf.end_time = new Date();
   conf.start_time = new Date(conf.end_time - millisec_before);
   return conf;
@@ -32,8 +33,8 @@ async function fetch(conf) {
   await mongo.connect();
   const db = mongo.db();
   const collection = db.collection(conf.collection);
-  const data = await datafetcher.fetch(
-    collection, conf.start_time, conf.end_time
+  const data = await datafetch(
+    collection, conf.start_time, conf.end_time, conf.report_title
   );
   mongo.close();
   return data;
@@ -49,10 +50,10 @@ async function main() {
 
   try {
     const data = await fetch(conf);
-    console.log('Report data:', JSON.stringify(data, null, 2));
+    console.debug('Report data:', JSON.stringify(data, null, 2));
 
     // Render and possibly store report.
-    const report = renderer.render(data);
+    const report = render(data);
     if (conf.report_store_last) {
       console.log('Stroing report as:', conf.report_store_last);
       fs.writeFileSync(conf.report_store_last, report);
@@ -62,7 +63,7 @@ async function main() {
     if (conf.email_skip) {
       return;
     }
-    await emailer.email(conf, data.meta.title, report);
+    await email(conf, data.meta.title, report);
 
   } catch(err) {
     console.log('Failed!', err);
@@ -72,4 +73,4 @@ async function main() {
 
 // Invoke top-level async main.
 // This won't block but will still wait for the promise to resolve before existing.
-main();
+await main();

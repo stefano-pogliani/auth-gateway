@@ -4,6 +4,12 @@
     header_equal:
       auth-test-action: block
 
+- phase: pre-auth
+  action: allow
+  matches:
+    header_equal:
+      auth-test-action: bypass
+
 - phase: post-auth
   action: deny
   matches:

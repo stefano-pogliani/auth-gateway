@@ -17,6 +17,12 @@ report_days: 7
 # Store the last report in a file (for debugging/skipping emails).
 #report_store_last: 'last-report.html'
 
+# Customise the report title with a fix string before the report data.
+#
+# Full report title: `${report_title} - ${report_period_start}`
+# Default: 'AuthGateway Access Report'
+#report_title: 'Corp Gateway Access Report'
+
 
 # ********** #
 # Email conf #

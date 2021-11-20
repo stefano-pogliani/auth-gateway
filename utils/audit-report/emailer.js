@@ -1,5 +1,5 @@
-const aws = require('aws-sdk');
-const nodemailer = require('nodemailer');
+import aws from 'aws-sdk';
+import nodemailer from 'nodemailer';
 
 
 /**
@@ -36,11 +36,11 @@ const TRANSPORTS = {
 /**
  * Send the report off as an HTML email.
  */
-module.exports.email = async (conf, subject, report) => {
+export const email = async (conf, subject, report) => {
   const email_transport = conf.email_transport;
   const makeTransport = TRANSPORTS[email_transport];
   if (!makeTransport) {
-    throw Error(`Unsupported email transport:${email_transport}`);
+    throw Error(`Unsupported email transport: ${email_transport}`);
   }
 
   const transport = makeTransport(conf);

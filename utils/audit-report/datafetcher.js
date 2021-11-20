@@ -1,15 +1,15 @@
-const dateFormat = require('dateformat');
+import dateFormat from 'dateformat';
 
 const DATE_FORMAT = 'dddd, mmmm dS, yyyy';
-const MILLISECS_IN_DAY = 24 * 60 * 60 * 1000;
-module.exports.MILLISECS_IN_DAY = MILLISECS_IN_DAY;
 
+export const MILLISECS_IN_DAY = 24 * 60 * 60 * 1000;
 
 /**
  * Fetches aggregated data from MongoDB and returns it
  * as a structured conext for rendering.
  */
-module.exports.fetch = async (collection, start_time, end_time) => {
+export const fetch = async (collection, start_time, end_time, report_title) => {
+  const title = report_title || 'AuthGateway Access Report';
   const timestamp = {$gte: start_time};
   const filter_time = {timestamp: timestamp};
 
@@ -17,6 +17,7 @@ module.exports.fetch = async (collection, start_time, end_time) => {
   const users = collection.distinct('user_id', filter_time);
   const sessions = collection.distinct('session_id', filter_time);
   const allowed = collection.countDocuments({
+    reason: 'allowed',
     result: 'allowed',
     timestamp: timestamp
   });
@@ -34,6 +35,11 @@ module.exports.fetch = async (collection, start_time, end_time) => {
     session_id: null,
     reason: 'invalid-session',
     timestamp: timestamp,
+  });
+  const preauth_allowed = collection.countDocuments({
+    reason: 'pre-auth-allowed',
+    result: 'allowed',
+    timestamp: timestamp
   });
 
   // Have MongoDB compute a per-day histogram of allowed/rejected.
@@ -58,7 +64,12 @@ module.exports.fetch = async (collection, start_time, end_time) => {
     {$group: {
       _id: '$timestamp',
       allowed: {$sum: {$cond: {
-        if: {$eq: ['$result', 'allowed']},
+        if: {
+          $and: [
+            {$eq: ['$reason', 'allowed']},
+            {$eq: ['$result', 'allowed']},
+          ]
+        },
         then: 1,
         else: 0
       }}},
@@ -66,7 +77,17 @@ module.exports.fetch = async (collection, start_time, end_time) => {
         if: {$ne: ['$result', 'allowed']},
         then: 1,
         else: 0
-      }}}
+      }}},
+      preauth_allowed: {$sum: {$cond: {
+        if: {
+          $and: [
+            {$eq: ['$reason', 'pre-auth-allowed']},
+            {$eq: ['$result', 'allowed']},
+          ]
+        },
+        then: 1,
+        else: 0
+      }}},
     }},
   ];
   let histogram = await collection.aggregate(histogram_pipeline);
@@ -87,29 +108,42 @@ module.exports.fetch = async (collection, start_time, end_time) => {
     sessions,
     allowed,
     denied,
+    preauth_allowed,
     invalid_allowed,
     invalid_total,
     histogram
   ]);
+  const r_users = results[0];
+  const r_sessions = results[1];
+  const r_allowed = results[2];
+  const r_denied = results[3];
+  const r_preauth_allowed = results[4];
+  const r_invalid_allowed = results[5];
+  const r_invalid_total = results[6];
+  const r_histogram = results[7];
+
+  // Structure the result into a formattable report.
   const formatted_end = (new Date(end_time)).toLocaleString();
   const formatted_start = (new Date(start_time)).toLocaleString();
   return {
     meta: {
       formatted_end: formatted_end,
       formatted_start: formatted_start,
-      title: `AuthGateway Access Report - ${formatted_start}`
+      title: `${title} - ${formatted_start}`
     },
     report: {
-      users: results[0].sort(),
-      sessions: results[1].length,
-      histogram: results[6],
+      users: r_users.sort(),
+      sessions: r_sessions.sort(),
+      histogram: r_histogram,
       requests: {
-        allowed: results[2],
-        denied: results[3]
+        allowed: r_allowed,
+        denied: r_denied,
+        preauth_allowed: r_preauth_allowed,
+        total: r_allowed + r_denied + r_preauth_allowed
       },
       invalid: {
-        allowed: results[4],
-        total: results[5]
+        allowed: r_invalid_allowed,
+        total: r_invalid_total
       }
     }
   };

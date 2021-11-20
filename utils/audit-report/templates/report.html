@@ -25,11 +25,12 @@
               <td>Requests seen:</td>
               <td>
                 <%- report.requests.allowed %> allowed /
+                <%- report.requests.preauth_allowed %> allowed before authentication /
                 <%- report.requests.denied %> denied
               </td>
             </tr>
           </table>
-          <h3><%- report.sessions %> Session(s) seen</h3>
+          <h3><%- report.sessions.length %> Session(s) seen</h3>
           <h3><%- report.users.length %> User(s) seen</h3>
           <ul class="user-list">
             <% report.users.forEach(function(user) { %>
@@ -50,23 +51,21 @@
           <h1>Requests by day</h1>
           <hr />
           <table class="req-histogram">
-            <% let margin = 0; %>
-            <% let width = 0; %>
             <% report.histogram.forEach(function(bucket) { %>
             <tr>
               <td><%- bucket.formatted_date %></td>
-              <td class="bar allowed">
-                <% width = scaleValue(bucket.allowed); %>
-                <% margin = 100 - width; %>
-                <div
-                  style="margin-left: <%- margin %>%; width: <%- width %>%;"
-                  title="<%- bucket.allowed %>"></div>
-              </td>
-              <td class="bar denied">
-                <% width = scaleValue(bucket.denied); %>
-                <div
-                  style="width: <%- width %>%;"
-                  title="<%- bucket.denied %>"></div>
+              <td class="bar">
+                <% let allowed = scaleValue(bucket.allowed); %>
+                <% let preauth_allowed = scaleValue(bucket.preauth_allowed); %>
+                <% let denied = scaleValue(bucket.denied); %>
+                <!-- Any space (space or newline) between the bar spans causes gaps in it -->
+                <span class="allowed"
+                  style="width: <%- allowed %>%;"
+                  title="<%- bucket.allowed %>"></span><span class="preauth_allowed"
+                  style="width: <%- preauth_allowed %>%;"
+                  title="<%- bucket.preauth_allowed %>"></span><span class="denied"
+                  style="width: <%- denied %>%;"
+                  title="<%- bucket.denied %>"></span>
               </td>
             </tr>
             <% }) %>

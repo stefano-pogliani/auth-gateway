@@ -1,14 +1,18 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-const ejs = require('ejs');
+import ejs from 'ejs';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 
 /**
  * Scale a value to a percentage of the total requests.
  */
 const scaleValue = (report) => {
-  const total = report.requests.allowed + report.requests.denied;
+  const total = report.requests.total;
   return (current) => (current * 100) / total;
 };
 
@@ -16,7 +20,7 @@ const scaleValue = (report) => {
 /**
  * Renders the report data into an email friendly HTML page.
  */
-module.exports.render = (report) => {
+export const render = (report) => {
   const template = path.join(__dirname, 'templates', 'report.html');
   const blob = fs.readFileSync(template, 'utf8');
   // Rebuild a context with extra helpers.
