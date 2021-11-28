@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - Rewrite in rust.
+- Update audit-reporter tool in line with new data schema.
 
 ### Removed
 - **BREAKING**: Apps configuration (users must configure the HTTPS Proxy).
