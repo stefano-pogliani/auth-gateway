@@ -78,7 +78,7 @@ pub fn configure(app: &mut ServiceConfig) {
 #[cfg(test)]
 mod tests {
     use actix_http::Request;
-    use actix_web::dev::Body;
+    use actix_web::dev::AnyBody;
     use actix_web::dev::Service;
     use actix_web::dev::ServiceResponse;
     use actix_web::http::StatusCode;
@@ -95,7 +95,7 @@ mod tests {
 
     // Create an Acitx App to run tests using the default test authenticator.
     async fn test_app(
-    ) -> impl Service<Request, Response = ServiceResponse<Body>, Error = Error> {
+    ) -> impl Service<Request, Response = ServiceResponse<AnyBody>, Error = Error> {
         let auth = crate::authenticator::tests::Authenticator::default();
         test_app_with_authenticator(auth).await
     }
@@ -103,7 +103,7 @@ mod tests {
     // Create an Acitx App to run tests using the provided test authenticator.
     async fn test_app_with_authenticator(
         auth: crate::authenticator::tests::Authenticator,
-    ) -> impl Service<Request, Response = ServiceResponse<Body>, Error = Error> {
+    ) -> impl Service<Request, Response = ServiceResponse<AnyBody>, Error = Error> {
         let auditor = Auditor::factory(AuditBackend::Noop).await.unwrap();
         let app = App::new()
             .app_data(Data::new(auditor.make()))
