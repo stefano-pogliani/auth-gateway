@@ -57,6 +57,7 @@ impl Authenticator {
     /// Create an AuthenticatorFactory from configuration options.
     pub fn factory(config: &Config) -> Result<AuthenticatorFactory> {
         let factory: Arc<dyn AuthenticationProxyFactory> = match config.authenticator.backend {
+            #[cfg(debug_assertions)]
             AuthenticatorBackend::AllowAll => Arc::new(self::allow_all::AllowAll {}),
             AuthenticatorBackend::OAuth2Proxy(ref oauth2_proxy) => Arc::new(
                 self::oauth2_proxy::OAuth2ProxyFactory::from_config(oauth2_proxy),

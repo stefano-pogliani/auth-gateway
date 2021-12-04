@@ -5,6 +5,13 @@ As a hobby project, these may take a while to arrive and they may not arrive at 
 If you are interested in a specific feature or would like to help with one feel free to open
 an issue on GitHub so we can discuss further.
 
+1. Support rule inversion: match requests NOT matching filters.
+2. Authentication header support: support application passwords and similar use cases.
+3. Extra user attributes.
+4. Support user roles lookup.
+5. Support passing user roles upstream: app-based role access.
+6. Support upstream access by role: only users with roles A, B, C can access endpoints 1, 2, 3.
+
 ## Authentication extras
 * Support for OAuth2Proxy Authentication header (how does it work?).
 * Additional user identity: Email and Peferred-Username.

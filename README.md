@@ -55,10 +55,29 @@ Rules are loaded in order from a list of files specified in the main config file
 ## Deploying
 The latest version of AuthGateway is intended mainly to be used in Kubernetes as an
 authentication gateway for the NGINX ingress.
-By desing however AuthGateway works with any HTTPS proxy that implements
+By design however AuthGateway works with any HTTPS proxy that implements
 the [NGINX auth_request] protocol.
 
 An example of AuthGateway used with NGINX proxy is in the `devenv/` directory.
+
+### As a container
+A distroless Container Image for AuthGateway is available on
+[docker hub](https://hub.docker.com/r/spogliani/auth-gateway).
+
+To use this image:
+
+1. Write a configuration file for AuthGateway.
+2. Optionally write any rules file you wish to use.
+3. Run the docker container.
+4. Point your HTTPS proxy to AuthGateway (for example NGINX Ingress).
+
+```bash
+$ docker run --rm -it \
+  -v "$PWD/authgateway.yaml:/authgateway.yaml" \
+  -v "$PWD/ruleset-1.yaml:/ruleset-1.yaml" \
+  -v "$PWD/ruleset-2.yaml:/ruleset-2.yaml" \
+  docker.io/spogliani/auth-gateway:latest
+```
 
 ## Apps Catalogue
 Up to version 0.4.x of AuthGateway a built-in Applications Catalogue was available.
@@ -66,7 +85,7 @@ Since version 0.5.0 onward the entire interface was removed and only the proxy A
 
 To provide a simple catalouge similar to what used to be provided you can use static
 site generators tools.
-On the roadmap is the creation of a [hugo] theme to make this process simpler.
+The [AuthGateway Portal Theme] for [Hugo] enables this quickly.
 
 The Applications Catalogue was removed from the proxy process for a few reasons:
 
@@ -86,5 +105,6 @@ This roadmap hopes to track what will hopefully be added.
 * Introspection with OpenTelemetry integration.
 * (Possibly) HTTPS Proxy configuration helper utility.
 
-[hugo]: https://gohugo.io/
+[AuthGateway Portal Theme]: https://github.com/stefano-pogliani/auth-gateway-portal-hugotheme
+[Hugo]: https://gohugo.io/
 [NGINX auth_request]: https://nginx.org/en/docs/http/ngx_http_auth_request_module.html
