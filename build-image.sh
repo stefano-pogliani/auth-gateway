@@ -9,5 +9,5 @@ fi
 VERSION=$1
 
 podman build --force-rm \
- --tag "docker.io/spogliani/auth-gateway:v0.5.0" \
+ --tag "docker.io/spogliani/auth-gateway:v${VERSION}" \
  --tag 'docker.io/spogliani/auth-gateway:latest' .
