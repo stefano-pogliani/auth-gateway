@@ -40,6 +40,7 @@ pub async fn run() -> Result<()> {
     // Configure audit reporter and authenticator proxy.
     let authenticator = Authenticator::factory(&config)?;
     let auditor = Auditor::factory(config.audit).await?;
+    let request_extraction = config.request_extraction;
 
     // Configure and start the API server.
     let server = HttpServer::new(move || {
@@ -47,6 +48,7 @@ pub async fn run() -> Result<()> {
             .configure(crate::server::configure)
             .app_data(Data::new(auditor.make()))
             .app_data(Data::new(authenticator.make()))
+            .app_data(Data::new(request_extraction.clone()))
             .wrap(actix_web::middleware::Logger::default())
     });
     log::info!("AuthGateway API Starting at {}", &config.bind);

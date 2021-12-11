@@ -85,6 +85,10 @@ pub struct Config {
     #[serde(default)]
     pub log_level: LevelFilter,
 
+    /// Configure original request extraction from the check request.
+    #[serde(default)]
+    pub request_extraction: RequestExtraction,
+
     /// List of files to load advanced rules from.
     #[serde(default)]
     pub rule_files: Vec<String>,
@@ -156,5 +160,45 @@ impl From<LevelFilter> for log::LevelFilter {
             LevelFilter::Debug => log::LevelFilter::Debug,
             LevelFilter::Trace => log::LevelFilter::Trace,
         }
+    }
+}
+
+/// Configure extraction of original request from check request headers.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct RequestExtraction {
+    /// Header to extract the original `Host` header from.
+    #[serde(default = "RequestExtraction::default_host")]
+    pub host: String,
+
+    /// Header to extract the original protocol (HTTP/HTTPS) from.
+    #[serde(default = "RequestExtraction::default_protocol")]
+    pub protocol: String,
+
+    /// Header to extract the original request URI from.
+    #[serde(default = "RequestExtraction::default_uri")]
+    pub uri: String,
+}
+
+impl Default for RequestExtraction {
+    fn default() -> RequestExtraction {
+        RequestExtraction {
+            host: RequestExtraction::default_host(),
+            protocol: RequestExtraction::default_protocol(),
+            uri: RequestExtraction::default_uri(),
+        }
+    }
+}
+
+impl RequestExtraction {
+    fn default_host() -> String {
+        "Host".into()
+    }
+
+    fn default_protocol() -> String {
+        "X-Forwarded-Proto".into()
+    }
+
+    fn default_uri() -> String {
+        "X-Original-URI".into()
     }
 }

@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
-use std::convert::TryFrom;
 
 use actix_web::http::HeaderName;
 use actix_web::http::HeaderValue;
 use actix_web::test::TestRequest;
 
 use super::RulesEngine;
+use crate::config::RequestExtraction;
 use crate::models::AuthenticationContext;
 use crate::models::AuthenticationResult;
 use crate::models::EnrichResponseRule;
@@ -107,8 +107,9 @@ fn build_two_sources() {
 
 #[test]
 fn eval_enrich_no_rules() {
+    let extraction = RequestExtraction::default();
     let request = test_request("domain", "/path/to/page").to_http_request();
-    let context = RequestContext::try_from(&request).unwrap();
+    let context = RequestContext::from_request(&request, &extraction).unwrap();
     let engine = RulesEngine::builder().build().unwrap();
     let expected = AuthenticationResult::denied();
     let actual = engine.eval_enrich(&context, expected.clone()).unwrap();
@@ -117,8 +118,9 @@ fn eval_enrich_no_rules() {
 
 #[test]
 fn eval_enrich_rule_does_not_match() {
+    let extraction = RequestExtraction::default();
     let request = test_request("domain", "/path/to/page").to_http_request();
-    let context = RequestContext::try_from(&request).unwrap();
+    let context = RequestContext::from_request(&request, &extraction).unwrap();
     let engine = RulesEngine::builder()
         .rule_enrich(EnrichResponseRule {
             headers_remove: {
@@ -153,8 +155,9 @@ fn eval_enrich_rule_does_not_match() {
 
 #[test]
 fn eval_enrich_rule_matches() {
+    let extraction = RequestExtraction::default();
     let request = test_request("domain", "/path/to/page").to_http_request();
-    let context = RequestContext::try_from(&request).unwrap();
+    let context = RequestContext::from_request(&request, &extraction).unwrap();
     let engine = RulesEngine::builder()
         .rule_enrich(EnrichResponseRule {
             headers_remove: {
@@ -189,9 +192,10 @@ fn eval_enrich_rule_matches() {
 
 #[test]
 fn eval_postauth_no_rules() {
+    let extraction = RequestExtraction::default();
     let request = test_request("domain", "/path/to/page").to_http_request();
     let auth_context = AuthenticationContext::unauthenticated();
-    let context = RequestContext::try_from(&request).unwrap();
+    let context = RequestContext::from_request(&request, &extraction).unwrap();
     let engine = RulesEngine::builder().build().unwrap();
     let action = engine.eval_postauth(&context, &auth_context);
     assert_eq!(action, RuleAction::Delegate);
@@ -199,13 +203,14 @@ fn eval_postauth_no_rules() {
 
 #[test]
 fn eval_postauth_rule_allow() {
+    let extraction = RequestExtraction::default();
     let request = test_request("domain", "/path/to/page").to_http_request();
     let auth_context = AuthenticationContext {
         authenticated: true,
         user: None,
         session: None,
     };
-    let context = RequestContext::try_from(&request).unwrap();
+    let context = RequestContext::from_request(&request, &extraction).unwrap();
     let engine = RulesEngine::builder()
         .rule_postauth(PostAuthRule {
             action: RuleAction::Deny,
@@ -231,13 +236,14 @@ fn eval_postauth_rule_allow() {
 
 #[test]
 fn eval_postauth_rule_does_not_match() {
+    let extraction = RequestExtraction::default();
     let request = test_request("domain", "/path/to/page").to_http_request();
     let auth_context = AuthenticationContext {
         authenticated: true,
         user: None,
         session: None,
     };
-    let context = RequestContext::try_from(&request).unwrap();
+    let context = RequestContext::from_request(&request, &extraction).unwrap();
     let engine = RulesEngine::builder()
         .rule_postauth(PostAuthRule {
             action: RuleAction::Allow,
@@ -255,8 +261,9 @@ fn eval_postauth_rule_does_not_match() {
 
 #[test]
 fn eval_preauth_no_rules() {
+    let extraction = RequestExtraction::default();
     let request = test_request("domain", "/path/to/page").to_http_request();
-    let context = RequestContext::try_from(&request).unwrap();
+    let context = RequestContext::from_request(&request, &extraction).unwrap();
     let engine = RulesEngine::builder().build().unwrap();
     let action = engine.eval_preauth(&context);
     assert_eq!(action, RuleAction::Delegate);
@@ -264,11 +271,12 @@ fn eval_preauth_no_rules() {
 
 #[test]
 fn eval_preauth_rule_allow() {
+    let extraction = RequestExtraction::default();
     let request = test_request("domain", "/path/to/page")
         .append_header(("X-Test-Rule-Case", "vAlUe-SeNsItIvE"))
         .append_header(("X-Test-Rule-Case", "header-insensitive"))
         .to_http_request();
-    let context = RequestContext::try_from(&request).unwrap();
+    let context = RequestContext::from_request(&request, &extraction).unwrap();
     let engine = RulesEngine::builder()
         .rule_preauth(PreAuthRule {
             action: RuleAction::Deny,
@@ -310,8 +318,9 @@ fn eval_preauth_rule_allow() {
 
 #[test]
 fn eval_preauth_rule_does_not_match() {
+    let extraction = RequestExtraction::default();
     let request = test_request("domain", "/path/to/page").to_http_request();
-    let context = RequestContext::try_from(&request).unwrap();
+    let context = RequestContext::from_request(&request, &extraction).unwrap();
     let engine = RulesEngine::builder()
         .rule_preauth(PreAuthRule {
             action: RuleAction::Deny,

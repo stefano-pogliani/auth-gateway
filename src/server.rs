@@ -1,5 +1,3 @@
-use std::convert::TryFrom;
-
 use actix_web::get;
 use actix_web::web::Data;
 use actix_web::web::ServiceConfig;
@@ -9,6 +7,7 @@ use actix_web::Responder;
 
 use crate::audit::Auditor;
 use crate::authenticator::Authenticator;
+use crate::config::RequestExtraction;
 use crate::errors::AuditSendError;
 use crate::errors::AuthenticationCheckError;
 use crate::models::AuditRecordBuilder;
@@ -34,9 +33,10 @@ async fn check(
     request: HttpRequest,
     auditor: Data<Auditor>,
     authenticator: Data<Authenticator>,
+    extraction: Data<RequestExtraction>,
 ) -> actix_web::Result<impl Responder> {
     // Extract required attributes about the request to check.
-    let context = RequestContext::try_from(&request)?;
+    let context = RequestContext::from_request(&request, &extraction)?;
 
     // Check the request for authentication and rules.
     let audit = AuditRecordBuilder::start(&context);
@@ -92,22 +92,42 @@ mod tests {
     use crate::authenticator::Authenticator;
     use crate::config::AuditBackend;
     use crate::config::AuthenticatorConfig;
+    use crate::config::RequestExtraction;
 
     // Create an Acitx App to run tests using the default test authenticator.
     async fn test_app(
     ) -> impl Service<Request, Response = ServiceResponse<AnyBody>, Error = Error> {
         let auth = crate::authenticator::tests::Authenticator::default();
-        test_app_with_authenticator(auth).await
+        let extraction = RequestExtraction::default();
+        test_app_with_options(auth, extraction).await
     }
 
     // Create an Acitx App to run tests using the provided test authenticator.
     async fn test_app_with_authenticator(
         auth: crate::authenticator::tests::Authenticator,
     ) -> impl Service<Request, Response = ServiceResponse<AnyBody>, Error = Error> {
+        let extraction = RequestExtraction::default();
+        test_app_with_options(auth, extraction).await
+    }
+
+    // Create an Acitx App to run tests using the provided request extraction config.
+    async fn test_app_with_extraction(
+        extraction: RequestExtraction,
+    ) -> impl Service<Request, Response = ServiceResponse<AnyBody>, Error = Error> {
+        let auth = crate::authenticator::tests::Authenticator::default();
+        test_app_with_options(auth, extraction).await
+    }
+
+    // Create an Acitx App to run tests using the provided options.
+    async fn test_app_with_options(
+        auth: crate::authenticator::tests::Authenticator,
+        extraction: RequestExtraction,
+    ) -> impl Service<Request, Response = ServiceResponse<AnyBody>, Error = Error> {
         let auditor = Auditor::factory(AuditBackend::Noop).await.unwrap();
         let app = App::new()
             .app_data(Data::new(auditor.make()))
             .app_data(Data::new(Authenticator::from(auth)))
+            .app_data(Data::new(extraction))
             .service(super::check);
         test::init_service(app).await
     }
@@ -206,6 +226,26 @@ mod tests {
             .to_request();
         let response = test::call_service(&mut app, request).await;
         assert_eq!(response.status(), StatusCode::FORBIDDEN);
+        let body = test::read_body(response).await;
+        assert_eq!(body, Bytes::from_static(b""));
+    }
+
+    #[actix_rt::test]
+    async fn check_extractor_config() {
+        let extraction = RequestExtraction {
+            host: "Not-Default-Host".into(),
+            protocol: "Not-Default-Proto".into(),
+            uri: "Not-Default-URI".into(),
+        };
+        let mut app = test_app_with_extraction(extraction).await;
+        let request = test::TestRequest::get()
+            .append_header(("Not-Default-Host", "domain.example.com"))
+            .append_header(("Not-Default-Proto", "https"))
+            .append_header(("Not-Default-URI", "/"))
+            .uri("/v1/check")
+            .to_request();
+        let response = test::call_service(&mut app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
         let body = test::read_body(response).await;
         assert_eq!(body, Bytes::from_static(b""));
     }

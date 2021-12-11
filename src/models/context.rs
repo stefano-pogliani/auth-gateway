@@ -1,10 +1,10 @@
 use std::collections::HashMap;
-use std::convert::TryFrom;
 
 use actix_web::HttpRequest;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::config::RequestExtraction;
 use crate::errors::InvalidAuthRequest;
 
 /// Rule evaluation context obtained from the authenticator.
@@ -53,20 +53,22 @@ pub struct RequestContext<'request> {
     pub uri: &'request str,
 }
 
-impl<'request> TryFrom<&'request HttpRequest> for RequestContext<'request> {
-    type Error = InvalidAuthRequest;
-
-    fn try_from(request: &'request HttpRequest) -> Result<RequestContext<'request>, Self::Error> {
+impl<'request> RequestContext<'request> {
+    // Extract the RequestContext for the request to authenticate.
+    pub fn from_request(
+        request: &'request HttpRequest,
+        extraction: &RequestExtraction,
+    ) -> Result<RequestContext<'request>, InvalidAuthRequest> {
         // Extract required attributes about the request to check.
         let host = request
             .headers()
-            .get("Host")
+            .get(&extraction.host)
             .ok_or(InvalidAuthRequest::NoHost)?;
         let host =
             std::str::from_utf8(host.as_bytes()).map_err(|_| InvalidAuthRequest::HostNotUtf8)?;
         let protocol = request
             .headers()
-            .get("X-Forwarded-Proto")
+            .get(&extraction.protocol)
             .ok_or(InvalidAuthRequest::NoProtocol)?;
         let protocol = std::str::from_utf8(protocol.as_bytes())
             .map_err(|_| InvalidAuthRequest::ProtocolNotUtf8)?
@@ -78,7 +80,7 @@ impl<'request> TryFrom<&'request HttpRequest> for RequestContext<'request> {
         };
         let uri = request
             .headers()
-            .get("X-Original-URI")
+            .get(&extraction.uri)
             .ok_or(InvalidAuthRequest::NoUri)?;
         let uri =
             std::str::from_utf8(uri.as_bytes()).map_err(|_| InvalidAuthRequest::UriNotUtf8)?;
