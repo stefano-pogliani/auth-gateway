@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Configurable headers for request information.
 
+### Fix
+- OAuth2Proxy Authenticator marks request to the proxy resources as `PreAuth` allowed.
+
 ## [0.5.0] - 2021-12-04
 ### Added
 - Dockerfile and distroless image.

@@ -10,6 +10,7 @@ use sha3::Sha3_512 as Sha512;
 use crate::authenticator::AuthenticationProxy;
 use crate::authenticator::AuthenticationProxyFactory;
 use crate::config::OAuth2ProxyConfig;
+use crate::models::AuditReason;
 use crate::models::AuthenticationResult;
 use crate::models::AuthenticationStatus;
 use crate::models::RequestContext;
@@ -92,7 +93,9 @@ impl AuthenticationProxy for OAuth2Proxy {
             auth_ui = auth_ui && (context.host == domain);
         }
         if auth_ui {
-            return Ok(AuthenticationResult::allowed());
+            let mut result = AuthenticationResult::allowed();
+            result.audit_reason = AuditReason::PreAuthAllowed;
+            return Ok(result);
         }
 
         // Proxy request up to OAuth2Proxy.
