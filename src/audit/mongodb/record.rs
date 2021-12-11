@@ -13,7 +13,7 @@ use crate::models::RequestProtocol;
 ///
 /// By default `Duration` objects are encoded using unsigned integers for seconds and nanoseconds.
 /// BSON documents don't have support for unsigned integers so encoding fails.
-/// 
+///
 /// By default `chrono::DateTime` objects are encoded as strings.
 /// Wrapping them in `bson::UtcDateTime` allows timestamp operations in MongoDB.
 #[derive(Clone, Debug, Deserialize, Serialize)]

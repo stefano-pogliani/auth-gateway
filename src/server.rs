@@ -95,8 +95,8 @@ mod tests {
     use crate::config::RequestExtraction;
 
     // Create an Acitx App to run tests using the default test authenticator.
-    async fn test_app(
-    ) -> impl Service<Request, Response = ServiceResponse<AnyBody>, Error = Error> {
+    async fn test_app() -> impl Service<Request, Response = ServiceResponse<AnyBody>, Error = Error>
+    {
         let auth = crate::authenticator::tests::Authenticator::default();
         let extraction = RequestExtraction::default();
         test_app_with_options(auth, extraction).await
