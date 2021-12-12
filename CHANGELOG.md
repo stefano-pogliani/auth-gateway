@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.5.1] - 2021-12-12
 ### Added
 - Configurable headers for request information.
 
@@ -160,7 +162,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Have the proxy serve WebUI statics.
 - Web portal nav and home page.
 
-## [0.1.0]
+## 0.1.0
 ### Added
 - Generate HTTP(S) proxy configuration (nginx).
 - Yaml based configuration file (to override defaults).
@@ -170,11 +172,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Prototype web UI.
 
-[Unreleased]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.4.6...v0.5.0
 [0.4.6]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.4.5...v0.4.6
 [0.4.5]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.4.4...v0.4.5
 [0.4.4]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.4.2...v0.4.3
-[0.1.0]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.0.0...v0.1.0
