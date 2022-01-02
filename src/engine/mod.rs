@@ -1,7 +1,7 @@
 use std::fs::File;
 
-use actix_web::http::HeaderName;
-use actix_web::http::HeaderValue;
+use actix_web::http::header::HeaderName;
+use actix_web::http::header::HeaderValue;
 use anyhow::Context;
 use anyhow::Result;
 

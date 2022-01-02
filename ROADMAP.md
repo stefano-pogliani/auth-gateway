@@ -14,7 +14,6 @@ an issue on GitHub so we can discuss further.
 
 ## Authentication extras
 * Support for OAuth2Proxy Authentication header (how does it work?).
-* Additional user identity: Email and Peferred-Username.
 * Support for OAuth2Proxy cookie refresh (return Set-Cookie header from oauth2_proxy).
 
 ## Authorization features

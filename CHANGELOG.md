@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.5.2] - 2022-01-02
+### Added
+- Support using email as user ID.
+
+### Changed
+- Audit Report template details the record type in the count bar title.
+- Update dependencies.
+
 ## [0.5.1] - 2021-12-12
 ### Added
 - Configurable headers for request information.
@@ -172,7 +180,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Prototype web UI.
 
-[Unreleased]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.5.2...HEAD
+[0.5.2]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.4.6...v0.5.0
 [0.4.6]: https://github.com/stefano-pogliani/auth-gateway/compare/v0.4.5...v0.4.6

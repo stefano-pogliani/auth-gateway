@@ -1,4 +1,4 @@
-use actix_web::http::HeaderMap;
+use actix_web::http::header::HeaderMap;
 use serde::Deserialize;
 use serde::Serialize;
 

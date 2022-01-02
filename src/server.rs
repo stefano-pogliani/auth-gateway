@@ -78,7 +78,7 @@ pub fn configure(app: &mut ServiceConfig) {
 #[cfg(test)]
 mod tests {
     use actix_http::Request;
-    use actix_web::dev::AnyBody;
+    use actix_web::body::BoxBody;
     use actix_web::dev::Service;
     use actix_web::dev::ServiceResponse;
     use actix_web::http::StatusCode;
@@ -95,7 +95,7 @@ mod tests {
     use crate::config::RequestExtraction;
 
     // Create an Acitx App to run tests using the default test authenticator.
-    async fn test_app() -> impl Service<Request, Response = ServiceResponse<AnyBody>, Error = Error>
+    async fn test_app() -> impl Service<Request, Response = ServiceResponse<BoxBody>, Error = Error>
     {
         let auth = crate::authenticator::tests::Authenticator::default();
         let extraction = RequestExtraction::default();
@@ -105,7 +105,7 @@ mod tests {
     // Create an Acitx App to run tests using the provided test authenticator.
     async fn test_app_with_authenticator(
         auth: crate::authenticator::tests::Authenticator,
-    ) -> impl Service<Request, Response = ServiceResponse<AnyBody>, Error = Error> {
+    ) -> impl Service<Request, Response = ServiceResponse<BoxBody>, Error = Error> {
         let extraction = RequestExtraction::default();
         test_app_with_options(auth, extraction).await
     }
@@ -113,7 +113,7 @@ mod tests {
     // Create an Acitx App to run tests using the provided request extraction config.
     async fn test_app_with_extraction(
         extraction: RequestExtraction,
-    ) -> impl Service<Request, Response = ServiceResponse<AnyBody>, Error = Error> {
+    ) -> impl Service<Request, Response = ServiceResponse<BoxBody>, Error = Error> {
         let auth = crate::authenticator::tests::Authenticator::default();
         test_app_with_options(auth, extraction).await
     }
@@ -122,7 +122,7 @@ mod tests {
     async fn test_app_with_options(
         auth: crate::authenticator::tests::Authenticator,
         extraction: RequestExtraction,
-    ) -> impl Service<Request, Response = ServiceResponse<AnyBody>, Error = Error> {
+    ) -> impl Service<Request, Response = ServiceResponse<BoxBody>, Error = Error> {
         let auditor = Auditor::factory(AuditBackend::Noop).await.unwrap();
         let app = App::new()
             .app_data(Data::new(auditor.make()))

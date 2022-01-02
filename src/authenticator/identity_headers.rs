@@ -1,4 +1,4 @@
-use actix_web::http::HeaderName;
+use actix_web::http::header::HeaderName;
 use anyhow::Context;
 use anyhow::Result;
 

@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use actix_web::http::HeaderMap;
+use actix_web::http::header::HeaderMap;
 use actix_web::HttpRequest;
 use anyhow::Result;
 use awc::Client;
@@ -10,40 +10,49 @@ use sha3::Sha3_512 as Sha512;
 use crate::authenticator::AuthenticationProxy;
 use crate::authenticator::AuthenticationProxyFactory;
 use crate::config::OAuth2ProxyConfig;
+use crate::config::OAuth2ProxyUserIdSourceHeader;
 use crate::models::AuditReason;
 use crate::models::AuthenticationResult;
 use crate::models::AuthenticationStatus;
 use crate::models::RequestContext;
 
+const ACCESSS_TOKEN_HEADER: &str = "x-auth-request-access-token";
+const USER_EMAIL_HEADER: &str = "x-auth-request-email";
 const USER_ID_HEADER: &str = "x-auth-request-user";
-const SESSION_ID_HEADER: &str = "x-auth-request-access-token";
 
-/// Attempt to extract the user ID from response headers.
-fn extract_user(headers: &HeaderMap) -> Option<String> {
-    match headers.get(USER_ID_HEADER) {
+/// Attempt to extract the named header from response headers.
+fn extract_header(headers: &HeaderMap, header: &str) -> Option<String> {
+    match headers.get(header) {
         None => None,
-        Some(user) => match String::from_utf8(user.as_bytes().to_vec()) {
-            Ok(user) => Some(user),
+        Some(value) => match String::from_utf8(value.as_bytes().to_vec()) {
+            Ok(value) => Some(value),
             Err(error) => {
-                log::error!("Unable to UTF8 decode user ID {:?}", error);
+                log::error!("Unable to UTF8 decode header `{}`: {:?}", header, error);
                 None
             }
         },
     }
 }
 
+
+/// Attempt to extract the user email from response headers.
+fn extract_email(headers: &HeaderMap) -> Option<String> {
+    extract_header(headers, USER_EMAIL_HEADER)
+}
+
+/// Attempt to extract the user ID from response headers.
+fn extract_user(headers: &HeaderMap) -> Option<String> {
+    extract_header(headers, USER_ID_HEADER)
+}
+
 /// Attempt to extract the session ID from response headers.
 fn extract_session(headers: &HeaderMap) -> Option<String> {
-    let session = match headers.get(SESSION_ID_HEADER) {
-        None => None,
-        Some(session) => match String::from_utf8(session.as_bytes().to_vec()) {
-            Ok(session) => Some(session),
-            Err(error) => {
-                log::error!("Unable to UTF8 decode session ID {:?}", error);
-                None
-            }
-        },
-    };
+    let session = extract_header(headers, ACCESSS_TOKEN_HEADER);
+
+    // TODO: Corrupt the access token so even if it is reverted it becomes unusable.
+    // This "corruption" must:
+    // - Preserve token uniqueness so sessions don't get mixed up.
+    // - Consistently "corrupt" tokens so one token never becomes two.
 
     // One-way encrypt the Authentication token to derive a session ID.
     session.map(|session| {
@@ -128,7 +137,10 @@ impl AuthenticationProxy for OAuth2Proxy {
 
         // Extract user information from oauth2_proxy response.
         let headers = response.headers();
-        let user = extract_user(headers);
+        let user = match self.config.user_id_source_header {
+            OAuth2ProxyUserIdSourceHeader::Email => extract_email(headers),
+            OAuth2ProxyUserIdSourceHeader::User => extract_user(headers),
+        };
         let session = extract_session(headers);
 
         // Return generated authentication result and context.

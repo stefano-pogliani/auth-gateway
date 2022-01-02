@@ -32,6 +32,10 @@ pub struct OAuth2ProxyConfig {
         rename = "timeout-sec"
     )]
     pub timeout_sec: u64,
+
+    /// Header in Oauth2Proxy responses to fetch user IDs from.
+    #[serde(default, rename = "user-id-source-header")]
+    pub user_id_source_header: OAuth2ProxyUserIdSourceHeader,
 }
 
 impl OAuth2ProxyConfig {
@@ -45,5 +49,23 @@ impl OAuth2ProxyConfig {
 
     fn default_timeout_sec() -> u64 {
         5
+    }
+}
+
+/// Header in Oauth2Proxy responses to fetch user IDs from.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub enum OAuth2ProxyUserIdSourceHeader {
+    /// Use the user email from X-Auth-Request-Email.
+    #[serde(rename = "email")]
+    Email,
+
+    /// Use the user id from X-Auth-Request-User.
+    #[serde(rename = "user")]
+    User,
+}
+
+impl Default for OAuth2ProxyUserIdSourceHeader {
+    fn default() -> OAuth2ProxyUserIdSourceHeader {
+        OAuth2ProxyUserIdSourceHeader::User
     }
 }

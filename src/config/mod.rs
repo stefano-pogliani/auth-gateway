@@ -11,6 +11,7 @@ mod oauth2_proxy;
 
 pub use self::mongodb::MongoDBAuditConfig;
 pub use self::oauth2_proxy::OAuth2ProxyConfig;
+pub use self::oauth2_proxy::OAuth2ProxyUserIdSourceHeader;
 
 /// Supported audit record backends and their configuration options.
 #[derive(Clone, Debug, Deserialize, Serialize)]

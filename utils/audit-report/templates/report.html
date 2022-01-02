@@ -61,11 +61,11 @@
                 <!-- Any space (space or newline) between the bar spans causes gaps in it -->
                 <span class="allowed"
                   style="width: <%- allowed %>%;"
-                  title="<%- bucket.allowed %>"></span><span class="preauth_allowed"
+                  title="Allowed: <%- bucket.allowed %>"></span><span class="preauth_allowed"
                   style="width: <%- preauth_allowed %>%;"
-                  title="<%- bucket.preauth_allowed %>"></span><span class="denied"
+                  title="Allowed before authentication: <%- bucket.preauth_allowed %>"></span><span class="denied"
                   style="width: <%- denied %>%;"
-                  title="<%- bucket.denied %>"></span>
+                  title="Denied: <%- bucket.denied %>"></span>
               </td>
             </tr>
             <% }) %>

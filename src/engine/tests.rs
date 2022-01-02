@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-use actix_web::http::HeaderName;
-use actix_web::http::HeaderValue;
+use actix_web::http::header::HeaderName;
+use actix_web::http::header::HeaderValue;
 use actix_web::test::TestRequest;
 
 use super::RulesEngine;

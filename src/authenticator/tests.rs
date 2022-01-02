@@ -1,6 +1,6 @@
-use actix_web::http::HeaderMap;
-use actix_web::http::HeaderName;
-use actix_web::http::HeaderValue;
+use actix_web::http::header::HeaderMap;
+use actix_web::http::header::HeaderName;
+use actix_web::http::header::HeaderValue;
 use actix_web::HttpRequest;
 use anyhow::Result;
 
