@@ -34,7 +34,6 @@ fn extract_header(headers: &HeaderMap, header: &str) -> Option<String> {
     }
 }
 
-
 /// Attempt to extract the user email from response headers.
 fn extract_email(headers: &HeaderMap) -> Option<String> {
     extract_header(headers, USER_EMAIL_HEADER)

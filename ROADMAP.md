@@ -17,11 +17,11 @@ an issue on GitHub so we can discuss further.
 * Support for OAuth2Proxy cookie refresh (return Set-Cookie header from oauth2_proxy).
 
 ## Authorization features
-* Authorization phase to lookup groups (post authenticate; pre enrigh).
+* Authorization phase to lookup groups (post authenticate; pre enrich).
   * User ID key to lookup groups (list of strings).
   * Support different lookup backends but only one at a time.
   * Filter roles in enrich phase? (use case: limit groups to app they are for).
-  * Configurable concatentation method (with overrides in enrigh phase).
+  * Configurable concatenation method (with overrides in enrich phase).
 * Static roles lookup: all users get list of groups.
 * File roles lookup: YAML/JSON files indexed by user id.
 * LDAP roles lookup: memberOf attribute from user-driven LDAP search.
